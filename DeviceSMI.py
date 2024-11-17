@@ -4,8 +4,9 @@ import subprocess
 import psutil
 
 DEVICE_NAME = "Name"
-MEMORY_TOTAL = "Memory"
+MEMORY_TOTAL = "Memory-total"
 MEMORY_USED = "Memory-in-use"
+MEMORY_PROCESS = "Process memory"
 UTILIZATION = "Utilization"
 PCIE_BUS_ID = "PCIe Bus ID"
 PCIE_GEN = "PCIe Gen"
@@ -75,7 +76,8 @@ class DeviceSMI():
                 MANUFACTURE: "Generic" if psutil.MACOS else "Intel/AMD",
                 UTILIZATION: psutil.cpu_percent(interval=1),
                 MEMORY_USED: psutil.virtual_memory().percent,
-                MEMORY_TOTAL: psutil.virtual_memory().total  # Byte, / (1024 ** 3): GB
+                MEMORY_TOTAL: psutil.virtual_memory().total / (1024 ** 2),  # MB
+                MEMORY_PROCESS: psutil.Process().memory_info().rss / (1024 ** 2),  # MB
             }
             return cpu_info
         else:
