@@ -2,6 +2,7 @@ import os
 import subprocess
 
 import psutil
+import torch
 
 DEVICE_NAME = "Name"
 MEMORY_TOTAL = "Memory-total"
@@ -15,11 +16,22 @@ DRIVER_VERSION = "Driver Version"
 MANUFACTURE = "Manufacturer"
 
 
+class BaseInfo:
+    def __init__(self, name, model, manufacture, memory_total, memory_used, memory_process, utilization):
+        self.name = name
+        self.model = model
+        self.manufacture = manufacture
+        self.memory_total = memory_total
+        self.memory_used = memory_used
+        self.memory_process = memory_process
+        self.utilization = utilization
+
+
 class DeviceSMI():
-    def __init__(self, device):
+    def __init__(self, device: torch.device):
         self.device = device
 
-    def get_device_info(self):
+    def get_info(self):
         if self.device.type == 'cuda':
             try:
                 cudas = os.environ.get("CUDA_VISIBLE_DEVICES")
