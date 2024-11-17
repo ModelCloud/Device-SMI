@@ -3,7 +3,9 @@ import subprocess
 
 import torch
 
-from cpu import cpu_info
+from cpu import CPUDevice
+from device import Device
+from nvidia import NvidiaDevice
 
 DEVICE_NAME = "Name"
 MEMORY_TOTAL = "Memory-total"
@@ -20,60 +22,12 @@ MANUFACTURE = "Manufacturer"
 
 class DeviceSMI():
     def __init__(self, device: torch.device):
-        self.device = device
+        if device.type.lower() == 'cuda':
+            self.device = NvidiaDevice(device)
+        elif device.type.lower() == 'cpu':
+            self.device = CPUDevice(device)
+        else:
+            raise Exception(f"Device {device} is not supported")
 
     def info(self):
-        if self.device.type == 'cuda':
-            try:
-                cudas = os.environ.get("CUDA_VISIBLE_DEVICES")
-                if cudas and len(cudas) >= self.device.index:
-                    gpu_id = cudas[self.device.index]
-                else:
-                    gpu_id = self.device.index  # or raise Exception?
-
-                args = [
-                    'nvidia-smi',
-                    f'--id={gpu_id}',
-                    '--query-gpu='
-                    'name,'
-                    'memory.total,'
-                    'memory.used,'
-                    'utilization.gpu,'
-                    'pci.bus_id,'
-                    'pcie.link.gen.max,'
-                    'pcie.link.gen.current,'
-                    'driver_version',
-                    '--format=csv,noheader,nounits'
-                ]
-                print(f"command: {''.join(args).replace('--', ' --')}")
-                result = subprocess.run(
-                    args=args,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True
-                )
-
-                if result.returncode != 0:
-                    raise RuntimeError(result.stderr)
-
-                output = result.stdout.strip().split('\n')[0]
-                name, total_memory, used_memory, utilization, pci_bus_id, pcie_gen, pcie_width, driver_version = output.split(', ')
-
-                return {
-                    DEVICE_NAME: name,
-                    MEMORY_TOTAL: int(total_memory),
-                    MEMORY_USED: int(used_memory),
-                    UTILIZATION: int(utilization),
-                    PCIE_BUS_ID: pci_bus_id,
-                    PCIE_GEN: f"Gen{pcie_gen}",
-                    PCIE_LINK: f"x{pcie_width}",
-                    DRIVER_VERSION: driver_version,
-                }
-            except FileNotFoundError:
-                return {"Error": "nvidia-smi command not found. Ensure NVIDIA drivers are installed."}
-            except Exception as e:
-                return {"Error": str(e)}
-        elif self.device.type == 'cpu':
-            return cpu_info()
-        else:
-            return {"Error": "Device not supported or unavailable"}
+        return self.device.info()

@@ -2,7 +2,9 @@ import torch
 
 from DeviceSMI import DeviceSMI
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-smi = DeviceSMI(device)
-info = smi.get_device_info()
-print(info)
+for d in ["cuda:0", "cpu"]:
+    device = torch.device(d)
+    smi = DeviceSMI(device)
+    info = smi.info()
+    print(info.__dict__)
+
