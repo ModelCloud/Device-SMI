@@ -18,23 +18,25 @@ class DeviceSMI():
         self.device = device
 
     def get_device_info(self):
-        if self.device.type == 'cuda':  # TODO, get info by device
+        if self.device.type == 'cuda':
             try:
+                args = [
+                    'nvidia-smi',
+                    f'--id={self.device.index}',
+                    '--query-gpu='
+                    'name,'
+                    'memory.total,'
+                    'memory.used,'
+                    'utilization.gpu,'
+                    'pci.bus_id,'
+                    'pcie.link.gen.max,'
+                    'pcie.link.gen.current,'
+                    'driver_version',
+                    '--format=csv,noheader,nounits'
+                ]
+                print(f"command: {''.join(args).replace('--', ' --')}")
                 result = subprocess.run(
-                    [
-                        'nvidia-smi',
-                        f'--id={self.device.index}',
-                        '--query-gpu='
-                        'name,'
-                        'memory.total,'
-                        'memory.used,'
-                        'utilization.gpu,'
-                        'pci.bus_id,'
-                        'pcie.link.gen.max,'
-                        'pcie.link.gen.current,'
-                        'driver_version',
-                        '--format=csv,noheader,nounits'
-                    ],
+                    args=args,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True
