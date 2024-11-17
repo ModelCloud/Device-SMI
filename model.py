@@ -1,5 +1,13 @@
 class BaseInfo:
-    def __init__(self, name: str, model: str, manufacture: str, memory_total: int, memory_used: int, memory_process: int, utilization: float):
+    def __init__(self,
+                 name: str = "UNKNOWN",
+                 model: str = "UNKNOWN",
+                 manufacture: str = "UNKNOWN",
+                 memory_total: int = 0,
+                 memory_used: int = 0,
+                 memory_process: int = 0,
+                 utilization: float = 0.0,
+                 ):
         self.name = name
         self.model = model
         self.manufacture = manufacture
