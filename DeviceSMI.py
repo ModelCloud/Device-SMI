@@ -75,6 +75,7 @@ class DeviceSMI():
                 MANUFACTURE: "Generic" if psutil.MACOS else "Intel/AMD",
                 UTILIZATION: psutil.cpu_percent(interval=1),
                 MEMORY_USED: psutil.virtual_memory().percent,
+                MEMORY_TOTAL: psutil.virtual_memory().total  # Byte, / (1024 ** 3): GB
             }
             return cpu_info
         else:
