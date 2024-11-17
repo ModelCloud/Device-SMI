@@ -66,8 +66,3 @@ def cpu_info():
                     memory_used=memory_used,  # Bytes
                     memory_process=memory_current_process,  # Bytes
                     utilization=utilization,)
-
-
-if __name__ == "__main__":
-    cpu = cpu()
-    print(cpu.__dict__)
