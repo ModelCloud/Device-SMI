@@ -21,12 +21,25 @@ class DeviceSMI():
         if self.device.type == 'cuda':  # TODO, get info by device
             try:
                 result = subprocess.run(
-                    ['nvidia-smi', f'--id={self.device.index}', '--query-gpu=name,memory.total,memory.used,utilization.gpu,pci.bus_id,pcie.link.gen.max,pcie.link.gen.current,driver_version',
-                     '--format=csv,noheader,nounits'],
+                    [
+                        'nvidia-smi',
+                        f'--id={self.device.index}',
+                        '--query-gpu='
+                        'name,'
+                        'memory.total,'
+                        'memory.used,'
+                        'utilization.gpu,'
+                        'pci.bus_id,'
+                        'pcie.link.gen.max,'
+                        'pcie.link.gen.current,'
+                        'driver_version',
+                        '--format=csv,noheader,nounits'
+                    ],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True
                 )
+
                 if result.returncode != 0:
                     raise RuntimeError(result.stderr)
 
