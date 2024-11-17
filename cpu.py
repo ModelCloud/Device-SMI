@@ -66,7 +66,7 @@ class CPUDevice(Device):
                     memory_current_process = int(line.split()[1]) * 1024
                     break
 
-        return BaseInfo(name="CPU",
+        return CPUInfo(name="CPU",
                         model=model,
                         manufacture=manufacturer,
                         memory_total=memory_total,  # Bytes
