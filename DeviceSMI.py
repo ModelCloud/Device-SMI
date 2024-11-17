@@ -17,7 +17,7 @@ MANUFACTURE = "Manufacturer"
 
 
 class BaseInfo:
-    def __init__(self, name, model, manufacture, memory_total, memory_used, memory_process, utilization):
+    def __init__(self, name: str, model: str, manufacture: str, memory_total: int, memory_used: int, memory_process: int, utilization: int):
         self.name = name
         self.model = model
         self.manufacture = manufacture
@@ -88,8 +88,8 @@ class DeviceSMI():
                 MANUFACTURE: "Generic" if psutil.MACOS else "Intel/AMD",
                 UTILIZATION: psutil.cpu_percent(interval=1),
                 MEMORY_USED: psutil.virtual_memory().percent,
-                MEMORY_TOTAL: psutil.virtual_memory().total / (1024 ** 2),  # MB
-                MEMORY_PROCESS: psutil.Process().memory_info().rss / (1024 ** 2),  # MB
+                MEMORY_TOTAL: psutil.virtual_memory().total,
+                MEMORY_PROCESS: psutil.Process().memory_info().rss,
             }
             return cpu_info
         else:
