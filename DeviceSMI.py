@@ -1,8 +1,9 @@
 import os
 import subprocess
 
-import psutil
 import torch
+
+from cpu import cpu_info
 
 DEVICE_NAME = "Name"
 MEMORY_TOTAL = "Memory-total"
@@ -16,22 +17,12 @@ DRIVER_VERSION = "Driver Version"
 MANUFACTURE = "Manufacturer"
 
 
-class BaseInfo:
-    def __init__(self, name: str, model: str, manufacture: str, memory_total: int, memory_used: int, memory_process: int, utilization: int):
-        self.name = name
-        self.model = model
-        self.manufacture = manufacture
-        self.memory_total = memory_total
-        self.memory_used = memory_used
-        self.memory_process = memory_process
-        self.utilization = utilization
-
 
 class DeviceSMI():
     def __init__(self, device: torch.device):
         self.device = device
 
-    def get_info(self):
+    def info(self):
         if self.device.type == 'cuda':
             try:
                 cudas = os.environ.get("CUDA_VISIBLE_DEVICES")
@@ -83,14 +74,6 @@ class DeviceSMI():
             except Exception as e:
                 return {"Error": str(e)}
         elif self.device.type == 'cpu':
-            cpu_info = {
-                DEVICE_NAME: "CPU",
-                MANUFACTURE: "Generic" if psutil.MACOS else "Intel/AMD",
-                UTILIZATION: psutil.cpu_percent(interval=1),
-                MEMORY_USED: psutil.virtual_memory().percent,
-                MEMORY_TOTAL: psutil.virtual_memory().total,
-                MEMORY_PROCESS: psutil.Process().memory_info().rss,
-            }
-            return cpu_info
+            return cpu_info()
         else:
             return {"Error": "Device not supported or unavailable"}
