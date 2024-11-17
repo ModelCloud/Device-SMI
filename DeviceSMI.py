@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 import psutil
@@ -20,9 +21,15 @@ class DeviceSMI():
     def get_device_info(self):
         if self.device.type == 'cuda':
             try:
+                cudas = os.environ.get("CUDA_VISIBLE_DEVICES")
+                if cudas and len(cudas) >= self.device.index:
+                    gpu_id = cudas[self.device.index]
+                else:
+                    gpu_id = self.device.index  # or raise Exception?
+
                 args = [
                     'nvidia-smi',
-                    f'--id={self.device.index}',
+                    f'--id={gpu_id}',
                     '--query-gpu='
                     'name,'
                     'memory.total,'
