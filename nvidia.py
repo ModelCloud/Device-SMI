@@ -6,7 +6,7 @@ from model import BaseInfo
 
 
 class NvidiaGPU(BaseInfo):
-    pass # TODO, add PCIE & DRIVER
+    pass  # TODO, add PCIE & DRIVER
 
 
 class NvidiaDevice(Device):
@@ -54,8 +54,8 @@ class NvidiaDevice(Device):
             return NvidiaGPU(type="GPU",
                              model=model,
                              manufacture="NVIDIA",
-                             memory_total=int(total_memory),  # Bytes
-                             memory_used=int(used_memory),  # Bytes
+                             memory_total=int(total_memory) * 1024 * 1024,  # Bytes
+                             memory_used=int(used_memory) * 1024 * 1024,  # Bytes
                              memory_process=0,  # Bytes, TODO, get this
                              utilization=float(utilization), )
 
