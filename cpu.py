@@ -27,7 +27,7 @@ class CPUDevice(Device):
             model = platform.processor()
             manufacturer = platform.uname().system
 
-        def get_cpu_utilization():
+        def cpu_utilization():
             with open('/proc/stat', 'r') as f:
                 lines = f.readlines()
                 for line in lines:
@@ -37,9 +37,8 @@ class CPUDevice(Device):
                         idle_time = int(parts[4])
                         return total_time, idle_time
 
-        total_time_1, idle_time_1 = get_cpu_utilization()
-        time.sleep(1)
-        total_time_2, idle_time_2 = get_cpu_utilization()
+        total_time_1, idle_time_1 = cpu_utilization()
+        total_time_2, idle_time_2 = cpu_utilization()
 
         total_diff = total_time_2 - total_time_1
         idle_diff = idle_time_2 - idle_time_1
@@ -66,7 +65,7 @@ class CPUDevice(Device):
                     memory_current_process = int(line.split()[1]) * 1024
                     break
 
-        return CPUInfo(name="CPU",
+        return CPUInfo(type="CPU",
                         model=model,
                         manufacture=manufacturer,
                         memory_total=memory_total,  # Bytes
