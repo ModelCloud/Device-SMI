@@ -1,3 +1,5 @@
+import re
+
 from .cpu import CPUDevice
 from .nvidia import NvidiaDevice
 
@@ -11,7 +13,7 @@ class Device():
         except:
             device_type = f'{device}'.lower()
             device_index = 0
-        if device_type == 'cuda' or device_type == 'gpu':
+        if device_type == 'cuda' or device_type == 'gpu' or re.match(r"(gpu|cuda):\d+", device_type):
             self.device = NvidiaDevice(device_index)
         elif device_type == 'cpu':
             self.device = CPUDevice(device_index)
