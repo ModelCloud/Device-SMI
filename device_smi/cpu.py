@@ -6,7 +6,8 @@ from .base import BaseDevice, BaseInfo
 
 
 class CPUInfo(BaseInfo):
-    pass # TODO extend for cpu
+    pass  # TODO extend for cpu
+
 
 class CPUDevice(BaseDevice):
     def __init__(self, index: int = 0):
@@ -86,7 +87,6 @@ class CPUDevice(BaseDevice):
             else:
                 utilization = (1 - (idle_diff / total_diff)) * 100
 
-
         if platform.system() == 'Darwin':
             mem_total = int(subprocess.check_output(['sysctl', '-n', 'hw.memsize']))
 
@@ -128,16 +128,15 @@ class CPUDevice(BaseDevice):
                         memory_current_process = int(line.split()[1]) * 1024
                         break
 
-
         if 'intel' in vendor.lower():
             vendor = 'Intel'
         elif 'amd' in vendor.lower():
             vendor = 'AMD'
 
         return CPUInfo(type="cpu",
-                        model=model,
-                        vendor=vendor,
-                        memory_total=memory_total,  # Bytes
-                        memory_used=memory_used,  # Bytes
-                        memory_process=memory_current_process,  # Bytes
-                        utilization=utilization,)
+                       model=model,
+                       vendor=vendor,
+                       memory_total=memory_total,  # Bytes
+                       memory_used=memory_used,  # Bytes
+                       memory_process=memory_current_process,  # Bytes
+                       utilization=utilization, )

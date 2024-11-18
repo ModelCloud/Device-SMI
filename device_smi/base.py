@@ -1,5 +1,6 @@
 from abc import abstractmethod
 
+
 class BaseDevice():
     def __init__(self, index: int = 0):
         self.index = index
@@ -7,6 +8,7 @@ class BaseDevice():
     @abstractmethod
     def info(self):
         pass
+
 
 class BaseInfo:
     def __init__(self,
