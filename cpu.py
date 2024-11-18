@@ -24,8 +24,10 @@ class CPUDevice(Device):
                 for line in output.splitlines():
                     if line.startswith('CPU usage'):
                         parts = line.split()
-                        total_time = float(parts[2].strip('%'))
-                        idle_time = float(parts[4].strip('%'))
+                        user_time = float(parts[2].strip('%'))
+                        sys_time = float(parts[4].strip('%'))
+                        idle_time = float(parts[6].strip('%'))
+                        total_time = user_time + sys_time + idle_time
                         return total_time, idle_time
             else:
                 with open('/proc/stat', 'r') as f:
@@ -62,7 +64,7 @@ class CPUDevice(Device):
                         vendor = line.split(':')[1].strip()
         except FileNotFoundError:
             if platform.system() == "Darwin":
-                model = subprocess.check_output(['sysctl', '-n', 'machdep.cpu.brand_string']).decode().strip()
+                model = subprocess.check_output(['sysctl', '-n', 'machdep.cpu.brand_string']).decode().replace("Apple", "").strip()
                 try:
                     vendor = subprocess.check_output(['sysctl', '-n', 'machdep.cpu.vendor']).decode().strip()
                 except subprocess.CalledProcessError:
@@ -80,7 +82,10 @@ class CPUDevice(Device):
         if total_diff == 0:
             utilization = 0
         else:
-            utilization = (1 - (idle_diff / total_diff)) * 100
+            if platform.system() == "Darwin":
+                utilization = idle_time_2 - idle_time_1
+            else:
+                utilization = (1 - (idle_diff / total_diff)) * 100
 
 
         if platform.system() == 'Darwin':
