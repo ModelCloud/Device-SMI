@@ -1,15 +1,14 @@
 import os
 import subprocess
 
-from .device import Device
-from .model import BaseInfo
+from .base import BaseDevice, BaseInfo
 
 
 class NvidiaGPU(BaseInfo):
     pass  # TODO, add PCIE & DRIVER
 
 
-class NvidiaDevice(Device):
+class NvidiaDevice(BaseDevice):
     def __init__(self, index: int = 0):
         super().__init__(index)
 

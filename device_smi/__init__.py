@@ -1,1 +1,1 @@
-from .DeviceSMI import DeviceSMI
+from .Device import Device
