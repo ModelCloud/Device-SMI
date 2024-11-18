@@ -33,6 +33,17 @@ class CPUDevice(Device):
                 for line in lines:
                     if line.startswith('model name'):
                         model = line.split(':')[1].strip()
+
+                        if "amd" in model.lower():
+                            if "epyc" in model.lower():
+                                split = model.split(" ")
+                                model = " ".join(split[1:3])
+                            elif "ryzen" in model.lower():
+                                split = model.split(" ")
+                                model = " ".join(split[1:4])
+                        elif "intel" in model.lower():
+                            model = model.split(" ")[-1]
+
                     elif line.startswith('vendor_id'):
                         manufacturer = line.split(':')[1].strip()
         except FileNotFoundError:
@@ -44,7 +55,12 @@ class CPUDevice(Device):
 
         total_diff = total_time_2 - total_time_1
         idle_diff = idle_time_2 - idle_time_1
-        utilization = (1 - (idle_diff / total_diff)) * 100
+        # total_diff might be 0
+        if total_diff == 0:
+            utilization = 0
+        else:
+            utilization = (1 - (idle_diff / total_diff)) * 100
+
 
         with open('/proc/meminfo', 'r') as f:
             lines = f.readlines()
