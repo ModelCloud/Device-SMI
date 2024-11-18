@@ -11,17 +11,21 @@ except:
     HAS_TORCH = False
 
 
-class Device():
+class Device:
     def __init__(self, device):
         if HAS_TORCH and isinstance(device, torch.device):
             device_type = device.type.lower()
             device_index = device.index
         else:
-            device_type = f'{device}'.lower()
+            device_type = f"{device}".lower()
             device_index = 0
-        if device_type == 'cuda' or device_type == 'gpu' or re.match(r"(gpu|cuda):\d+", device_type):
+        if (
+            device_type == "cuda"
+            or device_type == "gpu"
+            or re.match(r"(gpu|cuda):\d+", device_type)
+        ):
             self.device = NvidiaDevice(device_index)
-        elif device_type == 'cpu':
+        elif device_type == "cpu":
             self.device = CPUDevice(device_index)
         else:
             raise Exception(f"Device {device_type} is not supported")

@@ -7,8 +7,10 @@ from .base import BaseDevice, BaseInfo, BaseMetrics
 class NvidiaGPU(BaseInfo):
     pass  # TODO, add PCIE & DRIVER
 
+
 class NvidiaGPUMetrics(BaseMetrics):
     pass
+
 
 class NvidiaDevice(BaseDevice):
     def __init__(self, index: int = 0):
@@ -27,30 +29,29 @@ class NvidiaDevice(BaseDevice):
     def info(self) -> NvidiaGPU:
         try:
             args = [
-                'nvidia-smi',
-                f'--id={self.gpu_id}',
-                '--query-gpu='
-                'name,'
-                'memory.total,'
-                'pci.bus_id,'
-                'pcie.link.gen.max,'
-                'pcie.link.gen.current,'
-                'driver_version',
-                '--format=csv,noheader,nounits'
+                "nvidia-smi",
+                f"--id={self.gpu_id}",
+                "--query-gpu="
+                "name,"
+                "memory.total,"
+                "pci.bus_id,"
+                "pcie.link.gen.max,"
+                "pcie.link.gen.current,"
+                "driver_version",
+                "--format=csv,noheader,nounits",
             ]
 
             result = subprocess.run(
-                args=args,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
+                args=args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
             )
 
             if result.returncode != 0:
                 raise RuntimeError(result.stderr)
 
-            output = result.stdout.strip().split('\n')[0]
-            model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver_version = output.split(', ')
+            output = result.stdout.strip().split("\n")[0]
+            model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver_version = (
+                output.split(", ")
+            )
 
             if model.lower().startswith("nvidia"):
                 model = model[len("nvidia"):]
@@ -69,34 +70,31 @@ class NvidiaDevice(BaseDevice):
     def metrics(self):
         try:
             args = [
-                'nvidia-smi',
-                f'--id={self.gpu_id}',
-                '--query-gpu='
-                'memory.used,'
-                'utilization.gpu,',
-                '--format=csv,noheader,nounits'
+                "nvidia-smi",
+                f"--id={self.gpu_id}",
+                "--query-gpu=" "memory.used," "utilization.gpu,",
+                "--format=csv,noheader,nounits",
             ]
 
             result = subprocess.run(
-                args=args,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
+                args=args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
             )
 
             if result.returncode != 0:
                 raise RuntimeError(result.stderr)
 
-            output = result.stdout.strip().split('\n')[0]
-            used_memory, utilization = output.split(', ')
+            output = result.stdout.strip().split("\n")[0]
+            used_memory, utilization = output.split(", ")
 
             return NvidiaGPUMetrics(
-                memory_used=int(used_memory) * 1024 * 1024, #bytes
+                memory_used=int(used_memory) * 1024 * 1024,  # bytes
                 memory_process=0,  # Bytes, TODO, get this
                 utilization=float(utilization),
             )
 
         except FileNotFoundError:
-            raise FileNotFoundError(error_msg="nvidia-smi command not found. Ensure NVIDIA drivers are installed.")
+            raise FileNotFoundError(
+                error_msg="nvidia-smi command not found. Ensure NVIDIA drivers are installed."
+            )
         except Exception as e:
             raise e
