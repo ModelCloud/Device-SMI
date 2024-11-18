@@ -67,6 +67,11 @@ class CPUDevice(Device):
                     memory_current_process = int(line.split()[1]) * 1024
                     break
 
+        if 'intel' in manufacturer.lower():
+            manufacturer = 'Intel'
+        elif 'amd' in manufacturer.lower():
+            manufacturer = 'AMD'
+
         return CPUInfo(type="CPU",
                         model=model,
                         manufacture=manufacturer,
