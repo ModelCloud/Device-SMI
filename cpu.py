@@ -135,7 +135,7 @@ class CPUDevice(Device):
         elif 'amd' in vendor.lower():
             vendor = 'AMD'
 
-        return CPUInfo(type="CPU",
+        return CPUInfo(type="cpu",
                         model=model,
                         vendor=vendor,
                         memory_total=memory_total,  # Bytes

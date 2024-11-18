@@ -7,7 +7,6 @@ class BaseInfo:
                  memory_used: int = 0,
                  memory_process: int = 0,
                  utilization: float = 0.0,
-                 error_msg: str = "",
                  ):
         self.type = type
         self.model = model
@@ -16,4 +15,3 @@ class BaseInfo:
         self.memory_used = memory_used
         self.memory_process = memory_process
         self.utilization = utilization
-        self.error_msg = error_msg

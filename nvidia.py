@@ -54,7 +54,7 @@ class NvidiaDevice(Device):
             if model.lower().startswith("nvidia"):
                 model = model[len("nvidia"):]
 
-            return NvidiaGPU(type="GPU",
+            return NvidiaGPU(type="gpu",
                              model=model.strip(),
                              vendor="NVIDIA",
                              memory_total=int(total_memory) * 1024 * 1024,  # Bytes
@@ -63,6 +63,6 @@ class NvidiaDevice(Device):
                              utilization=float(utilization), )
 
         except FileNotFoundError:
-            return NvidiaGPU(error_msg="nvidia-smi command not found. Ensure NVIDIA drivers are installed.")
+            raise FileNotFoundError(error_msg="nvidia-smi command not found. Ensure NVIDIA drivers are installed.")
         except Exception as e:
-            return NvidiaGPU(error_msg=str(e))
+            raise e
