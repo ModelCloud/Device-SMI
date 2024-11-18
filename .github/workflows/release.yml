@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      upload_pypi:
+        description: 'upload to PyPI'
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+          cache: 'pip'
+
+      - name: Build package
+        run: |
+          pip install build setuptools -U
+          python -m build --sdist
+
+      - name: Upload sdist to pypi
+        if: (github.event_name == 'release' || github.event.inputs.upload_pypi == 'true') && !cancelled()
+        env:
+          TWINE_USERNAME: "__token__"
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          python -m twine upload dist/*gz
