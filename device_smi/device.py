@@ -1,3 +1,5 @@
+import re
+
 from .cpu import CPUDevice
 from .nvidia import NvidiaDevice
 
@@ -17,7 +19,7 @@ class Device():
         else:
             device_type = f'{device}'.lower()
             device_index = 0
-        if device_type == 'cuda' or device_type == 'gpu':
+        if device_type == 'cuda' or device_type == 'gpu' or re.match(r"(gpu|cuda):\d+", device_type):
             self.device = NvidiaDevice(device_index)
         elif device_type == 'cpu':
             self.device = CPUDevice(device_index)
@@ -25,13 +27,13 @@ class Device():
             raise Exception(f"Device {device_type} is not supported")
 
     def info(self):
-        return self.device.info()
+        return self.device._info
 
     def memory_total(self):
-        return self.device.info().memory_total
+        return self.info().memory_total
 
     def memory_used(self):
-        return self.device.info().memory_used
+        return self.device.metrics().memory_used
 
     def utilization(self):
-        return self.device.info().utilization
+        return self.device.metrics().utilization
