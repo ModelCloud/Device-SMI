@@ -1,14 +1,20 @@
 from .cpu import CPUDevice
 from .nvidia import NvidiaDevice
 
+try:
+    import torch
+
+    HAS_TORCH = True
+except:
+    HAS_TORCH = False
+
 
 class Device():
     def __init__(self, device):
-        try:
-            import torch
+        if HAS_TORCH and isinstance(device, torch.device):
             device_type = device.type.lower()
             device_index = device.index
-        except:
+        else:
             device_type = f'{device}'.lower()
             device_index = 0
         if device_type == 'cuda' or device_type == 'gpu':
