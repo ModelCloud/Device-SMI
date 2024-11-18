@@ -1,5 +1,6 @@
 import os
 import platform
+import subprocess
 
 from device import Device
 from model import BaseInfo
@@ -14,14 +15,27 @@ class CPUDevice(Device):
 
     def info(self) -> CPUInfo:
         def cpu_utilization():
-            with open('/proc/stat', 'r') as f:
-                lines = f.readlines()
-                for line in lines:
-                    if line.startswith('cpu '):
+            # check if is macos
+            if platform.system() == 'Darwin':
+                    result = subprocess.run(['top', '-l', '1', '-stats', 'cpu'], stdout=subprocess.PIPE)
+                    output = result.stdout.decode('utf-8')
+
+                # CPU usage: 7.61% user, 15.23% sys, 77.15% idle
+                for line in output.splitlines():
+                    if line.startswith('CPU usage'):
                         parts = line.split()
-                        total_time = sum(int(part) for part in parts[1:])
-                        idle_time = int(parts[4])
+                        total_time = float(parts[2].strip('%'))
+                        idle_time = float(parts[4].strip('%'))
                         return total_time, idle_time
+            else:
+                with open('/proc/stat', 'r') as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        if line.startswith('cpu '):
+                            parts = line.split()
+                            total_time = sum(int(part) for part in parts[1:])
+                            idle_time = int(parts[4])
+                            return total_time, idle_time
 
         total_time_1, idle_time_1 = cpu_utilization()
 
@@ -62,26 +76,47 @@ class CPUDevice(Device):
             utilization = (1 - (idle_diff / total_diff)) * 100
 
 
-        with open('/proc/meminfo', 'r') as f:
-            lines = f.readlines()
-            mem_total = mem_free = 0
-            for line in lines:
-                if line.startswith('MemTotal:'):
-                    mem_total = int(line.split()[1]) * 1024
-                elif line.startswith('MemAvailable:'):
-                    mem_free = int(line.split()[1]) * 1024
+        if platform.system() == 'Darwin':
+            mem_total = int(subprocess.check_output(['sysctl', '-n', 'hw.memsize']))
+
+            available_mem = subprocess.check_output(['vm_stat'])
+            available_mem = available_mem.decode().splitlines()
+
+            free_pages = 0
+            for line in available_mem:
+                if "Pages free" in line:
+                    free_pages = int(line.split(":")[1].strip().replace(".", ""))
                     break
+
+            mem_free = free_pages * 16384
+
+        else:
+            with open('/proc/meminfo', 'r') as f:
+                lines = f.readlines()
+                mem_total = mem_free = 0
+                for line in lines:
+                    if line.startswith('MemTotal:'):
+                        mem_total = int(line.split()[1]) * 1024
+                    elif line.startswith('MemAvailable:'):
+                        mem_free = int(line.split()[1]) * 1024
+                        break
+
         memory_total = mem_total
         memory_used = memory_total - mem_free
 
         process_id = os.getpid()
-        with open(f'/proc/{process_id}/status', 'r') as f:
-            lines = f.readlines()
-            memory_current_process = 0
-            for line in lines:
-                if line.startswith('VmRSS:'):
-                    memory_current_process = int(line.split()[1]) * 1024
-                    break
+        if platform.system() == 'Darwin':
+            result = subprocess.run(['ps', '-p', str(process_id), '-o', 'rss='], stdout=subprocess.PIPE)
+            memory_current_process = int(result.stdout.decode().strip()) * 1024
+        else:
+            with open(f'/proc/{process_id}/status', 'r') as f:
+                lines = f.readlines()
+                memory_current_process = 0
+                for line in lines:
+                    if line.startswith('VmRSS:'):
+                        memory_current_process = int(line.split()[1]) * 1024
+                        break
+
 
         if 'intel' in manufacturer.lower():
             manufacturer = 'Intel'
