@@ -22,10 +22,13 @@ jobs:
           python-version: 3.11
           cache: 'pip'
 
+      - name: Install requirements
+        run: pip install build setuptools twine -U
+
       - name: Build package
         run: |
-          pip install build setuptools -U
           python -m build --sdist
+          twine check dist/*
 
       - name: Upload sdist to pypi
         if: (github.event_name == 'release' || github.event.inputs.upload_pypi == 'true') && !cancelled()
