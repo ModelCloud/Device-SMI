@@ -1,6 +1,6 @@
 import torch
 
-from DeviceSMI import DeviceSMI
+from device_smi import DeviceSMI
 
 for d in ["cuda:0", "cpu"]:
     device = torch.device(d)

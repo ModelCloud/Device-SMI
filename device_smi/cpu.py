@@ -2,8 +2,8 @@ import os
 import platform
 import subprocess
 
-from device import Device
-from model import BaseInfo
+from .device import Device
+from .model import BaseInfo
 
 
 class CPUInfo(BaseInfo):

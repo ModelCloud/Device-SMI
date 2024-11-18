@@ -1,5 +1,5 @@
-from cpu import CPUDevice
-from nvidia import NvidiaDevice
+from .cpu import CPUDevice
+from .nvidia import NvidiaDevice
 
 
 class DeviceSMI():

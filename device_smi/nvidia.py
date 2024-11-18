@@ -1,8 +1,8 @@
 import os
 import subprocess
 
-from device import Device
-from model import BaseInfo
+from .device import Device
+from .model import BaseInfo
 
 
 class NvidiaGPU(BaseInfo):
