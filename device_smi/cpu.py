@@ -18,7 +18,7 @@ class CPUDevice(BaseDevice):
         super().__init__(index)
         self._info = self.info()
 
-    def _cpu_utilization(self):
+    def _utilization(self):
         # check if is macOS
         if platform.system() == "Darwin":
             result = subprocess.run(
@@ -116,9 +116,9 @@ class CPUDevice(BaseDevice):
         )
 
     def metrics(self):
-        total_time_1, idle_time_1 = self._cpu_utilization()
+        total_time_1, idle_time_1 = self._utilization()
         # read CPU status second time here, read too quickly will get inaccurate results
-        total_time_2, idle_time_2 = self._cpu_utilization()
+        total_time_2, idle_time_2 = self._utilization()
 
         total_diff = total_time_2 - total_time_1
         idle_diff = idle_time_2 - idle_time_1
