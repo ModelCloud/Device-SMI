@@ -17,8 +17,8 @@ class CPUDevice(Device):
         def cpu_utilization():
             # check if is macos
             if platform.system() == 'Darwin':
-                    result = subprocess.run(['top', '-l', '1', '-stats', 'cpu'], stdout=subprocess.PIPE)
-                    output = result.stdout.decode('utf-8')
+                result = subprocess.run(['top', '-l', '1', '-stats', 'cpu'], stdout=subprocess.PIPE)
+                output = result.stdout.decode('utf-8')
 
                 # CPU usage: 7.61% user, 15.23% sys, 77.15% idle
                 for line in output.splitlines():
@@ -61,8 +61,15 @@ class CPUDevice(Device):
                     elif line.startswith('vendor_id'):
                         vendor = line.split(':')[1].strip()
         except FileNotFoundError:
-            model = platform.processor()
-            vendor = platform.uname().system
+            if platform.system() == "Darwin":
+                model = subprocess.check_output(['sysctl', '-n', 'machdep.cpu.brand_string']).decode().strip()
+                try:
+                    vendor = subprocess.check_output(['sysctl', '-n', 'machdep.cpu.vendor']).decode().strip()
+                except subprocess.CalledProcessError:
+                    vendor = "Apple"
+            else:
+                model = platform.processor()
+                vendor = platform.uname().system
 
         # read CPU status second time here, read too quickly will get inaccurate results
         total_time_2, idle_time_2 = cpu_utilization()
