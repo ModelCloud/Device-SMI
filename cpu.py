@@ -40,7 +40,7 @@ class CPUDevice(Device):
         total_time_1, idle_time_1 = cpu_utilization()
 
         model = "Unknown Model"
-        manufacturer = "Unknown Manufacturer"
+        vendor = "Unknown vendor"
         try:
             with open('/proc/cpuinfo', 'r') as f:
                 lines = f.readlines()
@@ -59,10 +59,10 @@ class CPUDevice(Device):
                             model = model.split(" ")[-1]
 
                     elif line.startswith('vendor_id'):
-                        manufacturer = line.split(':')[1].strip()
+                        vendor = line.split(':')[1].strip()
         except FileNotFoundError:
             model = platform.processor()
-            manufacturer = platform.uname().system
+            vendor = platform.uname().system
 
         # read CPU status second time here, read too quickly will get inaccurate results
         total_time_2, idle_time_2 = cpu_utilization()
@@ -118,14 +118,14 @@ class CPUDevice(Device):
                         break
 
 
-        if 'intel' in manufacturer.lower():
-            manufacturer = 'Intel'
-        elif 'amd' in manufacturer.lower():
-            manufacturer = 'AMD'
+        if 'intel' in vendor.lower():
+            vendor = 'Intel'
+        elif 'amd' in vendor.lower():
+            vendor = 'AMD'
 
         return CPUInfo(type="CPU",
                         model=model,
-                        manufacture=manufacturer,
+                        vendor=vendor,
                         memory_total=memory_total,  # Bytes
                         memory_used=memory_used,  # Bytes
                         memory_process=memory_current_process,  # Bytes
