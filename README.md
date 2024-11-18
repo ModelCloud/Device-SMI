@@ -1,18 +1,14 @@
 # Device-SMI
 
-**Device-SMI** is a Python module designed to retrieve system information about devices, including CPUs and NVIDIA CUDA-enabled GPUs.
+Python lib with zero-dependencies and will get you a unified `device.info` properties for `gpu`, `cpu`, and `npu`. No more calling separate tools such as `nvidia-smi` or `/proc/cpuinfo` and parsing it yourself.  
 
-The module fetches:
-- **NVIDIA GPU information** using the NVIDIA System Management Interface (NVIDIA-SMI).
-- **CPU information** via system interfaces.
-
-Future updates will include support for additional device types.
+Device data sources:
+- **CPU**: Linux system interface
+- **NVIDIA GPU**: NVIDIA System Management Interface (NVIDIA-SMI).
+- **AMD GPU**: (PENDING)
+- **Intel GPU**: (PENDING)
 
 ## Features
 
-- Retrieve information for both CPU and NVIDIA CUDA devices.
-- Includes details about memory usage, utilization, and model specifications.
-
-
-
-[WIP] Python lib with zero-dependencies and will get you a unified `device.info` properties for `gpu`, `cpu`, and `npu`. No more calling separate tools such as `nvidia-smi` or `/proc/cpuinfo` and parsing it yourself.  
+- Retrieve information for both CPU and GPU devices.
+- Includes details about memory usage, utilization, driver, pcie info when applicable, and other device specifications.
