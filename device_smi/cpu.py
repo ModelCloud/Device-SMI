@@ -2,14 +2,13 @@ import os
 import platform
 import subprocess
 
-from device import Device
-from model import BaseInfo
+from .base import BaseDevice, BaseInfo
 
 
 class CPUInfo(BaseInfo):
     pass # TODO extend for cpu
 
-class CPUDevice(Device):
+class CPUDevice(BaseDevice):
     def __init__(self, index: int = 0):
         super().__init__(index)
 

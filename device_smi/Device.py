@@ -1,8 +1,8 @@
-from cpu import CPUDevice
-from nvidia import NvidiaDevice
+from .cpu import CPUDevice
+from .nvidia import NvidiaDevice
 
 
-class DeviceSMI():
+class Device():
     def __init__(self, device):
         try:
             import torch
@@ -20,3 +20,12 @@ class DeviceSMI():
 
     def info(self):
         return self.device.info()
+
+    def memory_total(self):
+        return self.device.info().memory_total
+
+    def memory_used(self):
+        return self.device.info().memory_used
+
+    def utilization(self):
+        return self.device.info().utilization
