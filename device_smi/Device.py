@@ -17,15 +17,19 @@ class Device():
             self.device = CPUDevice(device_index)
         else:
             raise Exception(f"Device {device_type} is not supported")
+        self.info = self._info()
 
-    def info(self):
+    def _info(self):
         return self.device.info()
 
+    def info(self):
+        return self.info
+
     def memory_total(self):
-        return self.device.info().memory_total
+        return self.info.memory_total
 
     def memory_used(self):
-        return self.device.info().memory_used
+        return self.device.metrics().memory_used
 
     def utilization(self):
-        return self.device.info().utilization
+        return self.device.metrics().utilization
