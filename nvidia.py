@@ -37,7 +37,7 @@ class NvidiaDevice(Device):
                 'driver_version',
                 '--format=csv,noheader,nounits'
             ]
-            print(f"command: {''.join(args).replace('--', ' --')}")
+
             result = subprocess.run(
                 args=args,
                 stdout=subprocess.PIPE,
