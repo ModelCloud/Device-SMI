@@ -51,8 +51,11 @@ class NvidiaDevice(Device):
             output = result.stdout.strip().split('\n')[0]
             model, total_memory, used_memory, utilization, pci_bus_id, pcie_gen, pcie_width, driver_version = output.split(', ')
 
+            if model.lower().startswith("nvidia"):
+                model = model[len("nvidia"):]
+
             return NvidiaGPU(type="GPU",
-                             model=model,
+                             model=model.strip(),
                              manufacture="NVIDIA",
                              memory_total=int(total_memory) * 1024 * 1024,  # Bytes
                              memory_used=int(used_memory) * 1024 * 1024,  # Bytes
