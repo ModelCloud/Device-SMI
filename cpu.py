@@ -13,6 +13,18 @@ class CPUDevice(Device):
         super().__init__(device)
 
     def info(self) -> CPUInfo:
+        def cpu_utilization():
+            with open('/proc/stat', 'r') as f:
+                lines = f.readlines()
+                for line in lines:
+                    if line.startswith('cpu '):
+                        parts = line.split()
+                        total_time = sum(int(part) for part in parts[1:])
+                        idle_time = int(parts[4])
+                        return total_time, idle_time
+
+        total_time_1, idle_time_1 = cpu_utilization()
+
         model = "Unknown Model"
         manufacturer = "Unknown Manufacturer"
         try:
@@ -27,17 +39,7 @@ class CPUDevice(Device):
             model = platform.processor()
             manufacturer = platform.uname().system
 
-        def cpu_utilization():
-            with open('/proc/stat', 'r') as f:
-                lines = f.readlines()
-                for line in lines:
-                    if line.startswith('cpu '):
-                        parts = line.split()
-                        total_time = sum(int(part) for part in parts[1:])
-                        idle_time = int(parts[4])
-                        return total_time, idle_time
-
-        total_time_1, idle_time_1 = cpu_utilization()
+        # read CPU status second time here, read too quickly will get inaccurate results
         total_time_2, idle_time_2 = cpu_utilization()
 
         total_diff = total_time_2 - total_time_1
