@@ -31,6 +31,6 @@ jobs:
         if: (github.event_name == 'release' || github.event.inputs.upload_pypi == 'true') && !cancelled()
         env:
           TWINE_USERNAME: "__token__"
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_KEY }}
         run: |
           python -m twine upload dist/*gz
