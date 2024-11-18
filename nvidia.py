@@ -10,8 +10,8 @@ class NvidiaGPU(BaseInfo):
 
 
 class NvidiaDevice(Device):
-    def __init__(self, device):
-        super().__init__(device)
+    def __init__(self, index: int = 0):
+        super().__init__(index)
 
     def info(self) -> NvidiaGPU:
         try:
@@ -49,10 +49,10 @@ class NvidiaDevice(Device):
                 raise RuntimeError(result.stderr)
 
             output = result.stdout.strip().split('\n')[0]
-            name, total_memory, used_memory, utilization, pci_bus_id, pcie_gen, pcie_width, driver_version = output.split(', ')
+            model, total_memory, used_memory, utilization, pci_bus_id, pcie_gen, pcie_width, driver_version = output.split(', ')
 
             return NvidiaGPU(type="GPU",
-                             model=name,
+                             model=model,
                              manufacture="NVIDIA",
                              memory_total=int(total_memory),  # Bytes
                              memory_used=int(used_memory),  # Bytes

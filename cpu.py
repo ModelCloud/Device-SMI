@@ -1,16 +1,16 @@
 import os
 import platform
-import time
 
 from device import Device
 from model import BaseInfo
+
 
 class CPUInfo(BaseInfo):
     pass # TODO extend for cpu
 
 class CPUDevice(Device):
-    def __init__(self, device):
-        super().__init__(device)
+    def __init__(self, index: int = 0):
+        super().__init__(index)
 
     def info(self) -> CPUInfo:
         def cpu_utilization():
