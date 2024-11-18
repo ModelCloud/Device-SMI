@@ -56,7 +56,7 @@ class NvidiaDevice(Device):
 
             return NvidiaGPU(type="GPU",
                              model=model.strip(),
-                             manufacture="NVIDIA",
+                             vendor="NVIDIA",
                              memory_total=int(total_memory) * 1024 * 1024,  # Bytes
                              memory_used=int(used_memory) * 1024 * 1024,  # Bytes
                              memory_process=0,  # Bytes, TODO, get this
