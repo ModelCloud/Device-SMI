@@ -5,7 +5,7 @@ from device import Device
 from model import BaseInfo
 
 
-class NvidiaInfo(BaseInfo):
+class NvidiaGPU(BaseInfo):
     pass # TODO, add PCIE & DRIVER
 
 
@@ -13,7 +13,7 @@ class NvidiaDevice(Device):
     def __init__(self, device):
         super().__init__(device)
 
-    def info(self) -> NvidiaInfo:
+    def info(self) -> NvidiaGPU:
         try:
             cudas = os.environ.get("CUDA_VISIBLE_DEVICES", "")
             cuda_list = cudas.split(",") if cudas else []
@@ -51,15 +51,15 @@ class NvidiaDevice(Device):
             output = result.stdout.strip().split('\n')[0]
             name, total_memory, used_memory, utilization, pci_bus_id, pcie_gen, pcie_width, driver_version = output.split(', ')
 
-            return NvidiaInfo(name="GPU",
-                            model=name,
-                            manufacture="NVIDIA",
-                            memory_total=int(total_memory),  # Bytes
-                            memory_used=int(used_memory),  # Bytes
-                            memory_process=0,  # Bytes, TODO, get this
-                            utilization=float(utilization),)
+            return NvidiaGPU(type="GPU",
+                             model=name,
+                             manufacture="NVIDIA",
+                             memory_total=int(total_memory),  # Bytes
+                             memory_used=int(used_memory),  # Bytes
+                             memory_process=0,  # Bytes, TODO, get this
+                             utilization=float(utilization), )
 
         except FileNotFoundError:
-            return NvidiaInfo(error_msg="nvidia-smi command not found. Ensure NVIDIA drivers are installed.")
+            return NvidiaGPU(error_msg="nvidia-smi command not found. Ensure NVIDIA drivers are installed.")
         except Exception as e:
-            return NvidiaInfo(error_msg=str(e))
+            return NvidiaGPU(error_msg=str(e))
