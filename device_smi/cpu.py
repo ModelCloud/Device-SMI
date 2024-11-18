@@ -118,8 +118,6 @@ class CPUDevice(BaseDevice):
                 utilization = (1 - (idle_diff / total_diff)) * 100
 
         if platform.system() == 'Darwin':
-            mem_total = int(subprocess.check_output(['sysctl', '-n', 'hw.memsize']))
-
             available_mem = subprocess.check_output(['vm_stat'])
             available_mem = available_mem.decode().splitlines()
 
@@ -134,16 +132,14 @@ class CPUDevice(BaseDevice):
         else:
             with open('/proc/meminfo', 'r') as f:
                 lines = f.readlines()
-                mem_total = mem_free = 0
+                mem_free = 0
                 for line in lines:
-                    if line.startswith('MemTotal:'):
-                        mem_total = int(line.split()[1]) * 1024
-                    elif line.startswith('MemAvailable:'):
+                    if line.startswith('MemAvailable:'):
                         mem_free = int(line.split()[1]) * 1024
                         break
 
-        memory_total = mem_total
-        memory_used = memory_total - mem_free
+
+        memory_used = self._info.memory_total - mem_free
 
         process_id = os.getpid()
         if platform.system() == 'Darwin':
