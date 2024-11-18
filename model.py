@@ -1,6 +1,6 @@
 class BaseInfo:
     def __init__(self,
-                 name: str = "UNKNOWN",
+                 type: str = "UNKNOWN",
                  model: str = "UNKNOWN",
                  manufacture: str = "UNKNOWN",
                  memory_total: int = 0,
@@ -9,7 +9,7 @@ class BaseInfo:
                  utilization: float = 0.0,
                  error_msg: str = "",
                  ):
-        self.name = name
+        self.type = type
         self.model = model
         self.manufacture = manufacture
         self.memory_total = memory_total
