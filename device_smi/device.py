@@ -1,5 +1,7 @@
+import platform
 import re
 
+from .apple import AppleDevice
 from .cpu import CPUDevice
 from .nvidia import NvidiaDevice
 
@@ -24,7 +26,13 @@ class Device:
             or device_type == "gpu"
             or re.match(r"(gpu|cuda):\d+", device_type)
         ):
-            self.device = NvidiaDevice(device_index)
+            if platform.system() == "Darwin":
+                if platform.machine() == 'x86_64':
+                    raise Exception(error_msg="Not support for macos with Intel chip")
+
+                self.device = AppleDevice(device_index)
+            else:
+                self.device = NvidiaDevice(device_index)
         elif device_type == "cpu":
             self.device = CPUDevice(device_index)
         else:
