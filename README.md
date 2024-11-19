@@ -6,6 +6,7 @@ Device data sources:
 
 - **CPU**: [Intel/Amd/Apple] Linux/MacOS system interface
 - **NVIDIA GPU**: NVIDIA System Management Interface (NVIDIA-SMI).
+- **Apple GPU**: MacOS interfaces
 - **AMD GPU**: (PENDING)
 - **Intel GPU**: (PENDING)
 
@@ -13,3 +14,4 @@ Device data sources:
 
 - Retrieve information for both CPU and GPU devices.
 - Includes details about memory usage, utilization, driver, pcie info when applicable, and other device specifications.
+- Zero pypi dependency
