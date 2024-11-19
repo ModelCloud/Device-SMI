@@ -28,7 +28,7 @@ class Device:
         ):
             if platform.system() == "Darwin":
                 if platform.machine() == 'x86_64':
-                    raise Exception(error_msg="Not support for macos with Intel chip")
+                    raise Exception(error_msg="Not supported for macOS on Intel chips.")
 
                 self.device = AppleDevice(device_index)
             else:
@@ -36,7 +36,7 @@ class Device:
         elif device_type == "cpu":
             self.device = CPUDevice(device_index)
         else:
-            raise Exception(f"Device {device_type} is not supported")
+            raise Exception(f"The device {device_type} is not supported")
 
     def info(self):
         return self.device._info
