@@ -7,7 +7,7 @@ setup(
     version=__version__,
     author="ModelCloud",
     author_email="qubitium@modelcloud.ai",
-    description="Device-SMI is designed to retrieve system information about devices.",
+    description="Retrieve gpu, cpu, and npu device info and properties from Linux/MacOS with zero package dependency.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/ModelCloud/Device-SMI/",
