@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
-__version__ = "0.0.1-dev"
+__version__ = "0.0.1"
 
 setup(
     name="device-smi",
     version=__version__,
     author="ModelCloud",
     author_email="qubitium@modelcloud.ai",
-    description="Device-SMI is designed to retrieve system information about devices.",
+    description="Retrieve gpu, cpu, and npu device info and properties from Linux/MacOS with zero package dependency.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/ModelCloud/Device-SMI/",
