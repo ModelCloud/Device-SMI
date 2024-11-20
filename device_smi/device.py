@@ -26,7 +26,8 @@ class Device:
         if (
             device_type == "cuda"
             or device_type == "gpu"
-            or re.match(r"(gpu|cuda):\d+", device_type)
+            or device_type == "xpu"
+            or re.match(r"(gpu|cuda|xpu):\d+", device_type)
         ):
             if platform.system() == "Darwin":
                 if platform.machine() == 'x86_64':
