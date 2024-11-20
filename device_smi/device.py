@@ -10,14 +10,14 @@ from .nvidia import NvidiaDevice
 try:
     import torch
 
-    HAS_TORCH = True
-except ModuleNotFoundError:
-    HAS_TORCH = False
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
 
 
 class Device:
     def __init__(self, device):
-        if HAS_TORCH and isinstance(device, torch.device):
+        if TORCH_AVAILABLE and isinstance(device, torch.device):
             device_type = device.type.lower()
             device_index = device.index
         else:
