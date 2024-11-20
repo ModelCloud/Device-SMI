@@ -2,11 +2,6 @@ import platform
 import re
 import subprocess
 
-from .amd import AMDDevice
-from .apple import AppleDevice
-from .cpu import CPUDevice
-from .nvidia import NvidiaDevice
-
 try:
     import torch
 
@@ -21,30 +16,37 @@ class Device:
             device_type = device.type.lower()
             device_index = device.index
         else:
-            device_type = f"{device}".lower()
-            device_index = 0
-        if (
-            device_type == "cuda"
-            or device_type == "gpu"
-            or re.match(r"(gpu|cuda):\d+", device_type)
-        ):
+            match = re.match(r"(cuda|gpu|rocm|cpu)(:\d+)?", f"{device}".lower())
+            if not match:
+                raise Exception(f"The device {device} is not supported")
+            device_type = match.group(1)
+            device_index = int(match.group(2)[1:]) if match.group(2) else 0
+
+        if device_type in ["cuda", "gpu"]:
             if platform.system() == "Darwin":
                 if platform.machine() == 'x86_64':
-                    raise Exception(error_msg="Not supported for macOS on Intel chips.")
+                    raise Exception("Not supported for macOS on Intel chips.")
+                from .apple import AppleDevice
 
                 self.device = AppleDevice(device_index)
             else:
                 if self._is_nvidia_available():
+                    from .nvidia import NvidiaDevice
+
                     self.device = NvidiaDevice(device_index)
                 else:
                     raise Exception("NVIDIA GPU not detected or CUDA not available.")
-        elif device_type == "rocm" or re.match(r"(gpu|rocm):\d+", device_type):
+        elif device_type == "rocm":
+            from .amd import AMDDevice
+
             if self._is_amd_available():
                 self.device = AMDDevice(device_index)
             else:
                 raise Exception("AMD GPU not detected or ROCm not available.")
 
         elif device_type == "cpu":
+            from .cpu import CPUDevice
+
             self.device = CPUDevice(device_index)
         else:
             raise Exception(f"The device {device_type} is not supported")
