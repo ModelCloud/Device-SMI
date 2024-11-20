@@ -2,15 +2,16 @@ import platform
 import re
 import subprocess
 
+from .amd import AMDDevice
 from .apple import AppleDevice
 from .cpu import CPUDevice
 from .nvidia import NvidiaDevice
-from .amd import AMDDevice
+
 try:
     import torch
 
     HAS_TORCH = True
-except:
+except ModuleNotFoundError:
     HAS_TORCH = False
 
 
