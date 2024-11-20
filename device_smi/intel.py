@@ -32,11 +32,11 @@ class IntelDevice(BaseDevice):
                 raise RuntimeError(result.stderr)
 
             for output in result.stdout.strip().split("\n"):
-                if "device name" in output.lower():
+                if "Device Name" in output:
                     model = output.split(":")[1].split("(")[0].strip()
-                if "vendor" in output.lower():
+                if "Vendor" in output:
                     vendor = output.split(":")[1].split("(")[0].strip()
-                if "Memory Physical Size" in output.lower():
+                if "Memory Physical Size" in output:
                     total_memory = output.split(":")[1].strip().split(" ")[0]
 
             return IntelGPU(

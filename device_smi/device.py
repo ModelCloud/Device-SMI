@@ -44,7 +44,7 @@ class Device:
                     )
 
                     output = result.stdout.lower()
-                    if "intel" in output.lower():
+                    if "intel" in output:
                         self.device = IntelDevice(device_index)
                     else:
                         self.device = NvidiaDevice(device_index)
