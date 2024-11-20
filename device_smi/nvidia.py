@@ -95,7 +95,7 @@ class NvidiaDevice(BaseDevice):
 
         except FileNotFoundError:
             raise FileNotFoundError(
-                error_msg="The 'nvidia-smi' command was not found. Please ensure that the NVIDIA drivers are installed."
+                "The 'nvidia-smi' command was not found. Please ensure that the NVIDIA drivers are installed."
             )
         except Exception as e:
             raise e
