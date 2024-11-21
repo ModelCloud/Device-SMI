@@ -16,11 +16,12 @@ class CPUMetrics(BaseMetrics):
 class CPUDevice(BaseDevice):
     def __init__(self, index: int = 0):
         super().__init__(index)
+        self._is_macOS_platform = platform == 'Darwin'
         self._info = self.info()
 
     def _utilization(self):
         # check if is macOS
-        if platform.system() == "Darwin":
+        if self._is_macOS_platform:
             result = subprocess.run(
                 ["top", "-l", "1", "-stats", "cpu"], stdout=subprocess.PIPE
             )
@@ -68,7 +69,7 @@ class CPUDevice(BaseDevice):
                     elif line.startswith("vendor_id"):
                         vendor = line.split(":")[1].strip()
         except FileNotFoundError:
-            if platform.system() == "Darwin":
+            if self._is_macOS_platform:
                 model = (
                     subprocess.check_output(
                         ["sysctl", "-n", "machdep.cpu.brand_string"]
@@ -89,7 +90,7 @@ class CPUDevice(BaseDevice):
                 model = platform.processor()
                 vendor = platform.uname().system
 
-        if platform.system() == "Darwin":
+        if self._is_macOS_platform:
             mem_total = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"]))
 
         else:
@@ -127,12 +128,12 @@ class CPUDevice(BaseDevice):
         if total_diff == 0:
             utilization = 0
         else:
-            if platform.system() == "Darwin":
+            if self._is_macOS_platform:
                 utilization = idle_time_2 - idle_time_1
             else:
                 utilization = (1 - (idle_diff / total_diff)) * 100
 
-        if platform.system() == "Darwin":
+        if self._is_macOS_platform:
             available_mem = subprocess.check_output(["vm_stat"])
             available_mem = available_mem.decode().splitlines()
 
@@ -156,7 +157,7 @@ class CPUDevice(BaseDevice):
         memory_used = self._info.memory_total - mem_free
 
         process_id = os.getpid()
-        if platform.system() == "Darwin":
+        if self._is_macOS_platform:
             result = subprocess.run(
                 ["ps", "-p", str(process_id), "-o", "rss="], stdout=subprocess.PIPE
             )

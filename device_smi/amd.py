@@ -32,6 +32,6 @@ class AMDDevice(BaseDevice):
     def metrics(self):
         return AMDGPUMetrics(
             memory_used=rocml.smi_get_device_memory_used(self.gpu_id),  # bytes
-            memory_process=rocml.smi_get_device_memory_busy(self.gpu_id),  # Bytes, TODO, get this
+            memory_process=rocml.smi_get_device_memory_busy(self.gpu_id),  # bytes
             utilization=rocml.smi_get_device_utilization(self.gpu_id),
         )
