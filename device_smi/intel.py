@@ -20,7 +20,6 @@ class IntelDevice(BaseDevice):
         self.gpu_id = index
         self._info = self.info()
 
-
     def info(self) -> IntelGPU:
         try:
             args = ["xpu-smi", "discovery", "-d", f"{self.gpu_id}", "-j"]
@@ -65,17 +64,19 @@ class IntelDevice(BaseDevice):
             if result.returncode != 0:
                 raise RuntimeError(result.stderr)
 
-            #xpu-smi dump -d 0 -m 0,1,2 -i 1 -n 5
-            #Timestamp, DeviceId, GPU Utilization (%), GPU Power (W), GPU Frequency (MHz)
-            #06:14:46.000,    0, 0.00, 14.61,    0
+            # xpu-smi dump -d 0 -m 0,1,2 -i 1 -n 5
+            # Timestamp, DeviceId, GPU Utilization (%), GPU Power (W), GPU Frequency (MHz)
+            # 06:14:46.000,    0, 0.00, 14.61,    0
 
             output = result.stdout.strip().split("\n")[-1]
             memory_used = output.split(",")[-1].strip()
             utilization = output.split(",")[-2].strip()
+            if utilization.lower() == "n/a":
+                utilization = "0.0"
 
             return IntelGPUMetrics(
-                memory_used=int(memory_used) * 1024,  # convert to MB
-                memory_process=0,  
+                memory_used=int(float(memory_used) * 1024),  # bytes
+                memory_process=0,
                 utilization=float(utilization),
             )
         except FileNotFoundError:
