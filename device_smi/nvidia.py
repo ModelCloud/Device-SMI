@@ -5,7 +5,9 @@ from .base import BaseDevice, BaseInfo, BaseMetrics
 
 
 class NvidiaGPU(BaseInfo):
-    pass  # TODO, add PCIE & DRIVER
+    def __init__(self, features=[], *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.features = features
 
 
 class NvidiaGPUMetrics(BaseMetrics):
@@ -56,11 +58,19 @@ class NvidiaDevice(BaseDevice):
             if model.lower().startswith("nvidia"):
                 model = model[len("nvidia"):]
 
+            compute_cap = (
+                subprocess.check_output([f"nvidia-smi --format=csv --query-gpu=compute_cap -i {self.gpu_id}"], shell=True)
+                .decode()
+                .strip()
+                .removeprefix("compute_cap\n")
+            )
+
             return NvidiaGPU(
                 type="gpu",
                 model=model.strip().lower(),
                 memory_total=int(total_memory) * 1024 * 1024,  # bytes
                 vendor="nvidia",
+                features=[compute_cap],
             )
         except FileNotFoundError:
             raise FileNotFoundError()

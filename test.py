@@ -1,6 +1,6 @@
 from device_smi import Device
 
-for d in ["gpu", "cpu"]:
+for d in ["gpu"]:
     smi = Device(d)
     info = smi.info()
     print(info)

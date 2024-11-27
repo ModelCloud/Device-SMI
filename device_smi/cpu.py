@@ -6,7 +6,7 @@ from .base import BaseDevice, BaseInfo, BaseMetrics
 
 
 class CPUInfo(BaseInfo):
-    def __init__(self, features=None, *args, **kwargs):
+    def __init__(self, features=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.features = features
 
