@@ -96,6 +96,16 @@ class CPUDevice(BaseDevice):
 
         if platform.system() == "Darwin":
             mem_total = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"]))
+            features = (
+                subprocess.check_output(["sysctl", "-a", "|", "grep", "machdep.cpu.features"])
+                .decode()
+                .strip()
+                .split(":")[1]
+                .strip()
+                .split()
+            )
+
+            flags = set(features)
 
         else:
             with open("/proc/meminfo", "r") as f:
@@ -118,7 +128,7 @@ class CPUDevice(BaseDevice):
             model=model.lower(),
             vendor=vendor.lower(),
             memory_total=memory_total,  # Bytes
-            features=sorted(flags),
+            features=sorted(set(f.lower() for f in flags)),
         )
 
     def metrics(self):
