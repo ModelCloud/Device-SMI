@@ -118,7 +118,7 @@ class CPUDevice(BaseDevice):
             model=model,
             vendor=vendor,
             memory_total=memory_total,  # Bytes
-            features=flags,
+            features=sorted(flags),
         )
 
     def metrics(self):
