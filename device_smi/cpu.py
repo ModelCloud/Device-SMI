@@ -50,13 +50,13 @@ class CPUDevice(BaseDevice):
     def info(self) -> CPUInfo:
         model = "Unknown Model"
         vendor = "Unknown vendor"
-        flags = []
+        flags = set()
         try:
             with open("/proc/cpuinfo", "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if line.startswith("flags"):
-                        flags.extend(line.strip().split(":")[1].split())
+                        flags.update(line.strip().split(":")[1].split())
                     if line.startswith("model name"):
                         model = line.split(":")[1].strip()
 
