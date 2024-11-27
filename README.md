@@ -7,14 +7,14 @@ Self-contained Python lib with zero-dependencies that give you a unified `device
 - Retrieve information for both CPU and GPU devices.
 - Includes details about memory usage, utilization, driver, pcie info when applicable, and other device specifications.
 - Zero pypi dependency.
-- Linux/MacOS support
+- Linux/macOS support
 
 Supported Devices:
 
-- **CPU**: [Intel/Amd/Apple] Linux/MacOS system interface
+- **CPU**: [Intel/AMD/Apple] Linux/macOS system interface
 - **NVIDIA GPU**: NVIDIA System Management Interface `nvidia-smi`
 - **Intel XPU**: Intel/XPU System Management Interface `xpu-smi`
-- **Apple GPU**: MacOS interfaces
+- **Apple GPU**: macOS interfaces
 
 ## Examples
 
@@ -46,4 +46,4 @@ print(info)
 - Support Google/TPU
 - Add PCIE property info to GPU/XPU
 - Add NPU support (ARM/Intel/AMD)
-- Add Non-Linux/MacOS support (BSD/Sun)
+- Add Non-Linux/macOS support (BSD/Sun)
