@@ -5,9 +5,9 @@ from .base import BaseDevice, BaseInfo, BaseMetrics
 
 
 class NvidiaGPU(BaseInfo):
-    def __init__(self, compute_cap=None, *args, **kwargs):
+    def __init__(self, features=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.compute_cap = compute_cap
+        self.features = features
 
 
 class NvidiaGPUMetrics(BaseMetrics):
@@ -70,7 +70,7 @@ class NvidiaDevice(BaseDevice):
                 model=model.strip().lower(),
                 memory_total=int(total_memory) * 1024 * 1024,  # bytes
                 vendor="nvidia",
-                compute_cap = float(compute_cap),
+                features=[compute_cap],
             )
         except FileNotFoundError:
             raise FileNotFoundError()
