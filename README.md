@@ -30,7 +30,7 @@ print(info)
 
 result:
 
-> {'type': 'gpu', 'model': 'GeForce RTX 4090', 'vendor': 'NVIDIA', 'memory_total': 25757220864}
+> {'type': 'gpu', 'model': 'geforce rtx 4090', 'vendor': 'nvidia', 'memory_total': 25757220864}
 
 
 To get CPU info, just simply using 'cpu' to create a new Device object. then you can get all infos
