@@ -38,7 +38,7 @@ class IntelDevice(BaseDevice):
             vendor = data["vendor_name"]
             if vendor and vendor.lower().startswith("intel"):
                 vendor = "Intel"
-            total_memory = data["memory_physical_size_byte"]
+            total_memory = data["max_mem_alloc_size_byte"]
 
             return IntelGPU(
                 type="gpu",
