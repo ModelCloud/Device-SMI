@@ -28,7 +28,7 @@ info = smi.info()
 print(info)
 ```
 
-To get GPU info, Device-SMI allows 'gpu', 'cuda' (for Nvidia), 'xpu'(for intel). or adding device index like 'cuda:0'
+To get GPU info, Device-SMI allows 'gpu', 'cuda' (for Nvidia), 'xpu'(for Intel). or adding device index like 'cuda:0'
 
 ```py
 from device_smi import Device
