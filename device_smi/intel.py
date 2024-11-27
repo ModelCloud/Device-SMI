@@ -1,3 +1,4 @@
+import json
 import os
 import platform
 import subprocess
@@ -22,7 +23,7 @@ class IntelDevice(BaseDevice):
 
     def info(self) -> IntelGPU:
         try:
-            args = ["xpu-smi", "discovery", "-d", f"{self.gpu_id}"]
+            args = ["xpu-smi", "discovery", "-d", f"{self.gpu_id}", "-j"]
 
             result = subprocess.run(
                 args=args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
@@ -31,18 +32,16 @@ class IntelDevice(BaseDevice):
             if result.returncode != 0:
                 raise RuntimeError(result.stderr)
 
-            for output in result.stdout.strip().split("\n"):
-                if "Device Name" in output:
-                    model = output.split(":")[1].split("(")[0].strip()
-                if "Vendor" in output:
-                    vendor = output.split(":")[1].split("(")[0].strip()
-                if "Memory Physical Size" in output:
-                    total_memory = output.split(":")[1].strip().split(" ")[0]
+            data = json.loads(result.stdout)
+
+            model = data["device_name"]
+            vendor = data["vendor_name"]
+            total_memory =data["memory_physical_size_byte"]
 
             return IntelGPU(
                 type="gpu",
                 model=model,
-                memory_total=int(total_memory) * 1024,  # bytes
+                memory_total=int(total_memory),  # bytes
                 vendor=vendor,
             )
 
