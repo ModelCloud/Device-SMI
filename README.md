@@ -16,9 +16,9 @@ Supported Devices:
 - **Intel XPU**: Intel/XPU System Management Interface `xpu-smi`
 - **Apple GPU**: MacOS interfaces
 
-## Examples
+## Usage
 
-To get GPU info, Device-SMI allows 'gpu', 'cuda' (for Nvidia), 'xpu'(for Intel). or adding device index like 'cuda:0'
+To get GPU info, Device-SMI allows [`gpu`, `cuda`] for Nvidia, `xpu` for Intel/XPU. Index usage for multiple GPUs: `cuda:0`
 
 ```py
 from device_smi import Device
@@ -33,7 +33,7 @@ result:
 > {'type': 'gpu', 'model': 'geforce rtx 4090', 'vendor': 'nvidia', 'memory_total': 25757220864}
 
 
-To get CPU info, just simply using 'cpu' to create a new Device object. then you can get all infos
+To get CPU info, use `cpu` to init a new Device object. 
 
 ```py
 from device_smi import Device
