@@ -6,7 +6,9 @@ from .base import BaseDevice, BaseInfo, BaseMetrics
 
 
 class CPUInfo(BaseInfo):
-    pass  # TODO extend for cpu
+    def __init__(self, features=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.features = features
 
 
 class CPUMetrics(BaseMetrics):
@@ -48,10 +50,13 @@ class CPUDevice(BaseDevice):
     def info(self) -> CPUInfo:
         model = "Unknown Model"
         vendor = "Unknown vendor"
+        flags = []
         try:
             with open("/proc/cpuinfo", "r") as f:
                 lines = f.readlines()
                 for line in lines:
+                    if line.startswith("flags"):
+                        flags.extend(line.strip().split(":")[1].split())
                     if line.startswith("model name"):
                         model = line.split(":")[1].strip()
 
@@ -113,6 +118,7 @@ class CPUDevice(BaseDevice):
             model=model,
             vendor=vendor,
             memory_total=memory_total,  # Bytes
+            features=flags,
         )
 
     def metrics(self):
