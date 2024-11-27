@@ -34,7 +34,12 @@ class IntelDevice(BaseDevice):
             data = json.loads(result.stdout)
 
             model = data["device_name"]
+
+            if model and model.lower().startswith("intel(r)"):
+                model = model[8:].strip()
             vendor = data["vendor_name"]
+            if vendor and vendor.lower().startswith("intel"):
+                vendor = "Intel"
             total_memory = data["memory_physical_size_byte"]
 
             return IntelGPU(
@@ -75,7 +80,7 @@ class IntelDevice(BaseDevice):
                 utilization = "0.0"
 
             return IntelGPUMetrics(
-                memory_used=int(float(memory_used) * 1024),  # bytes
+                memory_used=int(float(memory_used) * 1024 * 1024),  # bytes
                 memory_process=0,
                 utilization=float(utilization),
             )
