@@ -97,7 +97,7 @@ class CPUDevice(BaseDevice):
         if platform.system() == "Darwin":
             mem_total = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"]))
             features = (
-                subprocess.check_output(["sysctl", "-a", "|", "grep", "machdep.cpu.features"])
+                subprocess.check_output(["sysctl -a | grep machdep.cpu.features"], shell=True)
                 .decode()
                 .strip()
                 .split(":")[1]
