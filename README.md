@@ -16,6 +16,28 @@ Supported Devices:
 - **Intel XPU**: Intel/XPU System Management Interface `xpu-smi`
 - **Apple GPU**: MacOS interfaces
 
+## Examples
+
+To get CPU info, just simply using 'cpu' to create a new Device object. then you can get all infos
+
+```py
+from device_smi import Device
+
+smi = Device("cpu")
+info = smi.info()
+print(info.__dict__)
+```
+
+To get GPU info, Device-SMI allows 'gpu', 'cuda' (for Nvidia), 'xpu'(for intel). or adding device index like 'cuda:0'
+
+```py
+from device_smi import Device
+
+smi = Device("cuda:0")
+info = smi.info()
+print(info.__dict__)
+```
+
 ## Roadmap
 
 - Support Non-Apple ARM
