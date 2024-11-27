@@ -1,8 +1,10 @@
 import platform
 import re
+import subprocess
 
 from .apple import AppleDevice
 from .cpu import CPUDevice
+from .intel import IntelDevice
 from .nvidia import NvidiaDevice
 
 try:
@@ -24,15 +26,32 @@ class Device:
         if (
             device_type == "cuda"
             or device_type == "gpu"
-            or re.match(r"(gpu|cuda):\d+", device_type)
+            or device_type == "xpu"
+            or re.match(r"(gpu|cuda|xpu):\d+", device_type)
         ):
             if platform.system() == "Darwin":
                 if platform.machine() == 'x86_64':
-                    raise Exception(error_msg="Not supported for macOS on Intel chips.")
+                    raise Exception("Not supported for macOS on Intel chips.")
 
                 self.device = AppleDevice(device_index)
             else:
-                self.device = NvidiaDevice(device_index)
+                try:
+                    result = subprocess.run(
+                        ["lspci", "|", "grep", "-i", "vga\|3d\|display"],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        shell=True,
+                    )
+
+                    output = result.stdout.lower()
+                    if "intel" in output:
+                        self.device = IntelDevice(device_index)
+                    else:
+                        self.device = NvidiaDevice(device_index)
+                except:
+                    self.device = NvidiaDevice(device_index)
+
         elif device_type == "cpu":
             self.device = CPUDevice(device_index)
         else:
