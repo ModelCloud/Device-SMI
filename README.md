@@ -25,7 +25,7 @@ from device_smi import Device
 
 smi = Device("cpu")
 info = smi.info()
-print(info.__dict__)
+print(info)
 ```
 
 To get GPU info, Device-SMI allows 'gpu', 'cuda' (for Nvidia), 'xpu'(for intel). or adding device index like 'cuda:0'
@@ -35,7 +35,7 @@ from device_smi import Device
 
 smi = Device("cuda:0")
 info = smi.info()
-print(info.__dict__)
+print(info)
 ```
 
 ## Roadmap
