@@ -62,8 +62,7 @@ class NvidiaDevice(BaseDevice):
                 subprocess.check_output([f"nvidia-smi --format=csv --query-gpu=compute_cap -i {self.gpu_id}"], shell=True)
                 .decode()
                 .strip()
-                .removeprefix("compute_cap")
-                .strip()
+                .removeprefix("compute_cap\n")
             )
 
             return NvidiaGPU(
