@@ -1,5 +1,4 @@
 import os
-import platform
 import subprocess
 
 from .base import BaseDevice, BaseInfo, BaseMetrics
@@ -59,9 +58,9 @@ class NvidiaDevice(BaseDevice):
 
             return NvidiaGPU(
                 type="gpu",
-                model=model.strip(),
+                model=model.strip().lower(),
                 memory_total=int(total_memory) * 1024 * 1024,  # bytes
-                vendor="NVIDIA",
+                vendor="nvidia",
             )
         except FileNotFoundError:
             raise FileNotFoundError()

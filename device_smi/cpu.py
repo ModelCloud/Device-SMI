@@ -115,8 +115,8 @@ class CPUDevice(BaseDevice):
 
         return CPUInfo(
             type="cpu",
-            model=model,
-            vendor=vendor,
+            model=model.lower(),
+            vendor=vendor.lower(),
             memory_total=memory_total,  # Bytes
             features=sorted(flags),
         )
