@@ -36,7 +36,7 @@ class IntelDevice(BaseDevice):
 
             model = data["device_name"]
             vendor = data["vendor_name"]
-            total_memory =data["memory_physical_size_byte"]
+            total_memory = data["memory_physical_size_byte"]
 
             return IntelGPU(
                 type="gpu",
