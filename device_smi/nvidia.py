@@ -95,7 +95,7 @@ class NvidiaDevice(BaseDevice):
 
         except FileNotFoundError:
             raise FileNotFoundError(
-                "The 'nvidia-smi' command was not found. Please ensure that the nvidia-utils package is installed."
+                "The 'nvidia-smi' command was not found. Please ensure that the 'nvidia-utils' package is installed."
             )
         except Exception as e:
             raise e
