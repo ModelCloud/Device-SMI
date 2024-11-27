@@ -40,7 +40,7 @@ Output: (Nvidia 4090)
 
 ```py
 # Nvidia 4090
-{'type': 'gpu', 'model': 'geforce rtx 4090', 'vendor': 'nvidia', 'memory_total': 25757220864, 'compute_cap': ['8.9']}
+{'type': 'gpu', 'model': 'geforce rtx 4090', 'vendor': 'nvidia', 'memory_total': 25757220864, 'features': ['8.9']}
 ```
 
 For CPU, use `cpu` to init a new Device object. 
