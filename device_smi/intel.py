@@ -74,8 +74,8 @@ class IntelDevice(BaseDevice):
             utilization = output.split(",")[-2].strip()
 
             return IntelGPUMetrics(
-                memory_used=int(memory_used) * 1024,  # bytes
-                memory_process=0,  # Bytes, TODO, get this
+                memory_used=int(memory_used) * 1024,  # convert to MB
+                memory_process=0,  
                 utilization=float(utilization),
             )
         except FileNotFoundError:
