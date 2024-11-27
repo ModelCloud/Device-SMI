@@ -6,7 +6,9 @@ from .base import BaseDevice, BaseInfo, BaseMetrics
 
 
 class CPUInfo(BaseInfo):
-    pass  # TODO extend for cpu
+    def __init__(self, features=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.features = features
 
 
 class CPUMetrics(BaseMetrics):
@@ -48,10 +50,13 @@ class CPUDevice(BaseDevice):
     def info(self) -> CPUInfo:
         model = "Unknown Model"
         vendor = "Unknown vendor"
+        flags = set()
         try:
             with open("/proc/cpuinfo", "r") as f:
                 lines = f.readlines()
                 for line in lines:
+                    if line.startswith("flags"):
+                        flags.update(line.strip().split(":")[1].split())
                     if line.startswith("model name"):
                         model = line.split(":")[1].strip()
 
@@ -91,6 +96,16 @@ class CPUDevice(BaseDevice):
 
         if platform.system() == "Darwin":
             mem_total = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"]))
+            features = (
+                subprocess.check_output(["sysctl -a | grep machdep.cpu.features"], shell=True)
+                .decode()
+                .strip()
+                .split(":")[1]
+                .strip()
+                .split()
+            )
+
+            flags = set(features)
 
         else:
             with open("/proc/meminfo", "r") as f:
@@ -110,9 +125,10 @@ class CPUDevice(BaseDevice):
 
         return CPUInfo(
             type="cpu",
-            model=model,
-            vendor=vendor,
+            model=model.lower(),
+            vendor=vendor.lower(),
             memory_total=memory_total,  # Bytes
+            features=sorted(set(f.lower() for f in flags)),
         )
 
     def metrics(self):

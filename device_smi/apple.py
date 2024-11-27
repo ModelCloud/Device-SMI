@@ -25,19 +25,21 @@ class AppleDevice(BaseDevice):
         )
 
         output = result.stdout.strip().split("\n")
+        model = ""
+        vendor = ""
         for o in output:
             if "Chipset Model" in o:
                 model = o.split(":")[1].replace("Apple", "").strip()
             if "Vendor" in o:
-                vender = o.split(":")[1].strip().split(" ")[0].strip()
+                vendor = o.split(":")[1].strip().split(" ")[0].strip()
 
         memory_total = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"]))
 
         return AppleGPU(
             type="gpu",
-            model=model,
+            model=model.lower(),
             memory_total=memory_total,  # bytes
-            vendor=vender,
+            vendor=vendor.lower(),
         )
 
     def metrics(self):

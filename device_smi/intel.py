@@ -42,9 +42,9 @@ class IntelDevice(BaseDevice):
 
             return IntelGPU(
                 type="gpu",
-                model=model,
+                model=model.lower(),
                 memory_total=int(total_memory),  # bytes
-                vendor=vendor,
+                vendor=vendor.lower(),
             )
 
         except FileNotFoundError:
