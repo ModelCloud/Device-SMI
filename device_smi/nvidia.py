@@ -70,7 +70,7 @@ class NvidiaDevice(BaseDevice):
                 model=model.strip().lower(),
                 memory_total=int(total_memory) * 1024 * 1024,  # bytes
                 vendor="nvidia",
-                compute_cap = compute_cap,
+                compute_cap = float(compute_cap),
             )
         except FileNotFoundError:
             raise FileNotFoundError()
