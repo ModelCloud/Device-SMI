@@ -37,7 +37,7 @@ class Device:
             else:
                 try:
                     result = subprocess.run(
-                        ["lspci", "|", "grep", "-i", "vga"],
+                        ["lspci", "|", "grep", "-i", "vga\|3d\|display"],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
                         text=True,
