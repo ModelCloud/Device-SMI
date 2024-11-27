@@ -1,6 +1,4 @@
 import json
-import os
-import platform
 import subprocess
 
 from .base import BaseDevice, BaseInfo, BaseMetrics
