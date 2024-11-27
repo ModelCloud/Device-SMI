@@ -13,6 +13,8 @@ class BaseDevice:
     def metrics(self):
         pass
 
+    def __str__(self):
+        return str(self.__dict__)
 
 class BaseInfo:
     def __init__(
@@ -27,6 +29,8 @@ class BaseInfo:
         self.vendor = vendor
         self.memory_total = memory_total
 
+    def __str__(self):
+        return str(self.__dict__)
 
 class BaseMetrics:
     def __init__(
@@ -38,3 +42,6 @@ class BaseMetrics:
         self.memory_used = memory_used
         self.memory_process = memory_process
         self.utilization = utilization
+
+    def __str__(self):
+        return str(self.__dict__)
