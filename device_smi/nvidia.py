@@ -42,7 +42,7 @@ class NvidiaDevice(BaseDevice):
                 "--format=csv,noheader,nounits",
             ]
 
-            result = _run(args=args, shell=False)
+            result = _run(args=args)
 
             output = result.strip().split("\n")[0]
             model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver_version = (
@@ -53,7 +53,7 @@ class NvidiaDevice(BaseDevice):
                 model = model[len("nvidia"):]
 
             compute_cap = (
-                _run([f"nvidia-smi --format=csv --query-gpu=compute_cap -i {self.gpu_id}"])
+                _run(["nvidia-smi", f"--format=csv --query-gpu=compute_cap -i {self.gpu_id}"])
                 .removeprefix("compute_cap\n")
             )
 
@@ -71,7 +71,7 @@ class NvidiaDevice(BaseDevice):
 
     def metrics(self):
         try:
-            args = [f"nvidia-smi --id={self.gpu_id} --query-gpu=memory.used,utilization.gpu, --format=csv,noheader,nounits", ]
+            args = ["nvidia-smi", f"--id={self.gpu_id}", "--query-gpu=memory.used,utilization.gpu", "--format=csv,noheader,nounits", ]
             result = _run(args=args)
 
             output = result.split("\n")[0]

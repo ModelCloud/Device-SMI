@@ -48,13 +48,12 @@ class BaseMetrics:
         return str(self.__dict__)
 
 
-def _run(args, shell:bool=True) -> str:
+def _run(args) -> str:
     result = subprocess.run(
         args,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
-        shell=shell,
     )
 
     return result.stdout.strip()
