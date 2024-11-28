@@ -56,4 +56,7 @@ def _run(args) -> str:
         text=True,
     )
 
+    if result.returncode != 0 or result.stderr.strip() != "":
+        raise RuntimeError(result.stderr)
+
     return result.stdout.strip()
