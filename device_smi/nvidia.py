@@ -71,13 +71,8 @@ class NvidiaDevice(BaseDevice):
 
     def metrics(self):
         try:
-            args = [
-                "nvidia-smi",
-                f"--id={self.gpu_id}",
-                "--query-gpu=" "memory.used," "utilization.gpu,",
-                "--format=csv,noheader,nounits",
-            ]
-            result = _run(args=args, shell=False)
+            args = [f"nvidia-smi --id={self.gpu_id} --query-gpu=memory.used,utilization.gpu, --format=csv,noheader,nounits", ]
+            result = _run(args=args)
 
             output = result.split("\n")[0]
             used_memory, utilization = output.split(", ")
