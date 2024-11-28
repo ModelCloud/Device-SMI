@@ -11,7 +11,7 @@ try:
     import torch
 
     HAS_TORCH = True
-except:
+except BaseException:
     HAS_TORCH = False
 
 
@@ -43,7 +43,7 @@ class Device:
                         self.device = IntelDevice(device_index)
                     else:
                         self.device = NvidiaDevice(device_index)
-                except:
+                except BaseException:
                     self.device = NvidiaDevice(device_index)
 
         elif device_type == "cpu":

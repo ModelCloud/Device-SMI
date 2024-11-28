@@ -45,15 +45,13 @@ class NvidiaDevice(BaseDevice):
             result = _run(args=args)
 
             output = result.strip().split("\n")[0]
-            model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver_version = (
-                output.split(", ")
-            )
+            model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver_version = (output.split(", "))
 
             if model.lower().startswith("nvidia"):
                 model = model[len("nvidia"):]
 
             compute_cap = (
-                _run(["nvidia-smi", f"--format=csv", "--query-gpu=compute_cap", "-i", f"{self.gpu_id}"])
+                _run(["nvidia-smi", "--format=csv", "--query-gpu=compute_cap", "-i", f"{self.gpu_id}"])
                 .removeprefix("compute_cap\n")
             )
 
