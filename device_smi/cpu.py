@@ -2,7 +2,7 @@ import os
 import platform
 import subprocess
 
-from .base import BaseDevice, BaseInfo, BaseMetrics
+from .base import BaseDevice, BaseInfo, BaseMetrics, _run
 
 
 class CPUInfo(BaseInfo):
@@ -23,10 +23,7 @@ class CPUDevice(BaseDevice):
     def _utilization(self):
         # check if is macOS
         if platform.system() == "Darwin":
-            result = subprocess.run(
-                ["top", "-l", "1", "-stats", "cpu"], stdout=subprocess.PIPE
-            )
-            output = result.stdout.decode("utf-8")
+            output = _run(["top", "-l", "1", "-stats", "cpu"])
 
             # CPU usage: 7.61% user, 15.23% sys, 77.15% idle
             for line in output.splitlines():
@@ -75,19 +72,12 @@ class CPUDevice(BaseDevice):
         except FileNotFoundError:
             if platform.system() == "Darwin":
                 model = (
-                    subprocess.check_output(
-                        ["sysctl", "-n", "machdep.cpu.brand_string"]
-                    )
-                    .decode()
+                    _run(["sysctl", "-n", "machdep.cpu.brand_string"])
                     .replace("Apple", "")
                     .strip()
                 )
                 try:
-                    vendor = (
-                        subprocess.check_output(["sysctl", "-n", "machdep.cpu.vendor"])
-                        .decode()
-                        .strip()
-                    )
+                    vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
                 except subprocess.CalledProcessError:
                     vendor = "Apple"
             else:
@@ -95,11 +85,9 @@ class CPUDevice(BaseDevice):
                 vendor = platform.uname().system
 
         if platform.system() == "Darwin":
-            mem_total = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"]))
+            mem_total = int(_run(["sysctl", "-n", "hw.memsize"]))
             features = (
-                subprocess.check_output(["sysctl -a | grep machdep.cpu.features"], shell=True)
-                .decode()
-                .strip()
+                _run(["sysctl -a | grep machdep.cpu.features"])
                 .split(":")[1]
                 .strip()
                 .split()
@@ -149,8 +137,8 @@ class CPUDevice(BaseDevice):
                 utilization = (1 - (idle_diff / total_diff)) * 100
 
         if platform.system() == "Darwin":
-            available_mem = subprocess.check_output(["vm_stat"])
-            available_mem = available_mem.decode().splitlines()
+            available_mem = _run(["vm_stat"])
+            available_mem = available_mem.splitlines()
 
             free_pages = 0
             for line in available_mem:
@@ -173,10 +161,8 @@ class CPUDevice(BaseDevice):
 
         process_id = os.getpid()
         if platform.system() == "Darwin":
-            result = subprocess.run(
-                ["ps", "-p", str(process_id), "-o", "rss="], stdout=subprocess.PIPE
-            )
-            memory_current_process = int(result.stdout.decode().strip()) * 1024
+            result = _run(["ps", "-p", str(process_id), "-o", "rss="])
+            memory_current_process = int(result) * 1024
         else:
             with open(f"/proc/{process_id}/status", "r") as f:
                 lines = f.readlines()

@@ -1,6 +1,4 @@
-import subprocess
-
-from .base import BaseDevice, BaseInfo, BaseMetrics
+from .base import BaseDevice, BaseInfo, BaseMetrics, _run
 
 
 class AppleGPU(BaseInfo):
@@ -20,11 +18,9 @@ class AppleDevice(BaseDevice):
     def info(self) -> AppleGPU:
         args = ["system_profiler", "SPDisplaysDataType"]
 
-        result = subprocess.run(
-            args=args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-        )
+        result = _run(args=args)
 
-        output = result.stdout.strip().split("\n")
+        output = result.split("\n")
         model = ""
         vendor = ""
         for o in output:
@@ -33,7 +29,7 @@ class AppleDevice(BaseDevice):
             if "Vendor" in o:
                 vendor = o.split(":")[1].strip().split(" ")[0].strip()
 
-        memory_total = int(subprocess.check_output(["sysctl", "-n", "hw.memsize"]))
+        memory_total = int(_run(["sysctl", "-n", "hw.memsize"]))
 
         return AppleGPU(
             type="gpu",
@@ -43,11 +39,9 @@ class AppleDevice(BaseDevice):
         )
 
     def metrics(self):
-        result = subprocess.run(
-            ["top", "-l", "1", "-stats", "cpu"], stdout=subprocess.PIPE
-        )
-        output = result.stdout.decode("utf-8")
+        output = _run(["top", "-l", "1", "-stats", "cpu"])
 
+        utilization = "0.0"
         for line in output.splitlines():
             if line.startswith("CPU usage"):
                 parts = line.split()
@@ -55,9 +49,9 @@ class AppleDevice(BaseDevice):
                 sys_time = float(parts[4].strip("%"))
                 utilization = user_time + sys_time
 
-        total_memory = int(subprocess.check_output(['sysctl', 'hw.memsize']).split(b':')[1].strip())
-        free_memory = int(subprocess.check_output(['sysctl', 'vm.page_free_count']).split(b':')[1].strip())
-        page_size = int(subprocess.check_output(['sysctl', 'hw.pagesize']).split(b':')[1].strip())
+        total_memory = int(_run(['sysctl', 'hw.memsize']).split(':')[1].strip())
+        free_memory = int(_run(['sysctl', 'vm.page_free_count']).split(':')[1].strip())
+        page_size = int(_run(['sysctl', 'hw.pagesize']).split(':')[1].strip())
 
         used_memory = total_memory - (free_memory * page_size)
 
