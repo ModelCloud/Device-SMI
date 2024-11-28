@@ -53,7 +53,7 @@ class NvidiaDevice(BaseDevice):
                 model = model[len("nvidia"):]
 
             compute_cap = (
-                _run(["nvidia-smi", f"--format=csv --query-gpu=compute_cap -i {self.gpu_id}"])
+                _run(["nvidia-smi", f"--format=csv", "--query-gpu=compute_cap", "-i", f"{self.gpu_id}"])
                 .removeprefix("compute_cap\n")
             )
 
