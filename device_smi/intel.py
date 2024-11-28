@@ -1,7 +1,6 @@
 import json
-import subprocess
 
-from .base import BaseDevice, BaseInfo, BaseMetrics
+from .base import BaseDevice, BaseInfo, BaseMetrics, _run
 
 
 class IntelGPU(BaseInfo):
@@ -22,14 +21,9 @@ class IntelDevice(BaseDevice):
         try:
             args = ["xpu-smi", "discovery", "-d", f"{self.gpu_id}", "-j"]
 
-            result = subprocess.run(
-                args=args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-            )
+            result = _run(args=args)
 
-            if result.returncode != 0:
-                raise RuntimeError(result.stderr)
-
-            data = json.loads(result.stdout)
+            data = json.loads(result)
 
             model = data["device_name"]
 
@@ -60,18 +54,13 @@ class IntelDevice(BaseDevice):
                 "-m", "0,18",
                 "-n", "1"
             ]
-            result = subprocess.run(
-                args=args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-            )
-
-            if result.returncode != 0:
-                raise RuntimeError(result.stderr)
+            result = _run(args=args)
 
             # xpu-smi dump -d 0 -m 0,1,2 -i 1 -n 5
             # Timestamp, DeviceId, GPU Utilization (%), GPU Power (W), GPU Frequency (MHz)
             # 06:14:46.000,    0, 0.00, 14.61,    0
 
-            output = result.stdout.strip().split("\n")[-1]
+            output = result.split("\n")[-1]
             memory_used = output.split(",")[-1].strip()
             utilization = output.split(",")[-2].strip()
             if utilization.lower() == "n/a":

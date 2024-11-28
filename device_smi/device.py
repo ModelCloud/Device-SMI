@@ -1,8 +1,8 @@
 import platform
 import re
-import subprocess
 
 from .apple import AppleDevice
+from .base import _run
 from .cpu import CPUDevice
 from .intel import IntelDevice
 from .nvidia import NvidiaDevice
@@ -36,15 +36,9 @@ class Device:
                 self.device = AppleDevice(device_index)
             else:
                 try:
-                    result = subprocess.run(
-                        ["lspci", "|", "grep", "-i", "vga\|3d\|display"],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                        text=True,
-                        shell=True,
-                    )
+                    result = _run(["lspci", "|", "grep", "-i", "vga\|3d\|display"])
 
-                    output = result.stdout.lower()
+                    output = result.lower()
                     if "intel" in output:
                         self.device = IntelDevice(device_index)
                     else:

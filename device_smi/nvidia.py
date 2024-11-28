@@ -1,7 +1,6 @@
 import os
-import subprocess
 
-from .base import BaseDevice, BaseInfo, BaseMetrics
+from .base import BaseDevice, BaseInfo, BaseMetrics, _run
 
 
 class NvidiaGPU(BaseInfo):
@@ -43,14 +42,9 @@ class NvidiaDevice(BaseDevice):
                 "--format=csv,noheader,nounits",
             ]
 
-            result = subprocess.run(
-                args=args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-            )
+            result = _run(args=args, shell=False)
 
-            if result.returncode != 0:
-                raise RuntimeError(result.stderr)
-
-            output = result.stdout.strip().split("\n")[0]
+            output = result.strip().split("\n")[0]
             model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver_version = (
                 output.split(", ")
             )
@@ -59,9 +53,7 @@ class NvidiaDevice(BaseDevice):
                 model = model[len("nvidia"):]
 
             compute_cap = (
-                subprocess.check_output([f"nvidia-smi --format=csv --query-gpu=compute_cap -i {self.gpu_id}"], shell=True)
-                .decode()
-                .strip()
+                _run([f"nvidia-smi --format=csv --query-gpu=compute_cap -i {self.gpu_id}"])
                 .removeprefix("compute_cap\n")
             )
 
@@ -85,15 +77,9 @@ class NvidiaDevice(BaseDevice):
                 "--query-gpu=" "memory.used," "utilization.gpu,",
                 "--format=csv,noheader,nounits",
             ]
+            result = _run(args=args)
 
-            result = subprocess.run(
-                args=args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-            )
-
-            if result.returncode != 0:
-                raise RuntimeError(result.stderr)
-
-            output = result.stdout.strip().split("\n")[0]
+            output = result.split("\n")[0]
             used_memory, utilization = output.split(", ")
 
             return NvidiaGPUMetrics(

@@ -1,3 +1,4 @@
+import subprocess
 from abc import abstractmethod
 
 
@@ -45,3 +46,15 @@ class BaseMetrics:
 
     def __str__(self):
         return str(self.__dict__)
+
+
+def _run(args, shell:bool=True) -> str:
+    result = subprocess.run(
+        args,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        shell=shell,
+    )
+
+    return result.stdout.strip()
