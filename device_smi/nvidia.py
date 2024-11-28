@@ -77,7 +77,7 @@ class NvidiaDevice(BaseDevice):
                 "--query-gpu=" "memory.used," "utilization.gpu,",
                 "--format=csv,noheader,nounits",
             ]
-            result = _run(args=args)
+            result = _run(args=args, shell=False)
 
             output = result.split("\n")[0]
             used_memory, utilization = output.split(", ")
