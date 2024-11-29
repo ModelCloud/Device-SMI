@@ -37,7 +37,7 @@ print(smi)
 
 Output: (Nvidia 4090)
 
-> {'pcie_gen': {'gen': 4, 'speed': 4, 'id': '00000000:01:00.0'}, 'type': 'gpu', 'model': 'pg506-230', 'memory_total': 103079215104, 'vendor': 'nvidia', 'features': ['8.0']}
+> {'pcie': {'gen': 4, 'speed': 4, 'id': '00000000:01:00.0'}, 'type': 'gpu', 'model': 'pg506-230', 'memory_total': 103079215104, 'vendor': 'nvidia', 'features': ['8.0']}
 
 For CPU, use `cpu` to init a new Device object. 
 

@@ -25,7 +25,7 @@ class Device:
             device_type = f"{device}".lower()
             device_index = 0
 
-        self.pcie_gen = None
+        self.pcie = None
 
         if (
             device_type == "cuda"

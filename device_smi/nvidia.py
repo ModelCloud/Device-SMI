@@ -50,7 +50,7 @@ class NvidiaDevice(BaseDevice):
             cls.memory_total = int(total_memory) * 1024 * 1024  # bytes
             cls.vendor = "nvidia"
             cls.features = [compute_cap]
-            cls.pcie_gen = Pcie(gen=int(pcie_gen), speed=int(pcie_width), id=pci_bus_id)
+            cls.pcie = Pcie(gen=int(pcie_gen), speed=int(pcie_width), id=pci_bus_id)
         except FileNotFoundError:
             raise FileNotFoundError()
         except Exception as e:
