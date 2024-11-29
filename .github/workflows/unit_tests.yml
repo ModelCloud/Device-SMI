@@ -31,5 +31,7 @@ jobs:
         run: python tests/os.py
 
       - name: test cpu
-        if: always() && ${{ matrix.os }} != "windows-latest"
-        run: python tests/cpu.py
+        if: always() && ${{ matrix.os != "windows-latest" }}
+        run: |
+          echo "${{ matrix.os }}"
+          python tests/cpu.py
