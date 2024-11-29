@@ -44,8 +44,15 @@ jobs:
       - name: Test in FreeBSD
         uses: vmactions/freebsd-vm@v1
         with:
+          prepare: |
+            pkg install -y python
           run: |
             python -V
+            python -m venv venv
+            source venv/bin/activate
+            pip install .
+            python tests/os.py
+            python tests/cpu.py
 
   solaris:
     runs-on: ubuntu-latest
@@ -56,4 +63,17 @@ jobs:
         uses: vmactions/solaris-vm@v1
         with:
           run: |
+            wget https://www.python.org/ftp/python/3.11.10/Python-3.11.10.tgz
+            tar -xvzf Python-3.11.10.tgz
+            cd Python-3.11.10
+            ./configure
+            make
+            sudo make install
+            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            python3.11 get-pip.py
             python -V
+            python -m venv venv
+            source venv/bin/activate
+            pip install .
+            python tests/os.py
+            python tests/cpu.py
