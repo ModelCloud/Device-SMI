@@ -58,6 +58,18 @@ class Pcie:
     def __repr__(self):
         return self.__str__()
 
+
+class GPU:
+    def __init__(self, driver: str, firmware: str):
+        self.driver = driver
+        self.firmware = firmware
+
+    def __str__(self):
+        return str(self.__dict__)
+
+    def __repr__(self):
+        return self.__str__()
+
 def _run(args) -> str:
     result = subprocess.run(
         args,

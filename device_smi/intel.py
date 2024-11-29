@@ -1,6 +1,6 @@
 import json
 
-from .base import BaseDevice, BaseInfo, BaseMetrics, _run, Pcie
+from .base import BaseDevice, BaseInfo, BaseMetrics, _run, Pcie, GPU
 
 
 class IntelGPU(BaseInfo):
@@ -35,12 +35,15 @@ class IntelDevice(BaseDevice):
             pcie_gen = int(data["pcie_generation"])
             pcie_speed = int(data["pcie_max_link_width"])
             pcie_id = data["pci_device_id"]
+            driver = data["driver_version"]
+            firmware = data["gfx_firmware_version"]
 
             cls.type = "gpu"
             cls.model = model.lower()
             cls.memory_total = int(total_memory)  # bytes
             cls.vendor = vendor.lower()
             cls.pcie = Pcie(gen=pcie_gen, speed=pcie_speed, id=pcie_id)
+            cls.gpu = GPU(driver=driver, firmware=firmware)
 
         except FileNotFoundError:
             raise FileNotFoundError("'xpu-smi' command not found. Please ensure it is installed")
