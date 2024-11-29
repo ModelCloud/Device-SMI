@@ -7,6 +7,7 @@ from .base import _run
 from .cpu import CPUDevice
 from .intel import IntelDevice
 from .nvidia import NvidiaDevice
+from .os import OSDevice
 
 try:
     import torch
@@ -21,6 +22,9 @@ class Device:
         if HAS_TORCH and isinstance(device, torch.device):
             device_type = device.type.lower()
             device_index = device.index
+        elif f"{device}".lower() == "os":
+            self.device = OSDevice(self)
+            return
         else:
             device_type = f"{device}".lower()
             device_index = 0
