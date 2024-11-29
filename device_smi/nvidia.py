@@ -35,7 +35,7 @@ class NvidiaDevice(BaseDevice):
             result = _run(args=args)
 
             output = result.strip().split("\n")[0]
-            model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver_version = (output.split(", "))
+            model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver = (output.split(", "))
 
             result = _run(args=["nvidia-smi", "-q", "-i", f"{self.gpu_id}"])
             firmware = " ".join([line.split(":", 1)[1].strip() for line in result.splitlines() if "VBIOS" in line])
@@ -54,7 +54,7 @@ class NvidiaDevice(BaseDevice):
             cls.vendor = "nvidia"
             cls.features = [compute_cap]
             cls.pcie = Pcie(gen=int(pcie_gen), speed=int(pcie_width), id=pci_bus_id)
-            cls.gpu = GPU(driver=driver_version, firmware=firmware)
+            cls.gpu = GPU(driver=driver, firmware=firmware)
         except FileNotFoundError:
             raise FileNotFoundError()
         except Exception as e:
