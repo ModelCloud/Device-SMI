@@ -35,3 +35,15 @@ jobs:
         run: |
           echo "${{ matrix.os }}"
           python tests/cpu.py
+
+      - name: Test in FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          run: |
+            python -V
+
+      - name: Test in Solaris
+        uses: vmactions/solaris-vm@v1
+        with:
+          run: |
+            python -V
