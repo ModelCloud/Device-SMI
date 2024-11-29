@@ -33,21 +33,21 @@ class Device:
                 if platform.machine() == 'x86_64':
                     raise Exception("Not supported for macOS on Intel chips.")
 
-                self.device = AppleDevice(device_index)
+                self.device = AppleDevice(self, device_index)
             else:
                 try:
                     result = _run(["lspci", "|", "grep", "-i", "vga\|3d\|display"])
 
                     output = result.lower()
                     if "intel" in output:
-                        self.device = IntelDevice(device_index)
+                        self.device = IntelDevice(self, device_index)
                     else:
-                        self.device = NvidiaDevice(device_index)
+                        self.device = NvidiaDevice(self, device_index)
                 except BaseException:
-                    self.device = NvidiaDevice(device_index)
+                    self.device = NvidiaDevice(self, device_index)
 
         elif device_type == "cpu":
-            self.device = CPUDevice(device_index)
+            self.device = CPUDevice(self, device_index)
         else:
             raise Exception(f"The device {device_type} is not supported")
 
@@ -59,3 +59,6 @@ class Device:
 
     def utilization(self):
         return self.device.metrics().utilization
+
+    def __str__(self):
+        return str({k: v for k, v in self.__dict__.items() if k != 'device'})

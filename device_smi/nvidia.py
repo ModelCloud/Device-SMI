@@ -14,7 +14,7 @@ class NvidiaGPUMetrics(BaseMetrics):
 
 
 class NvidiaDevice(BaseDevice):
-    def __init__(self, index: int = 0):
+    def __init__(self, cls, index: int = 0):
         super().__init__(index)
         self.gpu_id = self._get_gpu_id()
 
@@ -45,11 +45,11 @@ class NvidiaDevice(BaseDevice):
                 .removeprefix("compute_cap\n")
             )
 
-            self.type = "gpu"
-            self.model = model.strip().lower()
-            self.memory_total = int(total_memory) * 1024 * 1024  # bytes
-            self.vendor = "nvidia"
-            self.features = [compute_cap]
+            cls.type = "gpu"
+            cls.model = model.strip().lower()
+            cls.memory_total = int(total_memory) * 1024 * 1024  # bytes
+            cls.vendor = "nvidia"
+            cls.features = [compute_cap]
         except FileNotFoundError:
             raise FileNotFoundError()
         except Exception as e:

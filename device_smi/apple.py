@@ -10,7 +10,7 @@ class AppleGPUMetrics(BaseMetrics):
 
 
 class AppleDevice(BaseDevice):
-    def __init__(self, index: int = 0):
+    def __init__(self, cls, index: int = 0):
         super().__init__(index)
         self.gpu_id = 0
 
@@ -29,10 +29,10 @@ class AppleDevice(BaseDevice):
 
         memory_total = int(_run(["sysctl", "-n", "hw.memsize"]))
 
-        self.type = "gpu"
-        self.model = model.lower()
-        self.memory_total = memory_total  # bytes
-        self.vendor = vendor.lower()
+        cls.type = "gpu"
+        cls.model = model.lower()
+        cls.memory_total = memory_total  # bytes
+        cls.vendor = vendor.lower()
 
     def metrics(self):
         output = _run(["top", "-l", "1", "-stats", "cpu"])

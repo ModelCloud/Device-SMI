@@ -16,7 +16,7 @@ class CPUMetrics(BaseMetrics):
 
 
 class CPUDevice(BaseDevice):
-    def __init__(self, index: int = 0):
+    def __init__(self, cls, index: int = 0):
         super().__init__(index)
 
         model = "Unknown Model"
@@ -83,11 +83,12 @@ class CPUDevice(BaseDevice):
         elif "amd" in vendor.lower():
             vendor = "AMD"
 
-        self.type = "cpu"
-        self.model = model.lower()
-        self.vendor = vendor.lower()
+        cls.type = "cpu"
+        cls.model = model.lower()
+        cls.vendor = vendor.lower()
+        cls.memory_total = mem_total  # Bytes
         self.memory_total = mem_total  # Bytes
-        self.features = sorted(set(f.lower() for f in flags))
+        cls.features = sorted(set(f.lower() for f in flags))
 
     def _utilization(self):
         # check if is macOS
