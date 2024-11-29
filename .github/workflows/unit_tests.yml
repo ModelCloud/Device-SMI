@@ -32,5 +32,4 @@ jobs:
 
       - name: test cpu
         if: always() && ${{ matrix.os }} != "windows-latest"
-        continue-on-error: true
         run: python tests/cpu.py
