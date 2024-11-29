@@ -1,5 +1,6 @@
 import platform
 import re
+import warnings
 
 from .apple import AppleDevice
 from .base import _run
@@ -50,6 +51,14 @@ class Device:
             self.device = CPUDevice(self, device_index)
         else:
             raise Exception(f"The device {device_type} is not supported")
+
+    def info(self):
+        warnings.warn(
+            "info method is deprecated and will be removed in future versions.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self
 
     def memory_total(self):
         return self.memory_total
