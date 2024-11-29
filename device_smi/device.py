@@ -26,6 +26,7 @@ class Device:
             device_index = 0
 
         self.pcie = None
+        self.gpu = None
 
         if (
             device_type == "cuda"
