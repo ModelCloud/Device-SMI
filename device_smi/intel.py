@@ -12,12 +12,10 @@ class IntelGPUMetrics(BaseMetrics):
 
 
 class IntelDevice(BaseDevice):
-    def __init__(self, index: int = 0):
+    def __init__(self, cls, index: int = 0):
         super().__init__(index)
         self.gpu_id = index
-        self._info = self.info()
 
-    def info(self) -> IntelGPU:
         try:
             args = ["xpu-smi", "discovery", "-d", f"{self.gpu_id}", "-j"]
 
@@ -34,12 +32,10 @@ class IntelDevice(BaseDevice):
                 vendor = "Intel"
             total_memory = data["max_mem_alloc_size_byte"]
 
-            return IntelGPU(
-                type="gpu",
-                model=model.lower(),
-                memory_total=int(total_memory),  # bytes
-                vendor=vendor.lower(),
-            )
+            cls.type = "gpu"
+            cls.model = model.lower()
+            cls.memory_total = int(total_memory)  # bytes
+            cls.vendor = vendor.lower()
 
         except FileNotFoundError:
             raise FileNotFoundError("'xpu-smi' command not found. Please ensure it is installed")

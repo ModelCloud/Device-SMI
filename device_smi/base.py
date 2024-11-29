@@ -7,10 +7,6 @@ class BaseDevice:
         self.index = index
 
     @abstractmethod
-    def info(self):
-        pass
-
-    @abstractmethod
     def metrics(self):
         pass
 

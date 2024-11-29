@@ -6,7 +6,7 @@ Self-contained Python lib with zero-dependencies that give you a unified `device
     <a href="https://github.com/ModelCloud/Device-SMI/releases" style="text-decoration:none;"><img alt="GitHub release" src="https://img.shields.io/github/release/ModelCloud/Device-SMI.svg"></a>
     <a href="https://pypi.org/project/device-smi/" style="text-decoration:none;"><img alt="PyPI - Version" src="https://img.shields.io/pypi/v/device-smi"></a>
     <a href="https://pepy.tech/projects/device-smi" style="text-decoration:none;"><img src="https://static.pepy.tech/badge/device-smi" alt="PyPI Downloads"></a>
-    <a href="https://github.com/ModelCloud/Device-SMI/blob/main/LICENSE"><img src="https://img.shields.io/pypi/l/device-smi"></a>
+    <a href="https://github.com/ModelCloud/Device-SMI/blob/main/LICENSE"><img src="https://img.shields.io/pypi/l/device-smi" alt="License"></a>
 </p>
 
 
@@ -32,8 +32,7 @@ For GPU/XPU, use [`gpu`, `cuda`] for Nvidia and `xpu` for Intel/XPU. Index usage
 from device_smi import Device
 
 smi = Device("cuda:0")
-info = smi.info()
-print(info)
+print(smi)
 ```
 
 Output: (Nvidia 4090)
@@ -49,8 +48,7 @@ For CPU, use `cpu` to init a new Device object.
 from device_smi import Device
 
 smi = Device("cpu")
-info = smi.info()
-print(info)
+print(smi)
 ```
 
 Output: (AMD EPYC 7443)
