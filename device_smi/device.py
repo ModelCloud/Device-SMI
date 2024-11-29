@@ -24,6 +24,9 @@ class Device:
         else:
             device_type = f"{device}".lower()
             device_index = 0
+
+        self.pcie = None
+
         if (
             device_type == "cuda"
             or device_type == "gpu"
@@ -70,4 +73,4 @@ class Device:
         return self.device.metrics().utilization
 
     def __str__(self):
-        return str({k: v for k, v in self.__dict__.items() if k != 'device'})
+        return str({k: v for k, v in self.__dict__.items() if k != 'device' and v is not None})

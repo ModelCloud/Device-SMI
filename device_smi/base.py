@@ -13,6 +13,7 @@ class BaseDevice:
     def __str__(self):
         return str(self.__dict__)
 
+
 class BaseInfo:
     def __init__(
         self,
@@ -29,6 +30,7 @@ class BaseInfo:
     def __str__(self):
         return str(self.__dict__)
 
+
 class BaseMetrics:
     def __init__(
         self,
@@ -43,6 +45,18 @@ class BaseMetrics:
     def __str__(self):
         return str(self.__dict__)
 
+
+class Pcie:
+    def __init__(self, gen: int, speed: int, id: str):
+        self.gen = gen
+        self.speed = speed
+        self.id = id
+
+    def __str__(self):
+        return str(self.__dict__)
+
+    def __repr__(self):
+        return self.__str__()
 
 def _run(args) -> str:
     result = subprocess.run(

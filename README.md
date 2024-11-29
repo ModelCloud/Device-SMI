@@ -37,10 +37,7 @@ print(smi)
 
 Output: (Nvidia 4090)
 
-```py
-# Nvidia 4090
-{'type': 'gpu', 'model': 'geforce rtx 4090', 'vendor': 'nvidia', 'memory_total': 25757220864, 'features': ['8.9']}
-```
+> {'pcie': {'gen': 4, 'speed': 4, 'id': '00000000:01:00.0'}, 'type': 'gpu', 'model': 'pg506-230', 'memory_total': 103079215104, 'vendor': 'nvidia', 'features': ['8.0']}
 
 For CPU, use `cpu` to init a new Device object. 
 
