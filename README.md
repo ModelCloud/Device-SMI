@@ -62,6 +62,5 @@ Output: (AMD EPYC 7443)
 - Support AMD GPU
 - Support Intel/Gaudi
 - Support Google/TPU
-- Add PCIE property info to GPU/XPU
 - Add NPU support (ARM/Intel/AMD)
 - Add Non-Linux/MacOS support (BSD/Sun)
