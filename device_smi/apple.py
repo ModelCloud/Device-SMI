@@ -1,10 +1,6 @@
 from .base import BaseDevice, BaseInfo, BaseMetrics, _run
 
 
-class AppleGPU(BaseInfo):
-    pass  # TODO, add PCIE & DRIVER
-
-
 class AppleGPUMetrics(BaseMetrics):
     pass
 

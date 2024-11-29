@@ -2,11 +2,6 @@ import json
 
 from .base import BaseDevice, BaseInfo, BaseMetrics, _run, Pcie, GPU
 
-
-class IntelGPU(BaseInfo):
-    pass  # TODO, add PCIE & DRIVER
-
-
 class IntelGPUMetrics(BaseMetrics):
     pass
 

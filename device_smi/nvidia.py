@@ -1,12 +1,6 @@
 import os
 
-from .base import BaseDevice, BaseInfo, BaseMetrics, _run, Pcie, GPU
-
-
-class NvidiaGPU(BaseInfo):
-    def __init__(self, features=[], *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.features = features
+from .base import BaseDevice, BaseMetrics, _run, Pcie, GPU
 
 
 class NvidiaGPUMetrics(BaseMetrics):

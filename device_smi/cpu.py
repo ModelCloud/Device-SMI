@@ -4,13 +4,6 @@ import subprocess
 
 from .base import BaseDevice, BaseInfo, BaseMetrics, _run
 
-
-class CPUInfo(BaseInfo):
-    def __init__(self, features=[], *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.features = features
-
-
 class CPUMetrics(BaseMetrics):
     pass
 
