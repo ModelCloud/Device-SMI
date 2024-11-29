@@ -37,12 +37,8 @@ class NvidiaDevice(BaseDevice):
             output = result.strip().split("\n")[0]
             model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver_version = (output.split(", "))
 
-            args = [
-                "nvidia-smi", "-q", "-i", "0", "|", "grep", "'VBIOS Version'"
-            ]
-            result = _run(args=args)
-            # VBIOS Version                         : 92.00.4F.00.01
-            firmware = result.split(":")[1].strip()
+            result = _run(args=["nvidia-smi", "-q", "-i", f"{self.gpu_id}"])
+            firmware = " ".join([line.split(":", 1)[1].strip() for line in result.splitlines() if "VBIOS" in line])
 
             if model.lower().startswith("nvidia"):
                 model = model[len("nvidia"):]
