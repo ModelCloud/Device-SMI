@@ -32,8 +32,7 @@ For GPU/XPU, use [`gpu`, `cuda`] for Nvidia and `xpu` for Intel/XPU. Index usage
 from device_smi import Device
 
 smi = Device("cuda:0")
-info = smi.info()
-print(info)
+print(smi)
 ```
 
 Output: (Nvidia 4090)
@@ -49,8 +48,7 @@ For CPU, use `cpu` to init a new Device object.
 from device_smi import Device
 
 smi = Device("cpu")
-info = smi.info()
-print(info)
+print(smi)
 ```
 
 Output: (AMD EPYC 7443)
