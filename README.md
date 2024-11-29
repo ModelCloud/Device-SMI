@@ -31,8 +31,8 @@ For GPU/XPU, use [`gpu`, `cuda`] for Nvidia and `xpu` for Intel/XPU. Index usage
 ```py
 from device_smi import Device
 
-smi = Device("cuda:0")
-print(smi)
+dev = Device("cuda:0")
+print(dev)
 ```
 
 Output: (Nvidia 4090)
@@ -44,8 +44,8 @@ For CPU, use `cpu` to init a new Device object.
 ```py
 from device_smi import Device
 
-smi = Device("cpu")
-print(smi)
+dev = Device("cpu")
+print(dev)
 ```
 
 Output: (AMD EPYC 7443)
@@ -55,6 +55,7 @@ Output: (AMD EPYC 7443)
 
 ## Roadmap
 
+- Support OSDevice `Device('os')`
 - Support Non-Apple ARM
 - Support AMD GPU
 - Support Intel/Gaudi
