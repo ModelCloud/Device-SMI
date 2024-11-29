@@ -1,8 +1,8 @@
 import os
 import platform
-import subprocess
 
-from .base import BaseDevice, BaseInfo, BaseMetrics, _run
+from .base import BaseDevice, BaseMetrics, _run
+
 
 class CPUMetrics(BaseMetrics):
     pass
@@ -45,7 +45,7 @@ class CPUDevice(BaseDevice):
                 )
                 try:
                     vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
-                except subprocess.CalledProcessError:
+                except BaseException:
                     vendor = "Apple"
             else:
                 model = platform.processor()
