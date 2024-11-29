@@ -53,12 +53,9 @@ class CPUDevice(BaseDevice):
 
         if platform.system() == "Darwin":
             mem_total = int(_run(["sysctl", "-n", "hw.memsize"]))
-            features = (
-                _run(["sysctl -a | grep machdep.cpu.features"])
-                .split(":")[1]
-                .strip()
-                .split()
-            )
+            result = _run(["sysctl -a"])
+
+            features = " ".join([line.split(":", 1)[1].strip() for line in result.splitlines() if "machdep.cpu.features" in line]).split()
 
             flags = set(features)
 
