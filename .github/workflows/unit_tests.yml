@@ -46,6 +46,7 @@ jobs:
         with:
           prepare: |
             pkg install -y python
+            pkg install py311-pip
           run: |
             python -V
             python -m venv venv
