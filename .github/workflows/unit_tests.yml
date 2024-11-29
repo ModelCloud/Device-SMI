@@ -61,19 +61,7 @@ jobs:
       - name: Test in Solaris
         uses: vmactions/solaris-vm@v1
         with:
-          prepare: |
-            pkg install gcc
-            pkg install gnu-make
-            pkg install pkg-config
           run: |
-            wget https://www.python.org/ftp/python/3.11.10/Python-3.11.10.tgz
-            tar -xvzf Python-3.11.10.tgz
-            cd Python-3.11.10
-            ./configure
-            make
-            sudo make install
-            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-            python3.11 get-pip.py
             python -V
             python -m venv venv
             source venv/bin/activate
