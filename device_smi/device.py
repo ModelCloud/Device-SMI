@@ -54,7 +54,7 @@ class Device:
 
     def info(self):
         warnings.warn(
-            "info() method is deprecated and will be removed in next release. ",
+            "info() method is deprecated and will be removed in next release.",
             DeprecationWarning,
             stacklevel=2
         )
