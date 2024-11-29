@@ -36,11 +36,21 @@ jobs:
           echo "${{ matrix.os }}"
           python tests/cpu.py
 
+  freebsd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Test in FreeBSD
         uses: vmactions/freebsd-vm@v1
         with:
           run: |
             python -V
+
+  solaris:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Test in Solaris
         uses: vmactions/solaris-vm@v1
