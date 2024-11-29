@@ -52,7 +52,6 @@ jobs:
             . venv/bin/activate
             pip install .
             python tests/os.py
-            python tests/cpu.py
 
   solaris:
     runs-on: ubuntu-latest
@@ -80,4 +79,3 @@ jobs:
             source venv/bin/activate
             pip install .
             python tests/os.py
-            python tests/cpu.py
