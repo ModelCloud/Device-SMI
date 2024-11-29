@@ -28,9 +28,9 @@ jobs:
         run: pip install .
 
       - name: test os
-        run: python3 tests/os.py
+        run: python tests/os.py
 
       - name: test cpu
         if: always() && ${{ matrix.os }} != "windows-latest"
         continue-on-error: true
-        run: python3 tests/cpu.py
+        run: python tests/cpu.py
