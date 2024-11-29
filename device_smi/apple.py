@@ -13,9 +13,7 @@ class AppleDevice(BaseDevice):
     def __init__(self, index: int = 0):
         super().__init__(index)
         self.gpu_id = 0
-        self._info = self.info()
 
-    def info(self) -> AppleGPU:
         args = ["system_profiler", "SPDisplaysDataType"]
 
         result = _run(args=args)
@@ -31,12 +29,10 @@ class AppleDevice(BaseDevice):
 
         memory_total = int(_run(["sysctl", "-n", "hw.memsize"]))
 
-        return AppleGPU(
-            type="gpu",
-            model=model.lower(),
-            memory_total=memory_total,  # bytes
-            vendor=vendor.lower(),
-        )
+        self.type = "gpu"
+        self.model = model.lower()
+        self.memory_total = memory_total  # bytes
+        self.vendor = vendor.lower()
 
     def metrics(self):
         output = _run(["top", "-l", "1", "-stats", "cpu"])

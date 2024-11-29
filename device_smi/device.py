@@ -51,11 +51,8 @@ class Device:
         else:
             raise Exception(f"The device {device_type} is not supported")
 
-    def info(self):
-        return self.device._info
-
     def memory_total(self):
-        return self.info().memory_total
+        return self.memory_total
 
     def memory_used(self):
         return self.device.metrics().memory_used

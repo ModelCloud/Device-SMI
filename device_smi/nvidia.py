@@ -17,17 +17,7 @@ class NvidiaDevice(BaseDevice):
     def __init__(self, index: int = 0):
         super().__init__(index)
         self.gpu_id = self._get_gpu_id()
-        self._info = self.info()
 
-    def _get_gpu_id(self):
-        cudas = os.environ.get("CUDA_VISIBLE_DEVICES", "")
-        cuda_list = cudas.split(",") if cudas else []
-        if cuda_list and len(cuda_list) > self.index:
-            return cuda_list[self.index]
-        else:
-            return str(self.index)
-
-    def info(self) -> NvidiaGPU:
         try:
             args = [
                 "nvidia-smi",
@@ -55,17 +45,23 @@ class NvidiaDevice(BaseDevice):
                 .removeprefix("compute_cap\n")
             )
 
-            return NvidiaGPU(
-                type="gpu",
-                model=model.strip().lower(),
-                memory_total=int(total_memory) * 1024 * 1024,  # bytes
-                vendor="nvidia",
-                features=[compute_cap],
-            )
+            self.type = "gpu"
+            self.model = model.strip().lower()
+            self.memory_total = int(total_memory) * 1024 * 1024  # bytes
+            self.vendor = "nvidia"
+            self.features = [compute_cap]
         except FileNotFoundError:
             raise FileNotFoundError()
         except Exception as e:
             raise e
+
+    def _get_gpu_id(self):
+        cudas = os.environ.get("CUDA_VISIBLE_DEVICES", "")
+        cuda_list = cudas.split(",") if cudas else []
+        if cuda_list and len(cuda_list) > self.index:
+            return cuda_list[self.index]
+        else:
+            return str(self.index)
 
     def metrics(self):
         try:
