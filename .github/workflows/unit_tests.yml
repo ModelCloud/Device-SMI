@@ -1,5 +1,9 @@
 name: Unit tests
 
+defaults:
+  run:
+    shell: bash -le {0}
+
 on:
   repository_dispatch:
   workflow_dispatch:
