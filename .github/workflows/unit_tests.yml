@@ -24,6 +24,8 @@ jobs:
           python-version: 3.11
           cache: 'pip'
 
-      - name: run test
-        run: |
-          python3 test.py
+      - name: test os
+        run: python3 tests/os.py
+
+      - name: test cpu
+        run: python3 tests/cpu.py
