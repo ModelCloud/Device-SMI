@@ -22,18 +22,20 @@ class OSDevice(BaseDevice):
                 cls.version = match.group(1)
 
             cls.arch = _run(["uname", "-m"])
-            return
         if platform.system().lower() == "darwin":
             release_info = self.to_dict(_run(["sw_vers"]).lower())
             cls.name = release_info["productname"]
             cls.version = release_info["productversion"]
             cls.arch = _run(["uname", "-m"])
-            return
+        else:
+            cls.name = platform.system().lower()
+            cls.version = platform.version().lower()
+            cls.arch = platform.architecture()[0].lower().strip()
 
-
-        cls.name = platform.system().lower()
-        cls.version = platform.version().lower()
-        cls.arch = platform.architecture()[0].lower().strip()
+        if cls.arch in ["amd64", "x64", "64bit"]:
+            cls.arch = "x86_64"
+        if cls.arch in ["i386", "i86pc"]:
+            cls.arch = "x86"
 
     def metrics(self):
         pass
