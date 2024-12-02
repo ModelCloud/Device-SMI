@@ -33,7 +33,7 @@ class OSDevice(BaseDevice):
             command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
             result = command_result.split("\n")[1].split(",")
             cls.name = "windows"
-            cls.version = result[1].lower().removeprefix("microsoft windows").strip()
+            cls.version = result[1].lower().removeprefix("microsoft windows").strip().split()[0]
             cls.arch = os.environ.get("PROCESSOR_ARCHITECTURE").lower()
 
             cls.kernel = _run(["cmd", "/c", "ver"])
