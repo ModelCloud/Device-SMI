@@ -45,7 +45,7 @@ class OSDevice(BaseDevice):
             cls.version = platform.version().lower()
             cls.arch = platform.architecture()[0].lower().strip()
 
-        if cls.arch in ["amd64", "x64", "64bit"]:
+        if cls.arch in ["amd64", "x64"]:
             cls.arch = "x86_64"
         if cls.arch in ["i386", "i86pc"]:
             cls.arch = "x86"
