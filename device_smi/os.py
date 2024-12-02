@@ -32,8 +32,8 @@ class OSDevice(BaseDevice):
             return
         if platform.system().lower() == "darwin":
             release_info = self.to_dict(_run(["sw_vers"]).lower())
-            cls.name = release_info["ProductName"]
-            cls.version = release_info["ProductVersion"]
+            cls.name = release_info["productName"]
+            cls.version = release_info["productVersion"]
             cls.arch = _run(["uname", "-m"])
             return
 
