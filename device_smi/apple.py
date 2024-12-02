@@ -1,13 +1,13 @@
-from .base import BaseDevice, BaseInfo, BaseMetrics, _run
+from .base import GPUDevice, BaseMetrics, _run
 
 
 class AppleGPUMetrics(BaseMetrics):
     pass
 
 
-class AppleDevice(BaseDevice):
-    def __init__(self, cls, index: int = 0):
-        super().__init__(index)
+class AppleDevice(GPUDevice):
+    def __init__(self, cls):
+        super().__init__(cls)
         self.gpu_id = 0
 
         args = ["system_profiler", "SPDisplaysDataType"]
@@ -25,7 +25,6 @@ class AppleDevice(BaseDevice):
 
         memory_total = int(_run(["sysctl", "-n", "hw.memsize"]))
 
-        cls.type = "gpu"
         cls.model = model.lower()
         cls.memory_total = memory_total  # bytes
         cls.vendor = vendor.lower()

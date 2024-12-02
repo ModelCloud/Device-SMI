@@ -9,8 +9,8 @@ class CPUMetrics(BaseMetrics):
 
 
 class CPUDevice(BaseDevice):
-    def __init__(self, cls, index: int = 0):
-        super().__init__(index)
+    def __init__(self, cls):
+        super().__init__(cls, "cpu")
 
         model = "Unknown Model"
         vendor = "Unknown vendor"
@@ -92,7 +92,6 @@ class CPUDevice(BaseDevice):
         elif "amd" in vendor.lower():
             vendor = "AMD"
 
-        cls.type = "cpu"
         cls.model = model.lower()
         cls.vendor = vendor.lower()
         cls.memory_total = mem_total  # Bytes

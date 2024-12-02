@@ -9,7 +9,7 @@ class OSMetrics(BaseMetrics):
 
 class OSDevice(BaseDevice):
     def __init__(self, cls):
-        super().__init__("os")
+        super().__init__(cls, "os")
 
         def text_to_dict(text):
             return {k.strip(): v.strip() for k, v in (line.split("=", 1) for line in text.splitlines() if ':' in line)}

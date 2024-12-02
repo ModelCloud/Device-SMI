@@ -3,8 +3,8 @@ from abc import abstractmethod
 
 
 class BaseDevice:
-    def __init__(self, type: str):
-        self.type = type
+    def __init__(self, cls, type: str):
+        cls.type = type
 
     @abstractmethod
     def metrics(self):
@@ -14,21 +14,13 @@ class BaseDevice:
         return str(self.__dict__)
 
 
-class BaseInfo:
-    def __init__(
-        self,
-        type: str = "UNKNOWN",
-        model: str = "UNKNOWN",
-        vendor: str = "UNKNOWN",
-        memory_total: int = 0,
-    ):
-        self.type = type
-        self.model = model
-        self.vendor = vendor
-        self.memory_total = memory_total
+class GPUDevice(BaseDevice):
+    def __init__(self, cls):
+        super().__init__(cls, "gpu")
 
-    def __str__(self):
-        return str(self.__dict__)
+    @abstractmethod
+    def metrics(self):
+        pass
 
 
 class BaseMetrics:

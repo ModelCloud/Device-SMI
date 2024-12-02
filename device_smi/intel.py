@@ -1,14 +1,15 @@
 import json
 
-from .base import BaseDevice, BaseInfo, BaseMetrics, _run, Pcie, GPU
+from .base import GPUDevice, BaseMetrics, _run, Pcie, GPU
+
 
 class IntelGPUMetrics(BaseMetrics):
     pass
 
 
-class IntelDevice(BaseDevice):
+class IntelDevice(GPUDevice):
     def __init__(self, cls, index: int = 0):
-        super().__init__(index)
+        super().__init__(cls)
         self.gpu_id = index
 
         try:
@@ -33,7 +34,6 @@ class IntelDevice(BaseDevice):
             driver = data["driver_version"]
             firmware = data["gfx_firmware_version"]
 
-            cls.type = "gpu"
             cls.model = model.lower()
             cls.memory_total = int(total_memory)  # bytes
             cls.vendor = vendor.lower()

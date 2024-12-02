@@ -1,15 +1,15 @@
 import os
 
-from .base import BaseDevice, BaseMetrics, _run, Pcie, GPU
+from .base import BaseMetrics, _run, Pcie, GPU, GPUDevice
 
 
 class NvidiaGPUMetrics(BaseMetrics):
     pass
 
 
-class NvidiaDevice(BaseDevice):
-    def __init__(self, cls, index: int = 0):
-        super().__init__(index)
+class NvidiaDevice(GPUDevice):
+    def __init__(self, cls):
+        super().__init__(cls)
         self.gpu_id = self._get_gpu_id()
 
         try:
@@ -42,7 +42,6 @@ class NvidiaDevice(BaseDevice):
                 .removeprefix("compute_cap\n")
             )
 
-            cls.type = "gpu"
             cls.model = model.strip().lower()
             cls.memory_total = int(total_memory) * 1024 * 1024  # bytes
             cls.vendor = "nvidia"
