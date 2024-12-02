@@ -31,6 +31,8 @@ class OSDevice(BaseDevice):
         elif platform.system().lower() == "windows":
             command_result = _run(["wmic", "os", "get", "caption,version", "/format:csv"])
             command_lines = command_result.strip().split("\n")
+            for c in command_lines:
+                print(c)
             print(len(command_lines))
             result = command_lines[1].split(",")
             name = result[1]
