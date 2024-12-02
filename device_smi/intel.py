@@ -1,4 +1,5 @@
 import json
+import re
 
 from .base import GPUDevice, BaseMetrics, _run, Pcie, GPU
 
@@ -21,8 +22,9 @@ class IntelDevice(GPUDevice):
 
             model = data["device_name"]
 
-            if model and model.lower().startswith("intel(r)"):
-                model = model[8:].strip()
+            if model:
+                model = model.lower().replace("intel(r)", "").replace("core(tm)", "").replace("cpu @", "")
+                model = re.sub(r"\s?\d+(\.\d+)?ghz", "", model).strip()
             vendor = data["vendor_name"]
             if vendor and vendor.lower().startswith("intel"):
                 vendor = "Intel"
