@@ -28,6 +28,17 @@ Supported Devices:
 
 ## Usage
 
+For OS, use `os` to init a new Device object.
+
+```py
+from device_smi import Device
+
+dev = Device("os")
+print(dev)
+```
+
+> {'name': 'linux', 'version': '#26~22.04.1-Ubuntu SMP Thu Jul 11 22:33:04 UTC 2024', 'arch': '64'}
+
 For GPU/XPU, use [`gpu`, `cuda`] for Nvidia and `xpu` for Intel/XPU. Index usage for multiple GPUs: `cuda:0`
 
 ```py
