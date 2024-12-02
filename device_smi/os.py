@@ -47,6 +47,8 @@ class OSDevice(BaseDevice):
             cls.arch = "x86_64"
         if cls.arch in ["i386", "i86pc"]:
             cls.arch = "x86"
+        if cls.arch in ["arm64"]:
+            cls.arch = "aarch64"
 
     def metrics(self):
         pass
