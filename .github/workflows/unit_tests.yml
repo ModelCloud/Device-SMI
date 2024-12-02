@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ ubuntu-latest, macos-latest, macos-13, windows-latest ] # macos-latest arm64
     steps:
       - uses: actions/checkout@v4
 
