@@ -13,8 +13,8 @@ class OSDevice(BaseDevice):
 
         cls.type = "os"
         cls.name = platform.system().lower()
-        cls.version = platform.version().lower()
-        cls.arch = platform.architecture()[0].lower().removesuffix("bit").strip()
+        cls.version = platform.version().lower()  # TODO, get distribution name
+        cls.arch = platform.architecture()[0].lower().strip()  # TODO, get x86
 
     def metrics(self):
         pass
