@@ -10,7 +10,7 @@ Self-contained Python lib with zero-dependencies that give you a unified `device
 </p>
 
 ## News
-* 12/02/2024 [0.3.0](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.0) Added `OSDevice`.[`name`, `version`, `kernel`, `arch`] for Linux/MacOS/Windows/FreeBSD/Solaris. Added `cpu.`[`count`, `cores`, `threads`] properties.  [`firmware`, `driver`] properties to `GPU` device. Bug fix for gpu device index. 
+* 12/02/2024 [0.3.0](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.0) Added `OSDevice`.[`name`, `version`, `kernel`, `arch`] for Linux/MacOS/Windows/FreeBSD/Solaris. Added `cpu.`[`count`, `cores`, `threads`] properties. Bug fix for gpu device index. 
 * 11/29/2024 [0.2.1](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.2.1) Added `pcie.`[`gen`, `speed`, `id`] + [`firmware`, `driver`] properties to `GPU` device.
 
 ## Features
@@ -22,6 +22,7 @@ Self-contained Python lib with zero-dependencies that give you a unified `device
 
 Supported Devices:
 
+- **OS**: Linux, MacOS, Windows, FreeBSD, Solaris
 - **CPU**: [Intel/AMD/Apple] Linux/MacOS system interface
 - **NVIDIA GPU**: NVIDIA System Management Interface `nvidia-smi`
 - **Intel XPU**: Intel/XPU System Management Interface `xpu-smi`
