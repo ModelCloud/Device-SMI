@@ -1,4 +1,5 @@
 import platform
+import re
 
 from .base import BaseDevice, BaseMetrics, _run
 
@@ -14,7 +15,12 @@ class OSDevice(BaseDevice):
         if platform.system().lower() == "linux" or platform.system().lower() == "freebsd" or platform.system().lower() == "solaris":
             release_info = self.to_dict(_run(["cat", "/etc/os-release"]).replace("\"", "").lower(), "=")
             cls.name = release_info["name"]
+
             cls.version = release_info["version_id"]
+            match = re.match(r"(\d+\.\d+)", cls.version)
+            if match:
+                cls.version = match.group(1)
+
             cls.arch = _run(["uname", "-m"])
             return
         if platform.system().lower() == "darwin":
