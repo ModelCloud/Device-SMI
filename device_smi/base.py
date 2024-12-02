@@ -3,8 +3,8 @@ from abc import abstractmethod
 
 
 class BaseDevice:
-    def __init__(self, index: int = 0):
-        self.index = index
+    def __init__(self, type: str):
+        self.type = type
 
     @abstractmethod
     def metrics(self):

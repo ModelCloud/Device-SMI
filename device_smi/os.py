@@ -1,6 +1,6 @@
 import platform
 
-from .base import BaseDevice, BaseMetrics
+from .base import BaseDevice, BaseMetrics, _run
 
 
 class OSMetrics(BaseMetrics):
@@ -9,9 +9,18 @@ class OSMetrics(BaseMetrics):
 
 class OSDevice(BaseDevice):
     def __init__(self, cls):
-        super().__init__(0)
+        super().__init__("os")
 
-        cls.type = "os"
+        def text_to_dict(text):
+            return {k.strip(): v.strip() for k, v in (line.split("=", 1) for line in text.splitlines() if ':' in line)}
+
+        if platform.system().lower() == "linux":
+            release_info = text_to_dict(_run(["cat", "/etc/os-release"]).lower())
+            cls.name = release_info["name"].replace("\"", "")
+            cls.version = release_info["version_id"].replace("\"", "")
+            cls.arch = _run(["uname", "-m"])
+            return
+
         cls.name = platform.system().lower()
         cls.version = platform.version().lower()  # TODO, get distribution name
         cls.arch = platform.architecture()[0].lower().strip()  # TODO, get x86
