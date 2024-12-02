@@ -37,7 +37,9 @@ dev = Device("os")
 print(dev)
 ```
 
-> {'name': 'linux', 'version': '#26~22.04.1-Ubuntu SMP Thu Jul 11 22:33:04 UTC 2024', 'arch': '64'}
+Output: (Ubuntu 22.04)
+
+> {'type': 'os', 'name': 'ubuntu', 'version': '22.04', 'arch': 'x86_64'}
 
 For GPU/XPU, use [`gpu`, `cuda`] for Nvidia and `xpu` for Intel/XPU. Index usage for multiple GPUs: `cuda:0`
 
