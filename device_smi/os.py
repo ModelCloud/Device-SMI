@@ -12,7 +12,7 @@ class OSDevice(BaseDevice):
     def __init__(self, cls):
         super().__init__(cls, "os")
 
-        if platform.system().lower() == "linux" or platform.system().lower() == "freebsd" or platform.system().lower() == "solaris":
+        if platform.system().lower() == "linux" or platform.system().lower() == "freebsd" or platform.system().lower() == "solaris" or platform.system().lower() == "sunos":
             release_info = self.to_dict(_run(["cat", "/etc/os-release"]).replace("\"", "").lower(), "=")
             cls.name = release_info["name"]
 
@@ -32,8 +32,8 @@ class OSDevice(BaseDevice):
 
 
         cls.name = platform.system().lower()
-        cls.version = platform.version().lower()  # TODO, get distribution name
-        cls.arch = platform.architecture()[0].lower().strip()  # TODO, get x86
+        cls.version = platform.version().lower()
+        cls.arch = platform.architecture()[0].lower().strip()
 
     def metrics(self):
         pass
