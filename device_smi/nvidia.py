@@ -1,4 +1,5 @@
 import os
+import warnings
 
 from .base import BaseMetrics, _run, Pcie, GPU, GPUDevice
 
@@ -54,10 +55,13 @@ class NvidiaDevice(GPUDevice):
             raise e
 
     def _get_gpu_id(self):
+        gpu_count = len(_run(["nvidia-smi", "--list-gpus"]).splitlines())
         cudas = os.environ.get("CUDA_VISIBLE_DEVICES", "")
         cuda_list = cudas.split(",") if cudas else []
         if cuda_list and len(cuda_list) > self.index:
             return cuda_list[self.index]
+        elif gpu_count > 0 and not cuda_list:
+            warnings.warn("Detected different devices in the system. Please make sure to set `CUDA_DEVICE_ORDER=PCI_BUS_ID` to avoid unexpected behavior.", RuntimeWarning, 2)
         else:
             return str(self.index)
 
