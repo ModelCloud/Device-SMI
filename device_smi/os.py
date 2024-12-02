@@ -17,6 +17,13 @@ class OSDevice(BaseDevice):
             cls.version = release_info["version_id"]
             cls.arch = _run(["uname", "-m"])
             return
+        if platform.system().lower() == "darwin":
+            release_info = self.to_dict(_run(["sw_vers"]).lower())
+            cls.name = release_info["ProductName"]
+            cls.version = release_info["ProductVersion"]
+            cls.arch = _run(["uname", "-m"])
+            return
+
 
         cls.name = platform.system().lower()
         cls.version = platform.version().lower()  # TODO, get distribution name
