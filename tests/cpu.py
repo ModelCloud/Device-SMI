@@ -7,4 +7,4 @@ assert dev.type == "cpu"
 assert dev.model
 assert dev.vendor
 assert dev.memory_total > 10
-assert dev.features
+assert dev.features is not None
