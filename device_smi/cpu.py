@@ -60,7 +60,7 @@ class CPUDevice(BaseDevice):
             cpu_cores = int(sysctl_info["hw.physicalcpu"])
             cpu_threads = int(sysctl_info["hw.logicalcpu"])
 
-            mem_total = int(sysctl_info["hw.memsize"])
+            mem_total = int(_run(["sysctl", "-n", "hw.memsize"]))
 
             features = sysctl_info["machdep.cpu.features"].splitlines()
 
