@@ -10,7 +10,8 @@ Self-contained Python lib with zero-dependencies that give you a unified `device
 </p>
 
 ## News
-* 11/29/2024 [0.2.1](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.2.1) Add `pcie.`[`gen`, `speed`, `id`] + [`firmware`, `driver`] properties to `GPU` device.
+* 12/02/2024 [0.3.0](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.0) Added `OSDevice`.[`name`, `version`, `kernel`, `arch`] for Linux/MacOS/FreeBSD/Solaris. Added `cpu.`[`count`, `cores`, `threads`] properties.  [`firmware`, `driver`] properties to `GPU` device. Bug fix for gpu device index. 
+* 11/29/2024 [0.2.1](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.2.1) Added `pcie.`[`gen`, `speed`, `id`] + [`firmware`, `driver`] properties to `GPU` device.
 
 ## Features
 
@@ -70,9 +71,7 @@ Output: (AMD EPYC 7443)
 
 ## Roadmap
 
-- Support Non-Apple ARM
 - Support AMD GPU
 - Support Intel/Gaudi
 - Support Google/TPU
 - Add NPU support (ARM/Intel/AMD)
-- Add Non-Linux/MacOS support (BSD/Sun)
