@@ -34,7 +34,7 @@ class OSDevice(BaseDevice):
             result = command_result.split("\n")[1].split(",")
             name = result[1]
             version = result[2]
-            name = name.lower().removeprefix("microsoft").strip()
+            name = name.lower().removeprefix("microsoft").strip().removeprefix("windows").strip()
             cls.name = name
             cls.version = version
             cls.arch = os.environ.get("PROCESSOR_ARCHITECTURE").lower()
