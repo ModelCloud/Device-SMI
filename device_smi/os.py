@@ -39,7 +39,7 @@ class OSDevice(BaseDevice):
             cls.version = version
             cls.arch = os.environ.get("PROCESSOR_ARCHITECTURE").lower()
 
-            cls.kernel = _run(["ver"])
+            cls.kernel = _run(["cmd", "/c", "ver"])
         else:
             cls.name = platform.system().lower()
             cls.version = platform.version().lower()
