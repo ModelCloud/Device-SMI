@@ -58,8 +58,18 @@ class CPUDevice(BaseDevice):
             features = " ".join([line.split(":", 1)[1].strip() for line in result.splitlines() if "machdep.cpu.features" in line]).split()
 
             flags = set(features)
-
         else:
+            def text_to_dict(text):
+                return {k.strip(): v.strip() for k, v in (line.split(":", 1) for line in text.splitlines() if ':' in line)}
+
+            cpu_info = text_to_dict(_run(['lscpu']))
+
+            cpu_count = int(cpu_info["Socket(s)"])
+            cpu_thread_per_core = int(cpu_info["Thread(s) per core"])
+            cpu_cores_per_socket = int(cpu_info["Core(s) per socket"])
+            cpu_cores = cpu_thread_per_core * cpu_cores_per_socket
+            cpu_threads = int(cpu_info["CPU(s)"])
+
             with open("/proc/meminfo", "r") as f:
                 lines = f.readlines()
                 mem_total = 0
@@ -78,6 +88,9 @@ class CPUDevice(BaseDevice):
         cls.vendor = vendor.lower()
         cls.memory_total = mem_total  # Bytes
         self.memory_total = mem_total  # Bytes
+        cls.count = cpu_count
+        cls.cores = cpu_cores
+        cls.threads = cpu_threads
         cls.features = sorted(set(f.lower() for f in flags))
 
     def _utilization(self):

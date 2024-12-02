@@ -70,7 +70,8 @@ class GPU:
     def __repr__(self):
         return self.__str__()
 
-def _run(args) -> str:
+
+def _run(args, line_start: str = None) -> str:
     result = subprocess.run(
         args,
         stdout=subprocess.PIPE,
@@ -81,4 +82,7 @@ def _run(args) -> str:
     if result.returncode != 0 or result.stderr.strip() != "":
         raise RuntimeError(result.stderr)
 
-    return result.stdout.strip()
+    result = result.stdout.strip()
+    if line_start:
+        return " ".join([line for line in result.splitlines() if line.strip().startswith(line_start)])
+    return result
