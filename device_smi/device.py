@@ -26,8 +26,14 @@ class Device:
             self.device = OSDevice(self)
             return
         else:
-            device_type = f"{device}".lower()
-            device_index = 0
+            d = f"{device}".lower()
+            if ":" in d:
+                type, index = d.split(":")
+                device_type = type
+                device_index = (int(index))
+            else:
+                device_type = d
+                device_index = 0
 
         self.pcie = None
         self.gpu = None
