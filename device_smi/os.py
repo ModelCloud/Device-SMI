@@ -1,3 +1,4 @@
+import os
 import platform
 import re
 
@@ -21,12 +22,18 @@ class OSDevice(BaseDevice):
             if match:
                 cls.version = match.group(1)
 
-            cls.arch = _run(["uname", "-m"])
-        if platform.system().lower() == "darwin":
+            cls.arch = _run(["uname", "-m"]).lower()
+        elif platform.system().lower() == "darwin":
             release_info = self.to_dict(_run(["sw_vers"]).lower())
             cls.name = release_info["productname"]
             cls.version = release_info["productversion"]
-            cls.arch = _run(["uname", "-m"])
+            cls.arch = _run(["uname", "-m"]).lower()
+        elif platform.system().lower() == "windows":
+            _, name, version = _run(["wmic", "os", "get", "caption,version", "/format:csv"]).split(",")
+            name = name.lower().removeprefix("microsoft").strip()
+            cls.name = name
+            cls.version = version
+            cls.arch = os.environ.get("PROCESSOR_ARCHITECTURE").lower()
         else:
             cls.name = platform.system().lower()
             cls.version = platform.version().lower()
