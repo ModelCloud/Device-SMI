@@ -22,6 +22,7 @@ Self-contained Python lib with zero-dependencies that give you a unified `device
 
 Supported Devices:
 
+- **OS**: Linux, MacOS, Windows, FreeBSD, Solaris
 - **CPU**: [Intel/AMD/Apple] Linux/MacOS system interface
 - **NVIDIA GPU**: NVIDIA System Management Interface `nvidia-smi`
 - **Intel XPU**: Intel/XPU System Management Interface `xpu-smi`
