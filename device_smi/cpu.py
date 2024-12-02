@@ -1,14 +1,7 @@
 import os
 import platform
-import subprocess
 
-from .base import BaseDevice, BaseInfo, BaseMetrics, _run
-
-
-class CPUInfo(BaseInfo):
-    def __init__(self, features=[], *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.features = features
+from .base import BaseDevice, BaseMetrics, _run
 
 
 class CPUMetrics(BaseMetrics):
@@ -16,8 +9,8 @@ class CPUMetrics(BaseMetrics):
 
 
 class CPUDevice(BaseDevice):
-    def __init__(self, cls, index: int = 0):
-        super().__init__(index)
+    def __init__(self, cls):
+        super().__init__(cls, "cpu")
 
         model = "Unknown Model"
         vendor = "Unknown vendor"
@@ -52,24 +45,37 @@ class CPUDevice(BaseDevice):
                 )
                 try:
                     vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
-                except subprocess.CalledProcessError:
+                except BaseException:
                     vendor = "Apple"
             else:
                 model = platform.processor()
                 vendor = platform.uname().system
 
         if platform.system() == "Darwin":
+            sysctl_info = self.to_dict(_run(["sysctl", "-a"]))
+            cpu_count = 1
+            cpu_cores = int(sysctl_info["hw.physicalcpu"])
+            cpu_threads = int(sysctl_info["hw.logicalcpu"])
+
             mem_total = int(_run(["sysctl", "-n", "hw.memsize"]))
-            features = (
-                _run(["sysctl -a | grep machdep.cpu.features"])
-                .split(":")[1]
-                .strip()
-                .split()
-            )
+
+            try:
+                features = sysctl_info["machdep.cpu.features"].splitlines()
+            except Exception:
+                # machdep.cpu.features is not available on arm arch
+                features = []
 
             flags = set(features)
-
         else:
+
+            cpu_info = self.to_dict(_run(['lscpu']))
+
+            cpu_count = int(cpu_info["Socket(s)"])
+            cpu_thread_per_core = int(cpu_info["Thread(s) per core"])
+            cpu_cores_per_socket = int(cpu_info["Core(s) per socket"])
+            cpu_cores = cpu_thread_per_core * cpu_cores_per_socket
+            cpu_threads = int(cpu_info["CPU(s)"])
+
             with open("/proc/meminfo", "r") as f:
                 lines = f.readlines()
                 mem_total = 0
@@ -83,11 +89,13 @@ class CPUDevice(BaseDevice):
         elif "amd" in vendor.lower():
             vendor = "AMD"
 
-        cls.type = "cpu"
         cls.model = model.lower()
         cls.vendor = vendor.lower()
         cls.memory_total = mem_total  # Bytes
         self.memory_total = mem_total  # Bytes
+        cls.count = cpu_count
+        cls.cores = cpu_cores
+        cls.threads = cpu_threads
         cls.features = sorted(set(f.lower() for f in flags))
 
     def _utilization(self):

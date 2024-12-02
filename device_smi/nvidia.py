@@ -1,21 +1,16 @@
 import os
+import warnings
 
-from .base import BaseDevice, BaseInfo, BaseMetrics, _run, Pcie, GPU
-
-
-class NvidiaGPU(BaseInfo):
-    def __init__(self, features=[], *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.features = features
+from .base import BaseMetrics, _run, Pcie, GPU, GPUDevice
 
 
 class NvidiaGPUMetrics(BaseMetrics):
     pass
 
 
-class NvidiaDevice(BaseDevice):
-    def __init__(self, cls, index: int = 0):
-        super().__init__(index)
+class NvidiaDevice(GPUDevice):
+    def __init__(self, cls, index):
+        super().__init__(cls, index)
         self.gpu_id = self._get_gpu_id()
 
         try:
@@ -48,7 +43,6 @@ class NvidiaDevice(BaseDevice):
                 .removeprefix("compute_cap\n")
             )
 
-            cls.type = "gpu"
             cls.model = model.strip().lower()
             cls.memory_total = int(total_memory) * 1024 * 1024  # bytes
             cls.vendor = "nvidia"
@@ -61,8 +55,11 @@ class NvidiaDevice(BaseDevice):
             raise e
 
     def _get_gpu_id(self):
+        gpu_count = len(_run(["nvidia-smi", "--list-gpus"]).splitlines())
         cudas = os.environ.get("CUDA_VISIBLE_DEVICES", "")
         cuda_list = cudas.split(",") if cudas else []
+        if gpu_count > 0 and os.environ.get("CUDA_DEVICE_ORDER", "") != "PCI_BUS_ID":
+            warnings.warn("Detected different devices in the system. Please make sure to set `CUDA_DEVICE_ORDER=PCI_BUS_ID` to avoid unexpected behavior.", RuntimeWarning, 2)
         if cuda_list and len(cuda_list) > self.index:
             return cuda_list[self.index]
         else:

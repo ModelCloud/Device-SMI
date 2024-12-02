@@ -1,19 +1,16 @@
 import json
+import re
 
-from .base import BaseDevice, BaseInfo, BaseMetrics, _run, Pcie, GPU
-
-
-class IntelGPU(BaseInfo):
-    pass  # TODO, add PCIE & DRIVER
+from .base import GPUDevice, BaseMetrics, _run, Pcie, GPU
 
 
 class IntelGPUMetrics(BaseMetrics):
     pass
 
 
-class IntelDevice(BaseDevice):
+class IntelDevice(GPUDevice):
     def __init__(self, cls, index: int = 0):
-        super().__init__(index)
+        super().__init__(cls, index)
         self.gpu_id = index
 
         try:
@@ -25,8 +22,9 @@ class IntelDevice(BaseDevice):
 
             model = data["device_name"]
 
-            if model and model.lower().startswith("intel(r)"):
-                model = model[8:].strip()
+            if model:
+                model = model.lower().replace("intel(r)", "").replace("core(tm)", "").replace("cpu @", "")
+                model = re.sub(r"\s?\d+(\.\d+)?ghz", "", model).strip()
             vendor = data["vendor_name"]
             if vendor and vendor.lower().startswith("intel"):
                 vendor = "Intel"
@@ -38,7 +36,6 @@ class IntelDevice(BaseDevice):
             driver = data["driver_version"]
             firmware = data["gfx_firmware_version"]
 
-            cls.type = "gpu"
             cls.model = model.lower()
             cls.memory_total = int(total_memory)  # bytes
             cls.vendor = vendor.lower()

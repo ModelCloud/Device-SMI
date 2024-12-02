@@ -1,6 +1,11 @@
 name: Unit tests
 
+defaults:
+  run:
+    shell: bash -le {0}
+
 on:
+  push:
   repository_dispatch:
   workflow_dispatch:
 
@@ -9,9 +14,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-
+        os: [ ubuntu-latest, macos-latest, macos-13, windows-latest ] # macos-latest arm64, macos-13 intel
     steps:
       - uses: actions/checkout@v4
 
@@ -20,6 +25,46 @@ jobs:
           python-version: 3.11
           cache: 'pip'
 
-      - name: run test
+      - name: install
+        run: pip install .
+
+      - name: test os
+        run: python tests/os.py
+
+      - name: test cpu
+        if: always() && matrix.os != 'windows-latest'
         run: |
-          python3 test.py
+          echo "${{ matrix.os }}"
+          python tests/cpu.py
+
+  freebsd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test in FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          prepare: |
+            env ASSUME_ALWAYS_YES=yes pkg install -y python py311-pip
+          run: |
+            python -V
+            python -m venv venv
+            . venv/bin/activate
+            pip install .
+            python tests/os.py
+
+  solaris:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test in Solaris
+        uses: vmactions/solaris-vm@v1
+        with:
+          run: |
+            python -V
+            python -m venv venv
+            source venv/bin/activate
+            pip install .
+            python tests/os.py

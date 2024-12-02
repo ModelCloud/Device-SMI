@@ -2,3 +2,5 @@
 .cadence/
 build/
 dist/
+device_smi.egg-info/
+venv/

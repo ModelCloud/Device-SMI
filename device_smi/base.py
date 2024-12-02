@@ -3,8 +3,8 @@ from abc import abstractmethod
 
 
 class BaseDevice:
-    def __init__(self, index: int = 0):
-        self.index = index
+    def __init__(self, cls, type: str):
+        cls.type = type
 
     @abstractmethod
     def metrics(self):
@@ -13,22 +13,18 @@ class BaseDevice:
     def __str__(self):
         return str(self.__dict__)
 
+    def to_dict(self, text, split: str = ":"):
+        return {k.strip(): v.strip() for k, v in (line.split(split, 1) for line in text.splitlines() if split in line)}
 
-class BaseInfo:
-    def __init__(
-        self,
-        type: str = "UNKNOWN",
-        model: str = "UNKNOWN",
-        vendor: str = "UNKNOWN",
-        memory_total: int = 0,
-    ):
-        self.type = type
-        self.model = model
-        self.vendor = vendor
-        self.memory_total = memory_total
 
-    def __str__(self):
-        return str(self.__dict__)
+class GPUDevice(BaseDevice):
+    def __init__(self, cls, index):
+        super().__init__(cls, "gpu")
+        self.index = index
+
+    @abstractmethod
+    def metrics(self):
+        pass
 
 
 class BaseMetrics:
@@ -70,7 +66,8 @@ class GPU:
     def __repr__(self):
         return self.__str__()
 
-def _run(args) -> str:
+
+def _run(args, line_start: str = None) -> str:
     result = subprocess.run(
         args,
         stdout=subprocess.PIPE,
@@ -81,4 +78,7 @@ def _run(args) -> str:
     if result.returncode != 0 or result.stderr.strip() != "":
         raise RuntimeError(result.stderr)
 
-    return result.stdout.strip()
+    result = result.stdout.strip()
+    if line_start:
+        return " ".join([line for line in result.splitlines() if line.strip().startswith(line_start)])
+    return result
