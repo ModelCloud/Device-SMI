@@ -6,8 +6,8 @@ class AppleGPUMetrics(BaseMetrics):
 
 
 class AppleDevice(GPUDevice):
-    def __init__(self, cls):
-        super().__init__(cls)
+    def __init__(self, cls, index):
+        super().__init__(cls, index)
         self.gpu_id = 0
 
         args = ["system_profiler", "SPDisplaysDataType"]

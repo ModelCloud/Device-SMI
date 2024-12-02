@@ -56,7 +56,7 @@ class Device:
                     self.device = NvidiaDevice(self, device_index)
 
         elif device_type == "cpu":
-            self.device = CPUDevice(self, device_index)
+            self.device = CPUDevice(self)
         else:
             raise Exception(f"The device {device_type} is not supported")
 

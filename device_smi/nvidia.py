@@ -8,8 +8,8 @@ class NvidiaGPUMetrics(BaseMetrics):
 
 
 class NvidiaDevice(GPUDevice):
-    def __init__(self, cls):
-        super().__init__(cls)
+    def __init__(self, cls, index):
+        super().__init__(cls, index)
         self.gpu_id = self._get_gpu_id()
 
         try:

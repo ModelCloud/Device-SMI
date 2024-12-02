@@ -9,7 +9,7 @@ class IntelGPUMetrics(BaseMetrics):
 
 class IntelDevice(GPUDevice):
     def __init__(self, cls, index: int = 0):
-        super().__init__(cls)
+        super().__init__(cls, index)
         self.gpu_id = index
 
         try:
