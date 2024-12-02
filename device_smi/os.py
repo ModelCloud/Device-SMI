@@ -11,11 +11,8 @@ class OSDevice(BaseDevice):
     def __init__(self, cls):
         super().__init__(cls, "os")
 
-        def text_to_dict(text):
-            return {k.strip(): v.strip() for k, v in (line.split("=", 1) for line in text.splitlines() if '=' in line)}
-
         if platform.system().lower() == "linux":
-            release_info = text_to_dict(_run(["cat", "/etc/os-release"]).replace("\"", "").lower())
+            release_info = self.to_dict(_run(["cat", "/etc/os-release"]).replace("\"", "").lower(), "=")
             cls.name = release_info["name"]
             cls.version = release_info["version_id"]
             cls.arch = _run(["uname", "-m"])

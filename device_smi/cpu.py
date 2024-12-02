@@ -51,11 +51,8 @@ class CPUDevice(BaseDevice):
                 model = platform.processor()
                 vendor = platform.uname().system
 
-        def text_to_dict(text):
-            return {k.strip(): v.strip() for k, v in (line.split(":", 1) for line in text.splitlines() if ':' in line)}
-
         if platform.system() == "Darwin":
-            sysctl_info = text_to_dict(_run(["sysctl", "-a"]))
+            sysctl_info = self.to_dict(_run(["sysctl", "-a"]))
             cpu_count = 1
             cpu_cores = int(sysctl_info["hw.physicalcpu"])
             cpu_threads = int(sysctl_info["hw.logicalcpu"])
@@ -71,7 +68,7 @@ class CPUDevice(BaseDevice):
             flags = set(features)
         else:
 
-            cpu_info = text_to_dict(_run(['lscpu']))
+            cpu_info = self.to_dict(_run(['lscpu']))
 
             cpu_count = int(cpu_info["Socket(s)"])
             cpu_thread_per_core = int(cpu_info["Thread(s) per core"])

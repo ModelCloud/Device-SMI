@@ -13,6 +13,9 @@ class BaseDevice:
     def __str__(self):
         return str(self.__dict__)
 
+    def to_dict(self, text, split: str = ":"):
+        return {k.strip(): v.strip() for k, v in (line.split(split, 1) for line in text.splitlines() if split in line)}
+
 
 class GPUDevice(BaseDevice):
     def __init__(self, cls, index):
