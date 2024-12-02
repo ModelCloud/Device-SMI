@@ -9,6 +9,8 @@ Self-contained Python lib with zero-dependencies that give you a unified `device
     <a href="https://github.com/ModelCloud/Device-SMI/blob/main/LICENSE"><img src="https://img.shields.io/pypi/l/device-smi" alt="License"></a>
 </p>
 
+## News
+* 11/29/2024 [0.2.1](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.2.1) Add `pcie.`[`gen`, `speed`, `id`] + [`firmware`, `driver`] properties to `GPU` device.
 
 ## Features
 
@@ -60,6 +62,5 @@ Output: (AMD EPYC 7443)
 - Support AMD GPU
 - Support Intel/Gaudi
 - Support Google/TPU
-- Add PCIE property info to GPU/XPU
 - Add NPU support (ARM/Intel/AMD)
 - Add Non-Linux/MacOS support (BSD/Sun)
