@@ -29,14 +29,12 @@ class OSDevice(BaseDevice):
             cls.version = release_info["productversion"]
             cls.kernel, cls.arch = _run(["uname", "-mr"]).lower().split()
         elif platform.system().lower() == "windows":
-            command_result = _run(["wmic", "os", "get", "caption,version", "/format:csv"]).strip()
+            command_result = _run(["wmic", "os", "get", "caption", "/format:csv"]).strip()
             command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
             result = command_result.split("\n")[1].split(",")
-            name = result[1]
-            version = result[2]
-            name = name.lower().removeprefix("microsoft windows").strip()
-            cls.name = name
-            cls.version = version
+            name = result[0]
+            cls.name = "windows"
+            cls.version = name.lower().removeprefix("microsoft windows").strip()
             cls.arch = os.environ.get("PROCESSOR_ARCHITECTURE").lower()
 
             cls.kernel = _run(["cmd", "/c", "ver"])
