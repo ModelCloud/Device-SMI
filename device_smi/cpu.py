@@ -62,7 +62,11 @@ class CPUDevice(BaseDevice):
 
             mem_total = int(_run(["sysctl", "-n", "hw.memsize"]))
 
-            features = sysctl_info["machdep.cpu.features"].splitlines()
+            try:
+                features = sysctl_info["machdep.cpu.features"].splitlines()
+            except Exception:
+                # machdep.cpu.features is not available on arm arch
+                features = []
 
             flags = set(features)
         else:
