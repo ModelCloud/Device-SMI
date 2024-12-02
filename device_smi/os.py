@@ -32,9 +32,8 @@ class OSDevice(BaseDevice):
             command_result = _run(["wmic", "os", "get", "caption", "/format:csv"]).strip()
             command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
             result = command_result.split("\n")[1].split(",")
-            name = result[0]
             cls.name = "windows"
-            cls.version = name.lower().removeprefix("microsoft windows").strip()
+            cls.version = result[1].lower().removeprefix("microsoft windows").strip()
             cls.arch = os.environ.get("PROCESSOR_ARCHITECTURE").lower()
 
             cls.kernel = _run(["cmd", "/c", "ver"])
