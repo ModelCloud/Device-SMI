@@ -40,6 +40,9 @@ class OSDevice(BaseDevice):
             cls.arch = os.environ.get("PROCESSOR_ARCHITECTURE").lower()
 
             cls.kernel = _run(["cmd", "/c", "ver"])
+            match = re.search(r'(\d+\.\d+\.\d+\.\d+)', cls.kernel)
+            if match:
+                cls.kernel = match.group(1)
         else:
             cls.name = platform.system().lower()
             cls.version = platform.version().lower()
