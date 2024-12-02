@@ -39,7 +39,7 @@ print(dev)
 
 Output: (Ubuntu 22.04)
 
-> {'type': 'os', 'name': 'ubuntu', 'version': '22.04', 'arch': 'x86_64'}
+> {'type': 'os', 'name': 'ubuntu', 'version': '22.04', 'kernel': '6.12.1-x64v3-xanmod2', 'arch': 'x86_64'}
 
 For GPU/XPU, use [`gpu`, `cuda`] for Nvidia and `xpu` for Intel/XPU. Index usage for multiple GPUs: `cuda:0`
 

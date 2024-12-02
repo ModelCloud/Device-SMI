@@ -15,19 +15,19 @@ class OSDevice(BaseDevice):
 
         if platform.system().lower() == "linux" or platform.system().lower() == "freebsd" or platform.system().lower() == "solaris" or platform.system().lower() == "sunos":
             release_info = self.to_dict(_run(["cat", "/etc/os-release"]).replace("\"", "").lower(), "=")
-            cls.name = release_info["name"]
+            cls.name = release_info["name"].replace("oracle", "").strip()
 
             cls.version = release_info["version_id"]
             match = re.match(r"(\d+\.\d+)", cls.version)
             if match:
                 cls.version = match.group(1)
 
-            cls.arch = _run(["uname", "-m"]).lower()
+            cls.kernel, cls.arch = _run(["uname", "-mr"]).lower().split()
         elif platform.system().lower() == "darwin":
             release_info = self.to_dict(_run(["sw_vers"]).lower())
             cls.name = release_info["productname"]
             cls.version = release_info["productversion"]
-            cls.arch = _run(["uname", "-m"]).lower()
+            cls.kernel, cls.arch = _run(["uname", "-mr"]).lower().split()
         elif platform.system().lower() == "windows":
             command_result = _run(["wmic", "os", "get", "caption,version", "/format:csv"]).strip()
             command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
@@ -38,12 +38,17 @@ class OSDevice(BaseDevice):
             cls.name = name
             cls.version = version
             cls.arch = os.environ.get("PROCESSOR_ARCHITECTURE").lower()
+
+            cls.kernel = _run(["cmd", "/c", "ver"])
+            match = re.search(r'(\d+\.\d+\.\d+\.\d+)', cls.kernel)
+            if match:
+                cls.kernel = match.group(1)
         else:
             cls.name = platform.system().lower()
             cls.version = platform.version().lower()
             cls.arch = platform.architecture()[0].lower().strip()
 
-        if cls.arch in ["amd64", "x64", "64bit"]:
+        if cls.arch in ["amd64", "x64"]:
             cls.arch = "x86_64"
         if cls.arch in ["i386", "i86pc"]:
             cls.arch = "x86"
