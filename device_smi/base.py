@@ -36,7 +36,7 @@ class BaseMetrics:
     ):
         self.memory_used = memory_used
         self.memory_process = memory_process
-        self.utilization = utilization
+        self.utilization = max(0.0, utilization)
 
     def __str__(self):
         return str(self.__dict__)
