@@ -85,13 +85,14 @@ class CPUDevice(BaseDevice):
             if platform.system().lower() == "windows":
                 # wmic cpu get name, numberofcores, numberoflogicalprocessors
                 # AMD Ryzen 9 7950X 16-Core Processor  16             32
-                command_result = _run(["wmic", "cpu", "get", "name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
+                command_result = _run(["wmic", "cpu", "get", "name,numberofcores,numberoflogicalprocessors,manufacturer", "/format:csv"]).strip()
                 command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
                 result = command_result.split("\n")[1].split(",")
                 cpu_count = 1  # TODO
                 model = result[1].strip()
                 cpu_cores = int(result[2])
                 cpu_threads = int(result[3])
+                vendor = result[4].strip()
 
                 # wmic OS get FreePhysicalMemory, TotalVisibleMemorySize /Value
                 command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
