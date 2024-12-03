@@ -165,20 +165,14 @@ class CPUDevice(BaseDevice):
                 utilization = (1 - (idle_diff / total_diff)) * 100
 
         if platform.system() == "Darwin":
-            available_mem = _run(["vm_stat"])
-            print("==================")
-            print(available_mem)
-            print("==================")
+            available_mem = _run(["vm_stat"]).replace(".", "").lower()
             available_mem = available_mem.splitlines()
+            page_size = re.findall(r'\d+', available_mem[0])
 
-            free_pages = 0
-            for line in available_mem:
-                if "Pages free" in line:
-                    free_pages = int(line.split(":")[1].strip().replace(".", ""))
-                    print(f"eeeeeeeeee free_pages={free_pages}")
-                    break
+            result = self.to_dict(available_mem)
+            free_pages = int(result["pages free"])
 
-            mem_free = free_pages * 16384
+            mem_free = free_pages *  page_size
         else:
             with open("/proc/meminfo", "r") as f:
                 lines = f.readlines()
