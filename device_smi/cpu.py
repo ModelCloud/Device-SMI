@@ -90,18 +90,8 @@ class CPUDevice(BaseDevice):
                 result = command_result.split("\n")[1].split(",")
                 mem_total = int(result[1])
 
-        model = model.lower()
-        if "amd" in model:
-            if "epyc" in model:
-                split = model.split(" ")
-                model = " ".join(split[1:3])
-            elif "ryzen" in model:
-                split = model.split(" ")
-                model = " ".join(split[1:4])
-        elif "intel" in model:
-            model = model.split(" ")[-1]
+        model = " ".join(i for i in model.lower().split() if not any(x in i for x in ["ghz", "cpu", "(r)", "(tm)", "intel", "amd", "core", "processor", "@"]))
         cls.model = model
-
 
         if "intel" in vendor.lower():
             vendor = "intel"
