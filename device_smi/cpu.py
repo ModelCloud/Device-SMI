@@ -90,18 +90,8 @@ class CPUDevice(BaseDevice):
                 result = command_result.split("\n")[1].split(",")
                 mem_total = int(result[1])
 
-        model = model.lower()
-        if "amd" in model:
-            if "epyc" in model:
-                split = model.split(" ")
-                model = " ".join(split[1:3])
-            elif "ryzen" in model:
-                split = model.split(" ")
-                model = " ".join(split[1:4])
-        elif "intel" in model:
-            model = model.split(" ")[-1]
+        model = " ".join(i for i in model.lower().split() if not any(x in i for x in ["ghz", "cpu", "(r)", "(tm)", "intel", "amd", "core", "processor", "@"]))
         cls.model = model
-
 
         if "intel" in vendor.lower():
             vendor = "intel"
@@ -166,7 +156,7 @@ class CPUDevice(BaseDevice):
         idle_diff = idle_time_2 - idle_time_1
 
         # total_diff might be 0
-        if total_diff == 0:
+        if total_diff <= 0:
             utilization = 0
         else:
             if platform.system() == "Darwin":
@@ -175,16 +165,16 @@ class CPUDevice(BaseDevice):
                 utilization = (1 - (idle_diff / total_diff)) * 100
 
         if platform.system() == "Darwin":
-            available_mem = _run(["vm_stat"])
+            available_mem = _run(["vm_stat"]).replace(".", "").lower()
+
+            result = self.to_dict(available_mem)
+
             available_mem = available_mem.splitlines()
+            page_size = int(re.findall(r'\d+', available_mem[0])[0])
 
-            free_pages = 0
-            for line in available_mem:
-                if "Pages free" in line:
-                    free_pages = int(line.split(":")[1].strip().replace(".", ""))
-                    break
+            free_pages = int(result["pages free"])
 
-            mem_free = free_pages * 16384
+            mem_free = free_pages *  page_size
         else:
             with open("/proc/meminfo", "r") as f:
                 lines = f.readlines()

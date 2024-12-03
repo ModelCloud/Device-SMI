@@ -77,10 +77,10 @@ class Device:
     def memory_total(self):
         return self.memory_total
 
-    def memory_used(self):
+    def memory_used(self) -> int:
         return self.device.metrics().memory_used
 
-    def utilization(self):
+    def utilization(self) -> float:
         return self.device.metrics().utilization
 
     def __str__(self):
