@@ -175,6 +175,7 @@ class CPUDevice(BaseDevice):
             for line in available_mem:
                 if "Pages free" in line:
                     free_pages = int(line.split(":")[1].strip().replace(".", ""))
+                    print(f"eeeeeeeeee free_pages={free_pages}")
                     break
 
             mem_free = free_pages * 16384
