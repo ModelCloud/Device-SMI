@@ -81,20 +81,16 @@ class CPUDevice(BaseDevice):
             elif "amd" in vendor.lower():
                 vendor = "AMD"
         else:
-            # {'type': 'cpu', 'model': 'epyc 7443', 'vendor': 'amd', 'memory_total': 1000000000000, 'count': 2, 'cores': 48, 'threads': 96, 'features': [] }
             if platform.system().lower() == "windows":
-                # wmic cpu get name, numberofcores, numberoflogicalprocessors
-                # AMD Ryzen 9 7950X 16-Core Processor  16             32
                 command_result = _run(["wmic", "cpu", "get", "name,numberofcores,numberoflogicalprocessors,manufacturer", "/format:csv"]).strip()
                 command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
                 result = command_result.split("\n")[1].split(",")
-                cpu_count = 1  # TODO
+                cpu_count = command_result.count('\n')
                 model = result[1].strip()
                 cpu_cores = int(result[2])
                 cpu_threads = int(result[3])
                 vendor = result[4].strip()
 
-                # wmic OS get FreePhysicalMemory, TotalVisibleMemorySize /Value
                 command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
                 command_result = re.sub(r'\n+', '\n', command_result)
                 result = command_result.split("\n")[1].split(",")
