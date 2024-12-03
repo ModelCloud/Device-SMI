@@ -40,7 +40,7 @@ class CPUDevice(BaseDevice):
                     try:
                         vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
                     except BaseException:
-                        vendor = "Apple"
+                        vendor = "apple"
                 else:
                     model = platform.processor()
                     vendor = platform.uname().system
@@ -75,11 +75,6 @@ class CPUDevice(BaseDevice):
                         if line.startswith("MemTotal:"):
                             mem_total = int(line.split()[1]) * 1024
                             break
-
-            if "intel" in vendor.lower():
-                vendor = "Intel"
-            elif "amd" in vendor.lower():
-                vendor = "AMD"
         else:
             if platform.system().lower() == "windows":
                 command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
@@ -107,7 +102,13 @@ class CPUDevice(BaseDevice):
         elif "intel" in model:
             model = model.split(" ")[-1]
         cls.model = model
-        cls.vendor = vendor.lower()
+
+
+        if "intel" in vendor.lower():
+            vendor = "intel"
+        elif "amd" in vendor.lower():
+            vendor = "amd"
+        cls.vendor = vendor.lower().replace("authentic", "")
         cls.memory_total = mem_total  # Bytes
         self.memory_total = mem_total  # Bytes
         cls.count = cpu_count
@@ -140,6 +141,24 @@ class CPUDevice(BaseDevice):
                         return total_time, idle_time
 
     def metrics(self):
+        if platform.system().lower() == "windows":
+            if platform.system().lower() == "windows":
+                command_result = _run(["wmic", "cpu", "get", "loadpercentage"]).strip()
+                command_result = re.sub(r'\n+', '\n', command_result)
+                result = command_result.split("\n")[1].split(",")
+                utilization = int(result[0])
+
+                command_result = _run(["wmic", "os", "get", "FreePhysicalMemory"]).strip()
+                command_result = re.sub(r'\n+', '\n', command_result)
+                result = command_result.split("\n")[1].split(",")
+                memory_used = int(result[0])
+
+                return CPUMetrics(
+                    memory_used=memory_used,  # bytes
+                    memory_process=0,  # bytes
+                    utilization=utilization,
+                )
+
         total_time_1, idle_time_1 = self._utilization()
         # read CPU status second time here, read too quickly will get inaccurate results
         total_time_2, idle_time_2 = self._utilization()
