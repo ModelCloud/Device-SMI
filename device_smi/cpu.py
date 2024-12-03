@@ -63,9 +63,8 @@ class CPUDevice(BaseDevice):
                 cpu_info = self.to_dict(_run(['lscpu']))
 
                 cpu_count = int(cpu_info["Socket(s)"])
-                cpu_thread_per_core = int(cpu_info["Thread(s) per core"])
                 cpu_cores_per_socket = int(cpu_info["Core(s) per socket"])
-                cpu_cores = cpu_thread_per_core * cpu_cores_per_socket
+                cpu_cores = cpu_count * cpu_cores_per_socket
                 cpu_threads = int(cpu_info["CPU(s)"])
 
                 with open("/proc/meminfo", "r") as f:
