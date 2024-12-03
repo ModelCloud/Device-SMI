@@ -166,10 +166,12 @@ class CPUDevice(BaseDevice):
 
         if platform.system() == "Darwin":
             available_mem = _run(["vm_stat"]).replace(".", "").lower()
+
+            result = self.to_dict(available_mem)
+
             available_mem = available_mem.splitlines()
             page_size = re.findall(r'\d+', available_mem[0])
 
-            result = self.to_dict(available_mem)
             free_pages = int(result["pages free"])
 
             mem_free = free_pages *  page_size
