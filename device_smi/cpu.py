@@ -18,6 +18,8 @@ class CPUDevice(BaseDevice):
         flags = set()
 
         if os.name == 'posix':
+            if "virtualization" in _run(["lscpu"]).lower():
+                cls.virtualized = True
             try:
                 with open("/proc/cpuinfo", "r") as f:
                     lines = f.readlines()
@@ -76,7 +78,7 @@ class CPUDevice(BaseDevice):
                             break
         else:
             if platform.system().lower() == "windows":
-                command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
+                command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors,VirtualizationFirmwareEnabled", "/format:csv"]).strip()
                 command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
                 result = command_result.split("\n")[1].split(",")
                 cpu_count = command_result.count('\n')
@@ -84,6 +86,7 @@ class CPUDevice(BaseDevice):
                 cpu_cores = int(result[3])
                 cpu_threads = int(result[4])
                 vendor = result[1].strip()
+                cls.virtualized = result[5].strip().lower() == "true"
 
                 command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
                 command_result = re.sub(r'\n+', '\n', command_result)
