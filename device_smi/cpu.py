@@ -18,7 +18,11 @@ class CPUDevice(BaseDevice):
         flags = set()
 
         if os.name == 'posix':
-            if "virtualization" in _run(["lscpu"]).lower():
+            if platform.system() == "darwin":
+                print("eeeeeeeeeee")
+                print(_run(['sysctl', 'machdep.cpu.features']))
+                print("eeeeeeeeeee")
+            elif "virtualization" in _run(["lscpu"]).lower():
                 cls.virtualized = True
             try:
                 with open("/proc/cpuinfo", "r") as f:
