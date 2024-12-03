@@ -9,7 +9,7 @@ assert dev.model
 for i in ["ghz", "cpu", "(r)", "(tm)", "intel", "amd", "core", "processor", "@"]:
     assert i not in dev.model
 
-assert dev.vendor in "amd, intel"
+assert dev.vendor in "amd, intel, apple"
 assert dev.memory_total > 10
 assert dev.features is not None
 assert dev.memory_used() >= 0
