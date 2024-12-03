@@ -102,10 +102,10 @@ class CPUDevice(BaseDevice):
                 cpu_threads = int(result[3])
 
                 # wmic OS get FreePhysicalMemory, TotalVisibleMemorySize /Value
-                command_result = _run(["wmic", "os", "get", "FreePhysicalMemory,TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
+                command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
                 command_result = re.sub(r'\n+', '\n', command_result)
                 result = command_result.split("\n")[1].split(",")
-                mem_total = int(result[2])
+                mem_total = int(result[1])
 
 
         cls.model = model.lower()
