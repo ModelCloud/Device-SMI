@@ -156,7 +156,7 @@ class CPUDevice(BaseDevice):
         idle_diff = idle_time_2 - idle_time_1
 
         # total_diff might be 0
-        if total_diff == 0:
+        if total_diff <= 0:
             utilization = 0
         else:
             if platform.system() == "Darwin":
