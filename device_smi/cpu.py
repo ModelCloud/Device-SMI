@@ -1,5 +1,6 @@
 import os
 import platform
+import re
 
 from .base import BaseDevice, BaseMetrics, _run
 
@@ -15,82 +16,98 @@ class CPUDevice(BaseDevice):
         model = "Unknown Model"
         vendor = "Unknown vendor"
         flags = set()
-        try:
-            with open("/proc/cpuinfo", "r") as f:
-                lines = f.readlines()
-                for line in lines:
-                    if line.startswith("flags"):
-                        flags.update(line.strip().split(":")[1].split())
-                    if line.startswith("model name"):
-                        model = line.split(":")[1].strip()
 
-                        if "amd" in model.lower():
-                            if "epyc" in model.lower():
-                                split = model.split(" ")
-                                model = " ".join(split[1:3])
-                            elif "ryzen" in model.lower():
-                                split = model.split(" ")
-                                model = " ".join(split[1:4])
-                        elif "intel" in model.lower():
-                            model = model.split(" ")[-1]
-
-                    elif line.startswith("vendor_id"):
-                        vendor = line.split(":")[1].strip()
-        except FileNotFoundError:
-            if platform.system() == "Darwin":
-                model = (
-                    _run(["sysctl", "-n", "machdep.cpu.brand_string"])
-                    .replace("Apple", "")
-                    .strip()
-                )
-                try:
-                    vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
-                except BaseException:
-                    vendor = "Apple"
-            else:
-                model = platform.processor()
-                vendor = platform.uname().system
-
-        if platform.system() == "Darwin":
-            sysctl_info = self.to_dict(_run(["sysctl", "-a"]))
-            cpu_count = 1
-            cpu_cores = int(sysctl_info["hw.physicalcpu"])
-            cpu_threads = int(sysctl_info["hw.logicalcpu"])
-
-            mem_total = int(_run(["sysctl", "-n", "hw.memsize"]))
-
+        if os.name == 'posix':
             try:
-                features = sysctl_info["machdep.cpu.features"].splitlines()
-            except Exception:
-                # machdep.cpu.features is not available on arm arch
-                features = []
+                with open("/proc/cpuinfo", "r") as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        if line.startswith("flags"):
+                            flags.update(line.strip().split(":")[1].split())
+                        if line.startswith("model name"):
+                            model = line.split(":")[1].strip()
 
-            flags = set(features)
+
+                        elif line.startswith("vendor_id"):
+                            vendor = line.split(":")[1].strip()
+            except FileNotFoundError:
+                if platform.system() == "Darwin":
+                    model = (
+                        _run(["sysctl", "-n", "machdep.cpu.brand_string"])
+                        .replace("Apple", "")
+                        .strip()
+                    )
+                    try:
+                        vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
+                    except BaseException:
+                        vendor = "apple"
+                else:
+                    model = platform.processor()
+                    vendor = platform.uname().system
+            if platform.system() == "Darwin":
+                sysctl_info = self.to_dict(_run(["sysctl", "-a"]))
+                cpu_count = 1
+                cpu_cores = int(sysctl_info["hw.physicalcpu"])
+                cpu_threads = int(sysctl_info["hw.logicalcpu"])
+
+                mem_total = int(_run(["sysctl", "-n", "hw.memsize"]))
+
+                try:
+                    features = sysctl_info["machdep.cpu.features"].splitlines()
+                except Exception:
+                    # machdep.cpu.features is not available on arm arch
+                    features = []
+
+                flags = set(features)
+            else:
+                cpu_info = self.to_dict(_run(['lscpu']))
+
+                cpu_count = int(cpu_info["Socket(s)"])
+                cpu_cores_per_socket = int(cpu_info["Core(s) per socket"])
+                cpu_cores = cpu_count * cpu_cores_per_socket
+                cpu_threads = int(cpu_info["CPU(s)"])
+
+                with open("/proc/meminfo", "r") as f:
+                    lines = f.readlines()
+                    mem_total = 0
+                    for line in lines:
+                        if line.startswith("MemTotal:"):
+                            mem_total = int(line.split()[1]) * 1024
+                            break
         else:
+            if platform.system().lower() == "windows":
+                command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
+                command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
+                result = command_result.split("\n")[1].split(",")
+                cpu_count = command_result.count('\n')
+                model = result[2].strip()
+                cpu_cores = int(result[3])
+                cpu_threads = int(result[4])
+                vendor = result[1].strip()
 
-            cpu_info = self.to_dict(_run(['lscpu']))
+                command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
+                command_result = re.sub(r'\n+', '\n', command_result)
+                result = command_result.split("\n")[1].split(",")
+                mem_total = int(result[1])
 
-            cpu_count = int(cpu_info["Socket(s)"])
-            cpu_thread_per_core = int(cpu_info["Thread(s) per core"])
-            cpu_cores_per_socket = int(cpu_info["Core(s) per socket"])
-            cpu_cores = cpu_thread_per_core * cpu_cores_per_socket
-            cpu_threads = int(cpu_info["CPU(s)"])
+        model = model.lower()
+        if "amd" in model:
+            if "epyc" in model:
+                split = model.split(" ")
+                model = " ".join(split[1:3])
+            elif "ryzen" in model:
+                split = model.split(" ")
+                model = " ".join(split[1:4])
+        elif "intel" in model:
+            model = model.split(" ")[-1]
+        cls.model = model
 
-            with open("/proc/meminfo", "r") as f:
-                lines = f.readlines()
-                mem_total = 0
-                for line in lines:
-                    if line.startswith("MemTotal:"):
-                        mem_total = int(line.split()[1]) * 1024
-                        break
 
         if "intel" in vendor.lower():
-            vendor = "Intel"
+            vendor = "intel"
         elif "amd" in vendor.lower():
-            vendor = "AMD"
-
-        cls.model = model.lower()
-        cls.vendor = vendor.lower()
+            vendor = "amd"
+        cls.vendor = vendor.lower().replace("authentic", "")
         cls.memory_total = mem_total  # Bytes
         self.memory_total = mem_total  # Bytes
         cls.count = cpu_count
@@ -123,6 +140,24 @@ class CPUDevice(BaseDevice):
                         return total_time, idle_time
 
     def metrics(self):
+        if platform.system().lower() == "windows":
+            if platform.system().lower() == "windows":
+                command_result = _run(["wmic", "cpu", "get", "loadpercentage"]).strip()
+                command_result = re.sub(r'\n+', '\n', command_result)
+                result = command_result.split("\n")[1].split(",")
+                utilization = int(result[0])
+
+                command_result = _run(["wmic", "os", "get", "FreePhysicalMemory"]).strip()
+                command_result = re.sub(r'\n+', '\n', command_result)
+                result = command_result.split("\n")[1].split(",")
+                memory_used = int(result[0])
+
+                return CPUMetrics(
+                    memory_used=memory_used,  # bytes
+                    memory_process=0,  # bytes
+                    utilization=utilization,
+                )
+
         total_time_1, idle_time_1 = self._utilization()
         # read CPU status second time here, read too quickly will get inaccurate results
         total_time_2, idle_time_2 = self._utilization()
