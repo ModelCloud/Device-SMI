@@ -166,6 +166,9 @@ class CPUDevice(BaseDevice):
 
         if platform.system() == "Darwin":
             available_mem = _run(["vm_stat"])
+            print("==================")
+            print(available_mem)
+            print("==================")
             available_mem = available_mem.splitlines()
 
             free_pages = 0
