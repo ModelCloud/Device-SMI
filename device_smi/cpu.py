@@ -27,15 +27,6 @@ class CPUDevice(BaseDevice):
                         if line.startswith("model name"):
                             model = line.split(":")[1].strip()
 
-                            if "amd" in model.lower():
-                                if "epyc" in model.lower():
-                                    split = model.split(" ")
-                                    model = " ".join(split[1:3])
-                                elif "ryzen" in model.lower():
-                                    split = model.split(" ")
-                                    model = " ".join(split[1:4])
-                            elif "intel" in model.lower():
-                                model = model.split(" ")[-1]
 
                         elif line.startswith("vendor_id"):
                             vendor = line.split(":")[1].strip()
@@ -98,6 +89,7 @@ class CPUDevice(BaseDevice):
                 command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
                 result = command_result.split("\n")[1].split(",")
                 cpu_count = 1  # TODO
+                model = result[1].strip()
                 cpu_cores = int(result[2])
                 cpu_threads = int(result[3])
 
@@ -107,8 +99,17 @@ class CPUDevice(BaseDevice):
                 result = command_result.split("\n")[1].split(",")
                 mem_total = int(result[1])
 
-
-        cls.model = model.lower()
+        model = model.lower()
+        if "amd" in model:
+            if "epyc" in model:
+                split = model.split(" ")
+                model = " ".join(split[1:3])
+            elif "ryzen" in model:
+                split = model.split(" ")
+                model = " ".join(split[1:4])
+        elif "intel" in model:
+            model = model.split(" ")[-1]
+        cls.model = model
         cls.vendor = vendor.lower()
         cls.memory_total = mem_total  # Bytes
         self.memory_total = mem_total  # Bytes
