@@ -51,10 +51,12 @@ class Device:
                 self.device = AppleDevice(self, device_index)
             else:
                 try:
-                    result = _run(["lspci", "|", "grep", "-i", "vga\|3d\|display"])
-
-                    output = result.lower()
-                    if "intel" in output:
+                    result = _run(["lspci"]).lower().splitlines()
+                    result = "\n".join([
+                        line for line in result
+                        if any(keyword.lower() in line.lower() for keyword in ['vga', '3d', 'display'])
+                    ])
+                    if "intel" in result:
                         self.device = IntelDevice(self, device_index)
                     else:
                         self.device = NvidiaDevice(self, device_index)
