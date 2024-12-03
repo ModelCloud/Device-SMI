@@ -1,5 +1,6 @@
 import os
 import platform
+import re
 
 from .base import BaseDevice, BaseMetrics, _run
 
@@ -15,79 +16,97 @@ class CPUDevice(BaseDevice):
         model = "Unknown Model"
         vendor = "Unknown vendor"
         flags = set()
-        try:
-            with open("/proc/cpuinfo", "r") as f:
-                lines = f.readlines()
-                for line in lines:
-                    if line.startswith("flags"):
-                        flags.update(line.strip().split(":")[1].split())
-                    if line.startswith("model name"):
-                        model = line.split(":")[1].strip()
 
-                        if "amd" in model.lower():
-                            if "epyc" in model.lower():
-                                split = model.split(" ")
-                                model = " ".join(split[1:3])
-                            elif "ryzen" in model.lower():
-                                split = model.split(" ")
-                                model = " ".join(split[1:4])
-                        elif "intel" in model.lower():
-                            model = model.split(" ")[-1]
-
-                    elif line.startswith("vendor_id"):
-                        vendor = line.split(":")[1].strip()
-        except FileNotFoundError:
-            if platform.system() == "Darwin":
-                model = (
-                    _run(["sysctl", "-n", "machdep.cpu.brand_string"])
-                    .replace("Apple", "")
-                    .strip()
-                )
-                try:
-                    vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
-                except BaseException:
-                    vendor = "Apple"
-            else:
-                model = platform.processor()
-                vendor = platform.uname().system
-
-        if platform.system() == "Darwin":
-            sysctl_info = self.to_dict(_run(["sysctl", "-a"]))
-            cpu_count = 1
-            cpu_cores = int(sysctl_info["hw.physicalcpu"])
-            cpu_threads = int(sysctl_info["hw.logicalcpu"])
-
-            mem_total = int(_run(["sysctl", "-n", "hw.memsize"]))
-
+        if os.name == 'posix':
             try:
-                features = sysctl_info["machdep.cpu.features"].splitlines()
-            except Exception:
-                # machdep.cpu.features is not available on arm arch
-                features = []
+                with open("/proc/cpuinfo", "r") as f:
+                    lines = f.readlines()
+                    for line in lines:
+                        if line.startswith("flags"):
+                            flags.update(line.strip().split(":")[1].split())
+                        if line.startswith("model name"):
+                            model = line.split(":")[1].strip()
 
-            flags = set(features)
+                            if "amd" in model.lower():
+                                if "epyc" in model.lower():
+                                    split = model.split(" ")
+                                    model = " ".join(split[1:3])
+                                elif "ryzen" in model.lower():
+                                    split = model.split(" ")
+                                    model = " ".join(split[1:4])
+                            elif "intel" in model.lower():
+                                model = model.split(" ")[-1]
+
+                        elif line.startswith("vendor_id"):
+                            vendor = line.split(":")[1].strip()
+            except FileNotFoundError:
+                if platform.system() == "Darwin":
+                    model = (
+                        _run(["sysctl", "-n", "machdep.cpu.brand_string"])
+                        .replace("Apple", "")
+                        .strip()
+                    )
+                    try:
+                        vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
+                    except BaseException:
+                        vendor = "Apple"
+                else:
+                    model = platform.processor()
+                    vendor = platform.uname().system
+            if platform.system() == "Darwin":
+                sysctl_info = self.to_dict(_run(["sysctl", "-a"]))
+                cpu_count = 1
+                cpu_cores = int(sysctl_info["hw.physicalcpu"])
+                cpu_threads = int(sysctl_info["hw.logicalcpu"])
+
+                mem_total = int(_run(["sysctl", "-n", "hw.memsize"]))
+
+                try:
+                    features = sysctl_info["machdep.cpu.features"].splitlines()
+                except Exception:
+                    # machdep.cpu.features is not available on arm arch
+                    features = []
+
+                flags = set(features)
+            else:
+                cpu_info = self.to_dict(_run(['lscpu']))
+
+                cpu_count = int(cpu_info["Socket(s)"])
+                cpu_thread_per_core = int(cpu_info["Thread(s) per core"])
+                cpu_cores_per_socket = int(cpu_info["Core(s) per socket"])
+                cpu_cores = cpu_thread_per_core * cpu_cores_per_socket
+                cpu_threads = int(cpu_info["CPU(s)"])
+
+                with open("/proc/meminfo", "r") as f:
+                    lines = f.readlines()
+                    mem_total = 0
+                    for line in lines:
+                        if line.startswith("MemTotal:"):
+                            mem_total = int(line.split()[1]) * 1024
+                            break
+
+            if "intel" in vendor.lower():
+                vendor = "Intel"
+            elif "amd" in vendor.lower():
+                vendor = "AMD"
         else:
+            # {'type': 'cpu', 'model': 'epyc 7443', 'vendor': 'amd', 'memory_total': 1000000000000, 'count': 2, 'cores': 48, 'threads': 96, 'features': [] }
+            if platform.system().lower() == "windows":
+                # wmic cpu get name, numberofcores, numberoflogicalprocessors
+                # AMD Ryzen 9 7950X 16-Core Processor  16             32
+                command_result = _run(["wmic", "cpu", "get", "name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
+                command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
+                result = command_result.split("\n")[1].split(",")
+                cpu_count = 1  # TODO
+                cpu_cores = int(result[2])
+                cpu_threads = int(result[3])
 
-            cpu_info = self.to_dict(_run(['lscpu']))
+                # wmic OS get FreePhysicalMemory, TotalVisibleMemorySize /Value
+                command_result = _run(["wmic", "os", "get", "FreePhysicalMemory,TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
+                command_result = re.sub(r'\n+', '\n', command_result)
+                result = command_result.split("\n")[1].split(",")
+                mem_total = int(result[2])
 
-            cpu_count = int(cpu_info["Socket(s)"])
-            cpu_thread_per_core = int(cpu_info["Thread(s) per core"])
-            cpu_cores_per_socket = int(cpu_info["Core(s) per socket"])
-            cpu_cores = cpu_thread_per_core * cpu_cores_per_socket
-            cpu_threads = int(cpu_info["CPU(s)"])
-
-            with open("/proc/meminfo", "r") as f:
-                lines = f.readlines()
-                mem_total = 0
-                for line in lines:
-                    if line.startswith("MemTotal:"):
-                        mem_total = int(line.split()[1]) * 1024
-                        break
-
-        if "intel" in vendor.lower():
-            vendor = "Intel"
-        elif "amd" in vendor.lower():
-            vendor = "AMD"
 
         cls.model = model.lower()
         cls.vendor = vendor.lower()

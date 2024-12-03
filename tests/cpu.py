@@ -8,3 +8,6 @@ assert dev.model
 assert dev.vendor
 assert dev.memory_total > 10
 assert dev.features is not None
+
+if __name__ == '__main__':
+    print()
