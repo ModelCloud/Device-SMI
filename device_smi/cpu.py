@@ -170,7 +170,7 @@ class CPUDevice(BaseDevice):
             result = self.to_dict(available_mem)
 
             available_mem = available_mem.splitlines()
-            page_size = re.findall(r'\d+', available_mem[0])
+            page_size = int(re.findall(r'\d+', available_mem[0])[0])
 
             free_pages = int(result["pages free"])
 
