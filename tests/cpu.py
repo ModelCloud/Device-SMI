@@ -16,7 +16,7 @@ assert dev.features is not None
 print(f"memory_used={dev.memory_used()}")
 assert dev.memory_used() > 0
 print(f"utilization={dev.utilization()}")
-assert dev.utilization() >= 0
+assert dev.utilization() >= 0.0
 
 print(f"mem used={dev.memory_used() / 1024 / 1024 / 1024:.2f} GB | utilization={dev.utilization()}%")
 
