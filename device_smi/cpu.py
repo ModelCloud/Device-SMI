@@ -18,7 +18,7 @@ class CPUDevice(BaseDevice):
         flags = set()
 
         if os.name == 'posix':
-            if platform.system() == "darwin":
+            if platform.system().lower() == "darwin":
                 print("eeeeeeeeeee")
                 print(_run(['sysctl', 'machdep.cpu.features']))
                 print("eeeeeeeeeee")
