@@ -82,14 +82,14 @@ class CPUDevice(BaseDevice):
                 vendor = "AMD"
         else:
             if platform.system().lower() == "windows":
-                command_result = _run(["wmic", "cpu", "get", "name,numberofcores,numberoflogicalprocessors,manufacturer", "/format:csv"]).strip()
+                command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
                 command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
                 result = command_result.split("\n")[1].split(",")
                 cpu_count = command_result.count('\n')
-                model = result[1].strip()
-                cpu_cores = int(result[2])
-                cpu_threads = int(result[3])
-                vendor = result[4].strip()
+                model = result[2].strip()
+                cpu_cores = int(result[3])
+                cpu_threads = int(result[4])
+                vendor = result[1].strip()
 
                 command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
                 command_result = re.sub(r'\n+', '\n', command_result)
