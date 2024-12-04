@@ -19,6 +19,16 @@ except BaseException:
 
 class Device:
     def __init__(self, device):
+
+        # CPU/GPU Device
+        self.type = None
+        self.features = None
+        self.vendor = None
+        self.model = None
+        # OS Device
+        self.arch = None
+        self.version = None
+        self.name = None
         if HAS_TORCH and isinstance(device, torch.device):
             device_type = device.type.lower()
             device_index = device.index

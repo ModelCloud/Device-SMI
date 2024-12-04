@@ -12,4 +12,4 @@ if dev.gpu:
     assert dev.gpu.driver
     assert dev.gpu.firmware
 assert dev.model
-assert dev.memory_total > 10, f"wrong memory size: {dev.memory_total}"
+assert dev.memory_total() > 10, f"wrong memory size: {dev.memory_total()}"
