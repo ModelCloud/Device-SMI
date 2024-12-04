@@ -31,7 +31,7 @@ class CPUDevice(BaseDevice):
                         elif line.startswith("vendor_id"):
                             vendor = line.split(":")[1].strip()
             except FileNotFoundError:
-                if platform.system() == "Darwin":
+                if platform.system().lower() == "darwin":
                     model = (
                         _run(["sysctl", "-n", "machdep.cpu.brand_string"])
                         .replace("Apple", "")
@@ -44,7 +44,7 @@ class CPUDevice(BaseDevice):
                 else:
                     model = platform.processor()
                     vendor = platform.uname().system
-            if platform.system() == "Darwin":
+            if platform.system().lower() == "darwin":
                 sysctl_info = self.to_dict(_run(["sysctl", "-a"]))
                 cpu_count = 1
                 cpu_cores = int(sysctl_info["hw.physicalcpu"])
@@ -107,7 +107,7 @@ class CPUDevice(BaseDevice):
 
     def _utilization(self):
         # check if is macOS
-        if platform.system() == "Darwin":
+        if platform.system().lower() == "darwin":
             output = _run(["top", "-l", "1", "-stats", "cpu"])
 
             # CPU usage: 7.61% user, 15.23% sys, 77.15% idle
@@ -159,12 +159,12 @@ class CPUDevice(BaseDevice):
         if total_diff <= 0:
             utilization = 0
         else:
-            if platform.system() == "Darwin":
+            if platform.system().lower() == "darwin":
                 utilization = idle_time_2 - idle_time_1
             else:
                 utilization = (1 - (idle_diff / total_diff)) * 100
 
-        if platform.system() == "Darwin":
+        if platform.system().lower() == "darwin":
             available_mem = _run(["vm_stat"]).replace(".", "").lower()
 
             result = self.to_dict(available_mem)
@@ -187,7 +187,7 @@ class CPUDevice(BaseDevice):
         memory_used = self.memory_total - mem_free
 
         process_id = os.getpid()
-        if platform.system() == "Darwin":
+        if platform.system().lower() == "darwin":
             result = _run(["ps", "-p", str(process_id), "-o", "rss="])
             memory_current_process = int(result) * 1024
         else:

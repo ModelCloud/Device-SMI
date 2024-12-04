@@ -44,7 +44,7 @@ class Device:
             or device_type == "xpu"
             or re.match(r"(gpu|cuda|xpu):\d+", device_type)
         ):
-            if platform.system() == "Darwin":
+            if platform.system().lower() == "darwin":
                 if platform.machine() == 'x86_64':
                     raise Exception("Not supported for macOS on Intel chips.")
 
