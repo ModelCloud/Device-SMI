@@ -31,7 +31,7 @@ class CPUDevice(BaseDevice):
             command_result = re.sub(r'\n+', '\n', command_result)
             result = command_result.split("\n")[1].split(",")
             mem_total = int(result[1])
-        elif os.name == 'darwin':
+        elif platform.system().lower() == 'darwin':
             model = (_run(["sysctl", "-n", "machdep.cpu.brand_string"]).replace("Apple", "").strip())
             try:
                 vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
@@ -60,8 +60,6 @@ class CPUDevice(BaseDevice):
                             flags.update(line.strip().split(":")[1].split())
                         if line.startswith("model name"):
                             model = line.split(":")[1].strip()
-
-
                         elif line.startswith("vendor_id"):
                             vendor = line.split(":")[1].strip()
             except FileNotFoundError:
