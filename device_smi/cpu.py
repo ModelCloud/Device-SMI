@@ -17,7 +17,46 @@ class CPUDevice(BaseDevice):
         vendor = "Unknown vendor"
         flags = set()
 
-        if os.name == 'posix':
+        if platform.system().lower() == "windows":
+            command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
+            command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
+            result = command_result.split("\n")[1].split(",")
+            cpu_count = command_result.count('\n')
+            model = result[2].strip()
+            cpu_cores = int(result[3])
+            cpu_threads = int(result[4])
+            vendor = result[1].strip()
+
+            command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
+            command_result = re.sub(r'\n+', '\n', command_result)
+            result = command_result.split("\n")[1].split(",")
+            mem_total = int(result[1])
+        elif platform.system().lower() == "darwin":
+            model = (
+                _run(["sysctl", "-n", "machdep.cpu.brand_string"])
+                .replace("Apple", "")
+                .strip()
+            )
+            try:
+                vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
+            except BaseException:
+                vendor = "apple"
+
+            sysctl_info = self.to_dict(_run(["sysctl", "-a"]))
+            cpu_count = 1
+            cpu_cores = int(sysctl_info["hw.physicalcpu"])
+            cpu_threads = int(sysctl_info["hw.logicalcpu"])
+
+            mem_total = int(_run(["sysctl", "-n", "hw.memsize"]))
+
+            try:
+                features = sysctl_info["machdep.cpu.features"].splitlines()
+            except Exception:
+                # machdep.cpu.features is not available on arm arch
+                features = []
+
+            flags = set(features)
+        else:
             try:
                 with open("/proc/cpuinfo", "r") as f:
                     lines = f.readlines()
@@ -26,39 +65,12 @@ class CPUDevice(BaseDevice):
                             flags.update(line.strip().split(":")[1].split())
                         if line.startswith("model name"):
                             model = line.split(":")[1].strip()
-
-
                         elif line.startswith("vendor_id"):
                             vendor = line.split(":")[1].strip()
             except FileNotFoundError:
-                if platform.system().lower() == "darwin":
-                    model = (
-                        _run(["sysctl", "-n", "machdep.cpu.brand_string"])
-                        .replace("Apple", "")
-                        .strip()
-                    )
-                    try:
-                        vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
-                    except BaseException:
-                        vendor = "apple"
-                else:
+                if platform.system().lower() != "darwin":
                     model = platform.processor()
                     vendor = platform.uname().system
-            if platform.system().lower() == "darwin":
-                sysctl_info = self.to_dict(_run(["sysctl", "-a"]))
-                cpu_count = 1
-                cpu_cores = int(sysctl_info["hw.physicalcpu"])
-                cpu_threads = int(sysctl_info["hw.logicalcpu"])
-
-                mem_total = int(_run(["sysctl", "-n", "hw.memsize"]))
-
-                try:
-                    features = sysctl_info["machdep.cpu.features"].splitlines()
-                except Exception:
-                    # machdep.cpu.features is not available on arm arch
-                    features = []
-
-                flags = set(features)
             else:
                 cpu_info = self.to_dict(_run(['lscpu']))
 
@@ -74,21 +86,6 @@ class CPUDevice(BaseDevice):
                         if line.startswith("MemTotal:"):
                             mem_total = int(line.split()[1]) * 1024
                             break
-        else:
-            if platform.system().lower() == "windows":
-                command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
-                command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
-                result = command_result.split("\n")[1].split(",")
-                cpu_count = command_result.count('\n')
-                model = result[2].strip()
-                cpu_cores = int(result[3])
-                cpu_threads = int(result[4])
-                vendor = result[1].strip()
-
-                command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
-                command_result = re.sub(r'\n+', '\n', command_result)
-                result = command_result.split("\n")[1].split(",")
-                mem_total = int(result[1])
 
         model = " ".join(i for i in model.lower().split() if not any(x in i for x in ["ghz", "cpu", "(r)", "(tm)", "intel", "amd", "core", "processor", "@"]))
         cls.model = model
