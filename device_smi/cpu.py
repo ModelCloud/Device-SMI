@@ -31,12 +31,8 @@ class CPUDevice(BaseDevice):
             command_result = re.sub(r'\n+', '\n', command_result)
             result = command_result.split("\n")[1].split(",")
             mem_total = int(result[1])
-        elif platform.system().lower() == "darwin":
-            model = (
-                _run(["sysctl", "-n", "machdep.cpu.brand_string"])
-                .replace("Apple", "")
-                .strip()
-            )
+        elif os.name == 'darwin':
+            model = (_run(["sysctl", "-n", "machdep.cpu.brand_string"]).replace("Apple", "").strip())
             try:
                 vendor = (_run(["sysctl", "-n", "machdep.cpu.vendor"]))
             except BaseException:
@@ -52,11 +48,10 @@ class CPUDevice(BaseDevice):
             try:
                 features = sysctl_info["machdep.cpu.features"].splitlines()
             except Exception:
-                # machdep.cpu.features is not available on arm arch
                 features = []
 
             flags = set(features)
-        else:
+        elif os.name == 'posix':
             try:
                 with open("/proc/cpuinfo", "r") as f:
                     lines = f.readlines()
@@ -65,27 +60,30 @@ class CPUDevice(BaseDevice):
                             flags.update(line.strip().split(":")[1].split())
                         if line.startswith("model name"):
                             model = line.split(":")[1].strip()
+
+
                         elif line.startswith("vendor_id"):
                             vendor = line.split(":")[1].strip()
             except FileNotFoundError:
-                if platform.system().lower() != "darwin":
-                    model = platform.processor()
-                    vendor = platform.uname().system
-            else:
-                cpu_info = self.to_dict(_run(['lscpu']))
+                model = platform.processor()
+                vendor = platform.uname().system
 
-                cpu_count = int(cpu_info["Socket(s)"])
-                cpu_cores_per_socket = int(cpu_info["Core(s) per socket"])
-                cpu_cores = cpu_count * cpu_cores_per_socket
-                cpu_threads = int(cpu_info["CPU(s)"])
+            cpu_info = self.to_dict(_run(['lscpu']))
 
-                with open("/proc/meminfo", "r") as f:
-                    lines = f.readlines()
-                    mem_total = 0
-                    for line in lines:
-                        if line.startswith("MemTotal:"):
-                            mem_total = int(line.split()[1]) * 1024
-                            break
+            cpu_count = int(cpu_info["Socket(s)"])
+            cpu_cores_per_socket = int(cpu_info["Core(s) per socket"])
+            cpu_cores = cpu_count * cpu_cores_per_socket
+            cpu_threads = int(cpu_info["CPU(s)"])
+
+            with open("/proc/meminfo", "r") as f:
+                lines = f.readlines()
+                mem_total = 0
+                for line in lines:
+                    if line.startswith("MemTotal:"):
+                        mem_total = int(line.split()[1]) * 1024
+                        break
+        else:
+            print("not support")
 
         model = " ".join(i for i in model.lower().split() if not any(x in i for x in ["ghz", "cpu", "(r)", "(tm)", "intel", "amd", "core", "processor", "@"]))
         cls.model = model
@@ -171,7 +169,7 @@ class CPUDevice(BaseDevice):
 
             free_pages = int(result["pages free"])
 
-            mem_free = free_pages *  page_size
+            mem_free = free_pages * page_size
         else:
             with open("/proc/meminfo", "r") as f:
                 lines = f.readlines()
