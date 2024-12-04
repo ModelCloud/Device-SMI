@@ -33,9 +33,7 @@ jobs:
 
       - name: test cpu
         if: always()
-        run: |
-          echo "${{ matrix.os }}"
-          python tests/cpu.py
+        run: python tests/cpu.py
 
   freebsd:
     runs-on: ubuntu-latest
@@ -68,3 +66,19 @@ jobs:
             source venv/bin/activate
             pip install .
             python tests/os.py
+  gpu:
+    runs-on: self-hosted
+    container:
+      image: 10.0.14.248:5000/modelcloud/gptqmodel:compiler_cuda124-torch2.5.1-python311
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install
+        run: pip install .
+
+      - name: test os
+        run: python tests/os.py
+
+      - name: test gpu
+        if: always()
+        run: python tests/cpu.py
