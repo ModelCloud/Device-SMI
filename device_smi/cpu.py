@@ -21,6 +21,7 @@ class CPUDevice(BaseDevice):
             command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
             command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
             result = command_result.split("\n")[1].split(",")
+
             cpu_count = command_result.count('\n')
             model = result[2].strip()
             cpu_cores = int(result[3])
@@ -30,6 +31,7 @@ class CPUDevice(BaseDevice):
             command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
             command_result = re.sub(r'\n+', '\n', command_result)
             result = command_result.split("\n")[1].split(",")
+
             mem_total = int(result[1])
         elif platform.system().lower() == 'darwin':
             model = (_run(["sysctl", "-n", "machdep.cpu.brand_string"]).replace("Apple", "").strip())

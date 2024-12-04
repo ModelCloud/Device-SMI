@@ -21,6 +21,7 @@ class Device:
     def __init__(self, device):
 
         # CPU/GPU Device
+        self.memory_total = None
         self.type = None
         self.features = None
         self.vendor = None
@@ -85,9 +86,6 @@ class Device:
             stacklevel=2
         )
         return self
-
-    def memory_total(self):
-        return self.memory_total
 
     def memory_used(self) -> int:
         return self.device.metrics().memory_used

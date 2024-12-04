@@ -10,7 +10,7 @@ for i in ["ghz", "cpu", "(r)", "(tm)", "intel", "amd", "core", "processor", "@"]
     assert i not in dev.model, f"{i} should be removed in model"
 
 assert dev.vendor in "amd, intel, apple", f"check vendor: {dev.vendor}"
-assert dev.memory_total() > 10, f"wrong memory size: {dev.memory_total()}"
+assert dev.memory_total > 10, f"wrong memory size: {dev.memory_total}"
 assert dev.features is not None
 
 memory_used = dev.memory_used()
