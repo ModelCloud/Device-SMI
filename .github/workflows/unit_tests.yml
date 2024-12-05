@@ -76,13 +76,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: Vampire/setup-wsl@v4
-      - run: |
-          ls
-          python -V
-          python -m venv venv
-          source venv/bin/activate
-          pip install .
-          python tests/os.py
+
+      - shell: wsl-bash -u root {0}
+        run: |
+            ls
+            python -V
+            python -m venv venv
+            source venv/bin/activate
+            pip install .
+            python tests/os.py
 
   gpu:
     runs-on: self-hosted
