@@ -7,6 +7,7 @@ Self-contained Python lib with zero-dependencies that give you a unified `device
     <a href="https://pypi.org/project/device-smi/" style="text-decoration:none;"><img alt="PyPI - Version" src="https://img.shields.io/pypi/v/device-smi"></a>
     <a href="https://pepy.tech/projects/device-smi" style="text-decoration:none;"><img src="https://static.pepy.tech/badge/device-smi" alt="PyPI Downloads"></a>
     <a href="https://github.com/ModelCloud/Device-SMI/blob/main/LICENSE"><img src="https://img.shields.io/pypi/l/device-smi" alt="License"></a>
+    <a href="https://huggingface.co/modelcloud/"><img src="https://img.shields.io/badge/🤗%20Hugging%20Face-modelcloud-%23ff8811.svg"></a>
 </p>
 
 ## News
