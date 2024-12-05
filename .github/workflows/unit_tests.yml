@@ -80,8 +80,8 @@ jobs:
       - shell: wsl-bash -u root {0}
         run: |
             ls
-            python -V
-            python -m venv venv
+            python3 -V
+            python3 -m venv venv
             source venv/bin/activate
             pip install .
             python tests/os.py
