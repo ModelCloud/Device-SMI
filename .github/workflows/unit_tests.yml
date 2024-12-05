@@ -80,10 +80,10 @@ jobs:
           additional-packages:
             python3-pip
             python3-venv
-      - shell: wsl-bash -u root {0}
+
+      - name: test os
+        shell: wsl-bash -u root {0}
         run: |
-            ls
-            python3 -V
             python3 -m venv venv
             source venv/bin/activate
             pip install .
