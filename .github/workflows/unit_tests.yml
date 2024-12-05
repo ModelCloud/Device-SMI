@@ -14,7 +14,7 @@ env:
   RUNNER: 10.0.14.248
 
 jobs:
-  build:
+  test:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -70,10 +70,22 @@ jobs:
             source venv/bin/activate
             pip install .
             python tests/os.py
+
+  wsl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Vampire/setup-wsl@v4
+      - run: |
+          npm ci
+          npm run build
+          npm run package
+
   gpu:
     runs-on: self-hosted
     container:
-      image: ${RUNNER}:5000/modelcloud/gptqmodel:compiler_cuda124-torch2.5.1-python311
+      image: ${{ env.RUNNER }}:5000/modelcloud/gptqmodel:compiler_cuda124-torch2.5.1-python311
     steps:
       - uses: actions/checkout@v4
 
