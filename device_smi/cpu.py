@@ -134,8 +134,14 @@ class CPUDevice(BaseDevice):
             if platform.system().lower() == "windows":
                 command_result = _run(["wmic", "cpu", "get", "loadpercentage"]).strip()
                 command_result = re.sub(r'\n+', '\n', command_result)
-                result = command_result.split("\n")[1].split(",")
-                utilization = int(result[0])
+                try:
+                    result = command_result.split("\n")[1].split(",")
+                    utilization = int(result[0])
+                except BaseException as e:
+                    print(f"error occurred, command_result: ")
+                    print(f"{command_result}")
+                    print(f"------------")
+                    raise e
 
                 command_result = _run(["wmic", "os", "get", "FreePhysicalMemory"]).strip()
                 command_result = re.sub(r'\n+', '\n', command_result)
