@@ -86,10 +86,7 @@ jobs:
         run: |
             echo 1
             cat /etc/os-release
-            #echo 2
-            #lsb_release -d
-#            echo 3
-#            hostnamectl
+
             echo 4
             cat /etc/issue
             python3 -m venv venv
