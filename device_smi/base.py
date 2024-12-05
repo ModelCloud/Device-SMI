@@ -1,5 +1,6 @@
 import subprocess
 from abc import abstractmethod
+from typing import Optional, Callable
 
 
 class BaseDevice:
@@ -67,7 +68,7 @@ class GPU:
         return self.__str__()
 
 
-def _run(args, line_start: str = None) -> str:
+def _run(args, line_start: Optional[str] = None) -> str:
     result = subprocess.run(
         args,
         stdout=subprocess.PIPE,

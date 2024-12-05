@@ -13,7 +13,7 @@ setup(
     url="https://github.com/ModelCloud/Device-SMI/",
     packages=find_packages(),
     install_requires=[],
-    platform=["linux"],
+    platform=["linux", "windows", "darwin", "solaris", "freebsd"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
