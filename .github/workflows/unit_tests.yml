@@ -77,9 +77,12 @@ jobs:
 
       - uses: Vampire/setup-wsl@v4
       - run: |
-          npm ci
-          npm run build
-          npm run package
+          ls
+          python -V
+          python -m venv venv
+          source venv/bin/activate
+          pip install .
+          python tests/os.py
 
   gpu:
     runs-on: self-hosted
