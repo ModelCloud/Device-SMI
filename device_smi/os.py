@@ -15,7 +15,7 @@ class OSDevice(BaseDevice):
 
         if platform.system().lower() == "linux" or platform.system().lower() == "freebsd" or platform.system().lower() == "solaris" or platform.system().lower() == "sunos":
             release_info = self.to_dict(_run(["cat", "/etc/os-release"]).replace("\"", "").lower(), "=")
-            cls.name = release_info["name"].replace("oracle", "").strip()
+            cls.name = release_info["name"].replace("oracle", "").replace("gnu/linux", "").strip()
 
             cls.version = release_info["version_id"]
             match = re.match(r"(\d+\.\d+)", cls.version)
