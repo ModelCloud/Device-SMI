@@ -11,6 +11,7 @@ Self-contained Python lib with zero-dependencies that give you a unified `device
 </p>
 
 ## News
+* 12/20/2024 [0.3.3](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.3) Patch fix for Windows install compatibility.
 * 12/05/2024 [0.3.2](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.2) Added Windows `WSL` support.
 * 12/03/2024 [0.3.1](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.1) Added `CPUDevice` compat for Windows.
 * 12/02/2024 [0.3.0](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.0) Added `OSDevice`.[`name`, `version`, `kernel`, `arch`] for Linux/MacOS/Windows/FreeBSD/Solaris. Added `cpu.`[`count`, `cores`, `threads`] properties. Bug fix for gpu device index. 
