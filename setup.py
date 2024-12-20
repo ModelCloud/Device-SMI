@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 from pathlib import Path
 
-__version__ = "0.3.3"
+__version__ = "0.4.0-dev"
 
 setup(
     name="device-smi",
