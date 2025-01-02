@@ -121,6 +121,6 @@ jobs:
         run: |
           export PATH="/opt/homebrew/bin:$PATH" && eval "$(pyenv init -)"
           pyenv global 3.11.11 && python -m venv venv
-          curl -O http://${{ needs.check-vm.outputs.ip }}/scripts/m4/profile.sb
-          curl -O http://${{ needs.check-vm.outputs.ip }}/scripts/m4/device-smi.sh
+          curl -O http://10.0.14.248/scripts/m4/profile.sb
+          curl -O http://10.0.14.248/scripts/m4/device-smi.sh
           sandbox-exec -f profile.sb /bin/bash ./device-smi.sh
