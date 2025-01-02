@@ -91,7 +91,7 @@ jobs:
             python tests/os.py
 
   gpu:
-    runs-on: self-hosted
+    runs-on: [self-hosted, Linux]
     container:
       image: 10.0.14.248:5000/modelcloud/gptqmodel:compiler_cuda124-torch2.5.1-python311
     steps:
@@ -111,3 +111,16 @@ jobs:
       - name: test gpu
         if: always()
         run: python tests/cpu.py
+
+  m4:
+    runs-on:  [self-hosted, m4]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run test
+        run: |
+          export PATH="/opt/homebrew/bin:$PATH" && eval "$(pyenv init -)"
+          pyenv global 3.11.11 && python -m venv venv
+          curl -O http://${{ needs.check-vm.outputs.ip }}/scripts/m4/profile.sb
+          curl -O http://${{ needs.check-vm.outputs.ip }}/scripts/m4/device-smi.sh
+          sandbox-exec -f profile.sb /bin/bash ./device-smi.sh
