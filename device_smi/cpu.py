@@ -18,6 +18,12 @@ class CPUDevice(BaseDevice):
         flags = set()
 
         if os.name == 'posix':
+            if platform.system().lower() == "darwin":
+                print("eeeeeeeeeee")
+                print(_run(['sysctl', 'machdep.cpu.features']))
+                print("eeeeeeeeeee")
+            elif "virtualization" in _run(["lscpu"]).lower():
+                cls.virtualized = True
             try:
                 with open("/proc/cpuinfo", "r") as f:
                     lines = f.readlines()
@@ -76,19 +82,23 @@ class CPUDevice(BaseDevice):
                             break
         else:
             if platform.system().lower() == "windows":
-                command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
-                command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
-                result = command_result.split("\n")[1].split(",")
-                cpu_count = command_result.count('\n')
-                model = result[2].strip()
-                cpu_cores = int(result[3])
-                cpu_threads = int(result[4])
-                vendor = result[1].strip()
-
-                command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
+                command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors,VirtualizationFirmwareEnabled", "/value"]).strip().lower()
+                result = self.to_dict(command_result, "=")
                 command_result = re.sub(r'\n+', '\n', command_result)
-                result = command_result.split("\n")[1].split(",")
-                mem_total = int(result[1])
+
+                cpu_count = command_result.count('\n')
+
+                model = result['name']
+                cpu_cores = result['numberofcores']
+                cpu_threads = result['numberoflogicalprocessors']
+
+                vendor = result['manufacturer']
+
+                cls.virtualized = result['virtualizationfirmwareenabled'] == "true"
+
+                result = self.to_dict(_run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value"]).strip().strip().lower(), "=")
+
+                mem_total = int(result['totalvisiblememorysize'])
 
         model = " ".join(i for i in model.lower().split() if not any(x in i for x in ["ghz", "cpu", "(r)", "(tm)", "intel", "amd", "core", "processor", "@"]))
         cls.model = model
