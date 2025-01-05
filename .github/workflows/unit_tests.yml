@@ -91,7 +91,7 @@ jobs:
             python tests/os.py
 
   gpu:
-    runs-on: self-hosted
+    runs-on: [self-hosted, Linux]
     container:
       image: 10.0.14.248:5000/modelcloud/gptqmodel:compiler_cuda124-torch2.5.1-python311
     steps:
@@ -111,3 +111,25 @@ jobs:
       - name: test gpu
         if: always()
         run: python tests/cpu.py
+
+  m4:
+    runs-on:  [self-hosted, m4]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run test
+        run: |
+          export PATH="/opt/homebrew/bin:$PATH" && eval "$(pyenv init -)"
+          pyenv global 3.11.11 && python -m venv venv
+          source venv/bin/activate
+
+          pip install wheel
+          
+          echo "=== installing device-smi"
+          pip install . --no-build-isolation
+          
+          echo "=== running cpu test"
+          python tests/cpu.py
+          
+          echo "=== running gpu test"
+          python tests/gpu.py
