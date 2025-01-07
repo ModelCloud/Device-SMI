@@ -19,7 +19,6 @@ class CPUDevice(BaseDevice):
 
         if platform.system().lower() == "windows":
             command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
-            command_result = re.sub(r'\n+', '\n', command_result)  # windows uses \n\n
             result = command_result.split("\n")[1].split(",")
 
             cpu_count = command_result.count('\n')
@@ -29,7 +28,6 @@ class CPUDevice(BaseDevice):
             vendor = result[1].strip()
 
             command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
-            command_result = re.sub(r'\n+', '\n', command_result)
             result = command_result.split("\n")[1].split(",")
 
             mem_total = int(result[1])
@@ -128,7 +126,6 @@ class CPUDevice(BaseDevice):
         if platform.system().lower() == "windows":
             if platform.system().lower() == "windows":
                 command_result = _run(["wmic", "cpu", "get", "loadpercentage"]).strip()
-                command_result = re.sub(r'\n+', '\n', command_result)
                 try:
                     result = command_result.split("\n")[1].split(",")
                     utilization = int(result[0])
@@ -140,7 +137,6 @@ class CPUDevice(BaseDevice):
 
                 try:
                     command_result = _run(["wmic", "os", "get", "FreePhysicalMemory"]).strip()
-                    command_result = re.sub(r'\n+', '\n', command_result)
                     result = command_result.split("\n")[1].split(",")
                     memory_used = int(result[0])
                 except BaseException as e:

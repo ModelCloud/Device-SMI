@@ -55,13 +55,12 @@ class IntelDevice(GPUDevice):
                 "-m", "0,18",
                 "-n", "1"
             ]
-            result = _run(args=args)
+            output = _run(args=args, seperator="\n")[-1]
 
             # xpu-smi dump -d 0 -m 0,1,2 -i 1 -n 5
             # Timestamp, DeviceId, GPU Utilization (%), GPU Power (W), GPU Frequency (MHz)
             # 06:14:46.000,    0, 0.00, 14.61,    0
 
-            output = result.split("\n")[-1]
             memory_used = output.split(",")[-1].strip()
             utilization = output.split(",")[-2].strip()
             if utilization.lower() == "n/a":

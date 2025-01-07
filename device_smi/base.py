@@ -68,7 +68,7 @@ class GPU:
         return self.__str__()
 
 
-def _run(args, line_start: Optional[str] = None) -> str:
+def _run(args, line_start: Optional[str] = None, seperator: str=None) -> str | list[str]:
     result = subprocess.run(
         args,
         stdout=subprocess.PIPE,
@@ -82,4 +82,6 @@ def _run(args, line_start: Optional[str] = None) -> str:
     result = result.stdout.strip()
     if line_start:
         return " ".join([line for line in result.splitlines() if line.strip().startswith(line_start)])
+    if seperator:
+        return [l.strip() for l in result.split(seperator)]
     return result

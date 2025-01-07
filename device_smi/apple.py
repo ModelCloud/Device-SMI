@@ -12,12 +12,11 @@ class AppleDevice(GPUDevice):
 
         args = ["system_profiler", "SPDisplaysDataType"]
 
-        result = _run(args=args)
+        result = _run(args=args, seperator="\n")
 
-        output = result.split("\n")
         model = ""
         vendor = ""
-        for o in output:
+        for o in result:
             if "Chipset Model" in o:
                 model = o.split(":")[1].replace("Apple", "").strip()
             if "Vendor" in o:
