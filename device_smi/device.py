@@ -84,7 +84,7 @@ class Device:
 
         assert self.memory_total
         assert self.type
-        assert self.features
+        assert self.features is not None
         assert self.vendor
         assert self.model
 
