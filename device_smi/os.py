@@ -29,9 +29,8 @@ class OSDevice(BaseDevice):
             cls.version = release_info["productversion"]
             cls.kernel, cls.arch = _run(["uname", "-mr"]).lower().split()
         elif platform.system().lower() == "windows":
-            result = _run(["wmic", "os", "get", "caption", "/format:csv"], seperator="\n")[1].split(",")
+            cls.version = _run(["wmic", "os", "get", "caption", "/format:csv"], seperator="\n")[2].split(",")[1].lower().removeprefix("microsoft windows").strip()
             cls.name = "windows"
-            cls.version = result[1].lower().removeprefix("microsoft windows").strip()
             cls.arch = os.environ.get("PROCESSOR_ARCHITECTURE").lower()
 
             cls.kernel = _run(["cmd", "/c", "ver"])
