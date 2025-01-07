@@ -138,11 +138,16 @@ class CPUDevice(BaseDevice):
                     print(f"------------")
                     raise e
 
-                command_result = _run(["wmic", "os", "get", "FreePhysicalMemory"]).strip()
-                command_result = re.sub(r'\n+', '\n', command_result)
-                result = command_result.split("\n")[1].split(",")
-                memory_used = int(result[0])
-
+                try:
+                    command_result = _run(["wmic", "os", "get", "FreePhysicalMemory"]).strip()
+                    command_result = re.sub(r'\n+', '\n', command_result)
+                    result = command_result.split("\n")[1].split(",")
+                    memory_used = int(result[0])
+                except BaseException as e:
+                    print(f"error occurred, command_result: ")
+                    print(f"{command_result}")
+                    print(f"------------")
+                    raise e
                 return CPUMetrics(
                     memory_used=memory_used,  # bytes
                     memory_process=0,  # bytes
