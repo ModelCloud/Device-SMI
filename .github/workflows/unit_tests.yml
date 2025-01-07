@@ -46,6 +46,7 @@ jobs:
       - name: Test in FreeBSD
         uses: vmactions/freebsd-vm@v1
         with:
+          copyback: false
           prepare: |
             env ASSUME_ALWAYS_YES=yes pkg install -y python py311-pip
           run: |
@@ -63,6 +64,7 @@ jobs:
       - name: Test in Solaris
         uses: vmactions/solaris-vm@v1
         with:
+          copyback: false
           run: |
             python -V
             python -m venv venv
