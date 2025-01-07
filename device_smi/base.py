@@ -69,7 +69,7 @@ class GPU:
         return self.__str__()
 
 
-def _run(args, line_start: Optional[str] = None, seperator: str=None) -> str | list[str]:
+def _run(args, line_start: Optional[str] = None, seperator: str=None): # -> str | list[str] disable type hint, because solaris test is using python 3.7 which doesn't support | usage
     result = subprocess.run(
         args,
         stdout=subprocess.PIPE,
