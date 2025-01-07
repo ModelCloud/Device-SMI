@@ -1,5 +1,7 @@
 import subprocess
+import re
 from abc import abstractmethod
+from typing import Optional, Callable
 
 
 class BaseDevice:
@@ -67,7 +69,7 @@ class GPU:
         return self.__str__()
 
 
-def _run(args, line_start: str = None) -> str:
+def _run(args, line_start: Optional[str] = None, seperator: str=None): # -> str | list[str] disable type hint, because solaris test is using python 3.7 which doesn't support | usage
     result = subprocess.run(
         args,
         stdout=subprocess.PIPE,
@@ -79,6 +81,9 @@ def _run(args, line_start: str = None) -> str:
         raise RuntimeError(result.stderr)
 
     result = result.stdout.strip()
+    result = re.sub(r'\n+', '\n', result) # remove consecutive \n
     if line_start:
         return " ".join([line for line in result.splitlines() if line.strip().startswith(line_start)])
+    if seperator:
+        return [l.strip() for l in result.split(seperator)]
     return result

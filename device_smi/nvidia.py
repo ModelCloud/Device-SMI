@@ -27,13 +27,12 @@ class NvidiaDevice(GPUDevice):
                 "--format=csv,noheader,nounits",
             ]
 
-            result = _run(args=args)
+            result = _run(args=args,seperator="\n")
 
-            output = result.strip().split("\n")[0]
-            model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver = (output.split(", "))
+            model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver = (result[0].split(", "))
 
-            result = _run(args=["nvidia-smi", "-q", "-i", f"{self.gpu_id}"])
-            firmware = " ".join([line.split(":", 1)[1].strip() for line in result.splitlines() if "VBIOS" in line])
+            result = _run(args=["nvidia-smi", "-q", "-i", f"{self.gpu_id}"],seperator="\n")
+            firmware = " ".join([line.split(":", 1)[1].strip() for line in result if "VBIOS" in line])
 
             if model.lower().startswith("nvidia"):
                 model = model[len("nvidia"):]
@@ -67,11 +66,8 @@ class NvidiaDevice(GPUDevice):
 
     def metrics(self):
         try:
-            args = ["nvidia-smi", f"--id={self.gpu_id}", "--query-gpu=memory.used,utilization.gpu", "--format=csv,noheader,nounits", ]
-            result = _run(args=args)
-
-            output = result.split("\n")[0]
-            used_memory, utilization = output.split(", ")
+            args = ["nvidia-smi", f"--id={self.gpu_id}", "--query-gpu=memory.used,utilization.gpu", "--format=csv,noheader,nounits" ]
+            used_memory, utilization = _run(args=args, seperator="\n")[0].split(", ")
 
             return NvidiaGPUMetrics(
                 memory_used=int(used_memory) * 1024 * 1024,  # bytes
