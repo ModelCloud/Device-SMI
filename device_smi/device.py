@@ -23,7 +23,7 @@ class Device:
         # CPU/GPU Device
         self.memory_total = None
         self.type = None
-        self.features = None
+        self.features = []
         self.vendor = None
         self.model = None
         # OS Device
