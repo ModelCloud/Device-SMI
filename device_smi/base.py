@@ -1,4 +1,5 @@
 import subprocess
+import re
 from abc import abstractmethod
 from typing import Optional, Callable
 
@@ -80,6 +81,7 @@ def _run(args, line_start: Optional[str] = None, seperator: str=None) -> str | l
         raise RuntimeError(result.stderr)
 
     result = result.stdout.strip()
+    result = re.sub(r'\n+', '\n', result) # remove consecutive \n
     if line_start:
         return " ".join([line for line in result.splitlines() if line.strip().startswith(line_start)])
     if seperator:
