@@ -43,6 +43,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: clean dir
+        run: rm -rf .git
+
       - name: Test in FreeBSD
         uses: vmactions/freebsd-vm@v1
         with:
@@ -60,6 +63,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: clean dir
+        run: rm -rf .git
 
       - name: Test in Solaris
         uses: vmactions/solaris-vm@v1
