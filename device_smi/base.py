@@ -20,8 +20,8 @@ class BaseDevice:
 
 
 class GPUDevice(BaseDevice):
-    def __init__(self, cls, index):
-        super().__init__(cls, "gpu")
+    def __init__(self, cls, index, type= "gpu"):
+        super().__init__(cls, type)
         self.index = index
 
     @abstractmethod
