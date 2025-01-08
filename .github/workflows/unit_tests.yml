@@ -131,18 +131,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: got to system dir
+        run: mkdir /opt/Device-SMI && cp -r * /opt/Device-SMI
+
       - name: install
-        run: pip install .
+        run: pip install /opt/Device-SMI
 
       - name: test os
-        run: python tests/os.py
+        run: python /opt/Device-SMI/tests/os.py
 
       - name: test cpu
-        run: python tests/cpu.py
+        run: python /opt/Device-SMI/tests/cpu.py
 
       - name: test gpu
         if: always() && !cancelled()
-        run: python tests/gpu.py
+        run: python /opt/Device-SMI/tests/gpu.py
 
   m4:
     runs-on:  [self-hosted, m4]
