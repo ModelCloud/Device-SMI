@@ -1,5 +1,4 @@
 from device_smi import Device
-import torch
 
 dev = Device("gpu")
 print(dev)
