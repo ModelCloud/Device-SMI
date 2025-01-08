@@ -99,7 +99,7 @@ jobs:
             python tests/os.py
 
   gpu:
-    runs-on: [self-hosted, Linux]
+    runs-on: [self-hosted, xeon5]
     container:
       image: 10.0.14.248:5000/modelcloud/gptqmodel:compiler_cuda124-torch2.5.1-python311
     steps:
@@ -130,6 +130,30 @@ jobs:
       options: --device /dev/dri --device /dev/kfd --ipc=host
     steps:
       - uses: actions/checkout@v4
+
+      - name: install
+        run: pip install .
+
+      - name: test os
+        run: python tests/os.py
+
+      - name: test cpu
+        run: python tests/cpu.py
+
+      - name: test gpu
+        if: always() && !cancelled()
+        run: python tests/gpu.py
+
+  intel:
+    runs-on: [self-hosted, xeon5]
+    container:
+      image: 10.0.14.248:5000/modelcloud/gptqmodel:github-ci-v6
+      options: --device /dev/dri --ipc=host
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: check env
+        run: pyenv activate xpu && pyenv local xpu
 
       - name: install
         run: pip install .
