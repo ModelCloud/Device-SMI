@@ -116,9 +116,12 @@ jobs:
           gpu_id=$(curl -s "http://10.0.14.248/gpu/get?id=${{ github.run_id }}&timestamp=$(date +%s%3N)&force=1")
           echo "CUDA_VISIBLE_DEVICES=$gpu_id" >> $GITHUB_ENV
 
-      - name: test gpu
-        if: always()
+      - name: test cpu
         run: python tests/cpu.py
+
+      - name: test gpu
+        if: always() && !cancelled()
+        run: python tests/gpu.py
 
   m4:
     runs-on:  [self-hosted, m4]
