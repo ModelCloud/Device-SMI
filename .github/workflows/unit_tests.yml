@@ -127,7 +127,7 @@ jobs:
     runs-on: [self-hosted, rocm]
     container:
       image: 10.0.14.248:5000/modelcloud/gptqmodel:github-ci-v6-rocm
-      options: --device /dev/dri --device /dev/kfd --ipc=host
+      options: --device /dev/dri --device /dev/kfd --ipc=host --security-opt seccomp=unconfined
     steps:
       - uses: actions/checkout@v4
 
