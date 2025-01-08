@@ -2,6 +2,7 @@ import platform
 import re
 import warnings
 
+from .amd import AMDDevice
 from .apple import AppleDevice
 from .base import _run
 from .cpu import CPUDevice
@@ -9,10 +10,13 @@ from .intel import IntelDevice
 from .nvidia import NvidiaDevice
 from .os import OSDevice
 
+IS_ROCM = False
 try:
     import torch
 
     HAS_TORCH = True
+    if torch.version.hip is not None:
+        IS_ROCM = True
 except BaseException:
     HAS_TORCH = False
 
@@ -53,25 +57,27 @@ class Device:
         self.gpu = None
 
         if (
-            device_type == "cuda"
-            or device_type == "gpu"
-            or device_type == "xpu"
-            or re.match(r"(gpu|cuda|xpu):\d+", device_type)
+            device_type in ["cuda", "gpu", "xpu", "rocm"]
+            or re.match(r"(gpu|cuda|xpu|rocm):\d+", device_type)
         ):
             if platform.system().lower() == "darwin":
                 if platform.machine() == 'x86_64':
                     raise Exception("Not supported for macOS on Intel chips.")
 
                 self.device = AppleDevice(self, device_index)
+            elif "rocm" in device_type or IS_ROCM:
+                self.device = AMDDevice(self, device_index)
             else:
                 try:
                     result = _run(["lspci"]).lower().splitlines()
                     result = "\n".join([
                         line for line in result
                         if any(keyword.lower() in line.lower() for keyword in ['vga', '3d', 'display'])
-                    ])
+                    ]).lower()
                     if "intel" in result:
                         self.device = IntelDevice(self, device_index)
+                    elif "amd" in result:
+                        self.device = AMDDevice(self, device_index)
                     else:
                         self.device = NvidiaDevice(self, device_index)
                 except BaseException:
