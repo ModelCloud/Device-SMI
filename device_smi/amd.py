@@ -24,6 +24,7 @@ class AMDDevice(GPUDevice):
             pcie_gen = result['pcie_interface_version'].removeprefix("gen").strip()
             pcie_width = result['max_pcie_width']
             driver = result["driver"]
+            features = [result['target_graphics_version']]
 
             firmware = ""
 
@@ -33,7 +34,7 @@ class AMDDevice(GPUDevice):
             cls.model = model.strip().lower()
             cls.memory_total = int(total_memory) * 1024 * 1024  # bytes
             cls.vendor = "amd"
-            cls.features = []
+            cls.features = features
             cls.pcie = Pcie(gen=int(pcie_gen), speed=int(pcie_width), id=pci_bus_id)
             cls.gpu = GPU(driver=driver, firmware=firmware)
         except FileNotFoundError:
