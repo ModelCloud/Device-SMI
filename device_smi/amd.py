@@ -26,7 +26,18 @@ class AMDDevice(GPUDevice):
             driver = result["driver"]
             features = [result['target_graphics_version']]
 
-            firmware = ""
+            args = ["amd-smi", "firmware", "--gpu", f"{self.gpu_id}"]
+            lines = _run(args=args).lower().splitlines()
+
+            result = {}
+            current_id = None
+            for line in lines:
+                line = line.strip()
+                if line.startswith("fw_id:"):
+                    current_id = line.split(":")[1].strip()
+                elif line.startswith("fw_version:") and current_id:
+                    result[current_id] = line.split(":")[1].strip()
+            firmware = f"{result}"
 
             if model.lower().startswith("amd"):
                 model = model[len("amd"):]
