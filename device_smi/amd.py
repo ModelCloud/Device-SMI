@@ -10,7 +10,7 @@ class AMDGPUMetrics(BaseMetrics):
 
 class AMDDevice(GPUDevice):
     def __init__(self, cls, index):
-        super().__init__(cls, index, "xpu")
+        super().__init__(cls, index)
         self.gpu_id = self._get_gpu_id()
 
         try:
