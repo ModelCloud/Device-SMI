@@ -123,6 +123,28 @@ jobs:
         if: always() && !cancelled()
         run: python tests/gpu.py
 
+  rocm:
+    runs-on: [self-hosted, rocm]
+    container:
+      image: 10.0.14.248:5000/modelcloud/gptqmodel:github-ci-v6-base
+    steps:
+      - uses: actions/checkout@v4
+#      - name: install rocm
+#        run: uv pip install "http://10.0.14.248/files/pytorch/torch-2.5.1+rocm6.2-cp312-cp312-linux_x86_64.whl" "http://10.0.14.248/files/pytorch/pytorch_triton_rocm-3.1.0-cp312-cp312-linux_x86_64.whl" -U --index-url https://download.pytorch.org/whl/rocm6.2
+
+      - name: install
+        run: pip install .
+
+      - name: test os
+        run: python tests/os.py
+
+      - name: test cpu
+        run: python tests/cpu.py
+
+      - name: test gpu
+        if: always() && !cancelled()
+        run: python tests/gpu.py
+
   m4:
     runs-on:  [self-hosted, m4]
     steps:
