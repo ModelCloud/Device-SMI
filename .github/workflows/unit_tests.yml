@@ -132,7 +132,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: print env
-        run: amd-smi version
+        run: |
+          ls /opt
+          rocminfo || true
+          amd-smi version
 
       - name: got to system dir
         run: mkdir /opt/Device-SMI && cp -r * /opt/Device-SMI
