@@ -166,7 +166,7 @@ jobs:
 
       - name: test gpu
         if: always() && !cancelled()
-        run: python tests/gpu.py
+        run: python tests/xpu.py
 
   m4:
     runs-on:  [self-hosted, m4]
