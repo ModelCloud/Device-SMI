@@ -78,7 +78,7 @@ def _run(args, line_start: Optional[str] = None, seperator: str=None): # -> str 
     )
 
     if result.returncode != 0 or result.stderr.strip() != "":
-        raise RuntimeError(result.stderr)
+        raise RuntimeError(result.stderr if result.stderr else result.stdout if result.stdout else "unknown error")
 
     result = result.stdout.strip()
     result = re.sub(r'\n+', '\n', result) # remove consecutive \n
