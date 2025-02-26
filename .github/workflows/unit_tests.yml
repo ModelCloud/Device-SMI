@@ -105,6 +105,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: install pciutils
+        run: apt update && apt install -y pciutils
+
       - name: install
         run: pip install .
 
