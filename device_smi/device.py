@@ -93,7 +93,7 @@ class Device:
                     elif "intel" in result:
                         self.device = IntelDevice(self, device_index)
             if not self.device:
-                raise ValueError(f"Unable to find requested device, please check your device: {device}")
+                raise ValueError(f"Unable to find requested device: {device}")
 
         elif device_type == "cpu":
             self.device = CPUDevice(self)
