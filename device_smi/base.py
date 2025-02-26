@@ -70,12 +70,15 @@ class GPU:
 
 
 def _run(args, line_start: Optional[str] = None, seperator: str=None): # -> str | list[str] disable type hint, because solaris test is using python 3.7 which doesn't support | usage
-    result = subprocess.run(
-        args,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
+    try:
+        result = subprocess.run(
+            args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+    except FileNotFoundError:
+        raise RuntimeError(f"command not found: {args[0]}, please check if it was installed.")
 
     if result.returncode != 0 or result.stderr.strip() != "":
         raise RuntimeError(result.stderr)
