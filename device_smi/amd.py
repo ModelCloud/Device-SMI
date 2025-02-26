@@ -1,8 +1,7 @@
 import os
 import re
-import warnings
 
-from .base import BaseMetrics, _run, Pcie, GPU, GPUDevice
+from .base import GPU, BaseMetrics, GPUDevice, Pcie, _run
 
 
 class AMDGPUMetrics(BaseMetrics):

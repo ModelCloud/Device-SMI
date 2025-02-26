@@ -1,7 +1,7 @@
 import json
 import re
 
-from .base import GPUDevice, BaseMetrics, _run, Pcie, GPU
+from .base import GPU, BaseMetrics, GPUDevice, Pcie, _run
 
 
 class IntelGPUMetrics(BaseMetrics):

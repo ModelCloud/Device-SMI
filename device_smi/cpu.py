@@ -96,7 +96,7 @@ class CPUDevice(BaseDevice):
         cls.count = cpu_count
         cls.cores = cpu_cores
         cls.threads = cpu_threads
-        cls.features = sorted(set(f.lower() for f in flags))
+        cls.features = sorted({f.lower() for f in flags})
 
     def _utilization(self):
         # check if is macOS
@@ -130,9 +130,9 @@ class CPUDevice(BaseDevice):
                     result = command_result.split("\n")[1].split(",")
                     utilization = int(result[0])
                 except BaseException as e:
-                    print(f"error occurred, command_result: ")
+                    print("error occurred, command_result: ")
                     print(f"{command_result}")
-                    print(f"------------")
+                    print("------------")
                     raise e
 
                 try:
@@ -140,9 +140,9 @@ class CPUDevice(BaseDevice):
                     result = command_result.split("\n")[1].split(",")
                     memory_used = int(result[0])
                 except BaseException as e:
-                    print(f"error occurred, command_result: ")
+                    print("error occurred, command_result: ")
                     print(f"{command_result}")
-                    print(f"------------")
+                    print("------------")
                     raise e
                 return CPUMetrics(
                     memory_used=memory_used,  # bytes
