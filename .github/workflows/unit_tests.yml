@@ -155,7 +155,7 @@ jobs:
   intel:
     runs-on: [self-hosted, xeon5]
     container:
-      image: 10.0.14.248:5000/modelcloud/gptqmodel:github-ci-v6
+      image: 10.0.14.248:5000/modelcloud/gptqmodel:github-ci-v7
       options: --device /dev/dri --ipc=host
     steps:
       - uses: actions/checkout@v4
