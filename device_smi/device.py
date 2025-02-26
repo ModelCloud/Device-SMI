@@ -56,7 +56,9 @@ class Device:
         self.pcie = None
         self.gpu = None
 
-        if device_type == "xpu":
+        if device_type == "cpu":
+            self.device = CPUDevice(self)
+        elif device_type == "xpu":
             self.device =  IntelDevice(self, device_index)
         elif device_type == "rocm" or IS_ROCM:
             self.device = AMDDevice(self, device_index)
@@ -94,9 +96,6 @@ class Device:
                         self.device = IntelDevice(self, device_index)
             if not self.device:
                 raise ValueError(f"Unable to find requested device: {device}")
-
-        elif device_type == "cpu":
-            self.device = CPUDevice(self)
         else:
             raise Exception(f"The device {device_type} is not supported")
 

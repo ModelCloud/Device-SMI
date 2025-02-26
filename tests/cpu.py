@@ -3,7 +3,7 @@ from device_smi import Device
 dev = Device("cpu")
 print(dev)
 
-assert dev.type == "cpu"
+assert dev.type == "cpu", f"type is wrong, expected: `cpu`, actual: `{dev.type}`"
 assert dev.model
 
 for i in ["ghz", "cpu", "(r)", "(tm)", "intel", "amd", "core", "processor", "@"]:
