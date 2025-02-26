@@ -105,7 +105,7 @@ jobs:
   gpu:
     runs-on: [self-hosted, Linux]
     container:
-      image: 10.0.14.248:5000/modelcloud/gptqmodel:compiler_cuda124-torch2.5.1-python311
+      image: 10.0.14.248:5000/modelcloud/gptqmodel:compiler_cuda126-torch2.6.0-python313
     steps:
       - uses: actions/checkout@v4
 
