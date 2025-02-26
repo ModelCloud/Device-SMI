@@ -1,7 +1,7 @@
 import os
 import warnings
 
-from .base import BaseMetrics, _run, Pcie, GPU, GPUDevice
+from .base import GPU, BaseMetrics, GPUDevice, Pcie, _run
 
 
 class NvidiaGPUMetrics(BaseMetrics):
@@ -27,11 +27,11 @@ class NvidiaDevice(GPUDevice):
                 "--format=csv,noheader,nounits",
             ]
 
-            result = _run(args=args,seperator="\n")
+            result = _run(args=args, seperator="\n")
 
             model, total_memory, pci_bus_id, pcie_gen, pcie_width, driver = (result[0].split(", "))
 
-            result = _run(args=["nvidia-smi", "-q", "-i", f"{self.gpu_id}"],seperator="\n")
+            result = _run(args=["nvidia-smi", "-q", "-i", f"{self.gpu_id}"], seperator="\n")
             firmware = " ".join([line.split(":", 1)[1].strip() for line in result if "VBIOS" in line])
 
             if model.lower().startswith("nvidia"):
@@ -66,7 +66,7 @@ class NvidiaDevice(GPUDevice):
 
     def metrics(self):
         try:
-            args = ["nvidia-smi", f"--id={self.gpu_id}", "--query-gpu=memory.used,utilization.gpu", "--format=csv,noheader,nounits" ]
+            args = ["nvidia-smi", f"--id={self.gpu_id}", "--query-gpu=memory.used,utilization.gpu", "--format=csv,noheader,nounits"]
             used_memory, utilization = _run(args=args, seperator="\n")[0].split(", ")
 
             return NvidiaGPUMetrics(

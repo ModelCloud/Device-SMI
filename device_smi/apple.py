@@ -1,4 +1,4 @@
-from .base import GPUDevice, BaseMetrics, _run
+from .base import BaseMetrics, GPUDevice, _run
 
 
 class AppleGPUMetrics(BaseMetrics):

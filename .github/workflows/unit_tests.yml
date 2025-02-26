@@ -12,6 +12,10 @@ on:
 env:
   CUDA_DEVICE_ORDER: PCI_BUS_ID
 
+concurrency:
+  group: ${{ github.ref }}-workflow-unit-tests
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -93,17 +97,20 @@ jobs:
       - name: test os
         shell: wsl-bash -u root {0}
         run: |
-            python3 -m venv venv
-            source venv/bin/activate
-            pip install .
-            python tests/os.py
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install .
+          python tests/os.py
 
   gpu:
     runs-on: [self-hosted, xeon5]
     container:
-      image: 10.0.14.248:5000/modelcloud/gptqmodel:compiler_cuda124-torch2.5.1-python311
+      image: 10.0.14.248:5000/modelcloud/gptqmodel:compiler_cuda126-torch2.6.0-python313
     steps:
       - uses: actions/checkout@v4
+
+      - name: install pciutils
+        run: apt update && apt install -y pciutils
 
       - name: install
         run: pip install .
@@ -113,8 +120,9 @@ jobs:
 
       - name: Find suitable GPU
         run: |
-          gpu_id=$(curl -s "http://10.0.14.248/gpu/get?id=${{ github.run_id }}&timestamp=$(date +%s%3N)&force=1")
+          gpu_id=$(curl -s "http://10.0.14.248/gpu/get?id=${{ github.run_id }}&timestamp=$(date +%s%3N)&runner=${RUNNER_NAME}&force=1")
           echo "CUDA_VISIBLE_DEVICES=$gpu_id" >> $GITHUB_ENV
+          echo "CUDA_VISIBLE_DEVICES=$gpu_id"
 
       - name: test cpu
         run: python tests/cpu.py

@@ -1,5 +1,4 @@
 import platform
-import re
 import warnings
 
 from .amd import AMDDevice
@@ -30,6 +29,7 @@ class Device:
         self.features = []
         self.vendor = None
         self.model = None
+        self.device = None
         # OS Device
         self.arch = None
         self.version = None
@@ -56,32 +56,44 @@ class Device:
         self.pcie = None
         self.gpu = None
 
-        if (
-            device_type in ["cuda", "gpu", "xpu", "rocm"]
-            or re.match(r"(gpu|cuda|xpu|rocm):\d+", device_type)
-        ):
+        if device_type == "xpu":
+            self.device =  IntelDevice(self, device_index)
+        elif device_type == "rocm" or IS_ROCM:
+            self.device = AMDDevice(self, device_index)
+        elif device_type == "cuda" and not IS_ROCM:
+            self.device = NvidiaDevice(self, device_index)
+        elif device_type == "gpu":
             if platform.system().lower() == "darwin":
                 if platform.machine() == 'x86_64':
                     raise Exception("Not supported for macOS on Intel chips.")
 
                 self.device = AppleDevice(self, device_index)
-            elif "rocm" in device_type or IS_ROCM:
-                self.device = AMDDevice(self, device_index)
             else:
-                try:
+                if platform.system().lower() == "windows":
+                    for d in ["NVIDIA", "AMD", "INTEL"]:
+                        result = _run(["powershell", "-Command", "Get-CimInstance", "Win32_VideoController", "-Filter", f"\"Name like '%{d}%'\""]).lower().splitlines()
+                        if result:
+                            if d == "INTEL":
+                                self.device = IntelDevice(self, device_index)
+                            elif d == "AMD":
+                                self.device = AMDDevice(self, device_index)
+                            else:
+                                self.device = NvidiaDevice(self, device_index)
+                            break
+                else:
                     result = _run(["lspci"]).lower().splitlines()
                     result = "\n".join([
                         line for line in result
                         if any(keyword.lower() in line.lower() for keyword in ['vga', '3d', 'display'])
                     ]).lower()
-                    if "intel" in result:
-                        self.device = IntelDevice(self, device_index)
+                    if "nvidia" in result:
+                        self.device = NvidiaDevice(self, device_index)
                     elif "amd" in result:
                         self.device = AMDDevice(self, device_index)
-                    else:
-                        self.device = NvidiaDevice(self, device_index)
-                except BaseException:
-                    self.device = NvidiaDevice(self, device_index)
+                    elif "intel" in result:
+                        self.device = IntelDevice(self, device_index)
+            if not self.device:
+                raise ValueError(f"Unable to find requested device: {device}")
 
         elif device_type == "cpu":
             self.device = CPUDevice(self)
