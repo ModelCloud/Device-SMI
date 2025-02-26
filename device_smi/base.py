@@ -1,7 +1,7 @@
-import subprocess
 import re
+import subprocess
 from abc import abstractmethod
-from typing import Optional, Callable
+from typing import Optional
 
 
 class BaseDevice:
