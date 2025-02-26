@@ -78,7 +78,7 @@ def _run(args, line_start: Optional[str] = None, seperator: str=None): # -> str 
             text=True,
         )
     except FileNotFoundError:
-        raise RuntimeError(f"command not found: {args[0]}, please check if it was installed.")
+        raise RuntimeError(f"Command not found: `{args[0]}`, please check if it was installed.")
 
     if result.returncode != 0 or result.stderr.strip() != "":
         raise RuntimeError(result.stderr)
