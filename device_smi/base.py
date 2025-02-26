@@ -3,6 +3,13 @@ import subprocess
 from abc import abstractmethod
 from typing import Optional
 
+INSTALLATION_HINTS = {
+    "lspci": "`lspci` is not installed, you can install it via `sudo apt install pciutils`.",
+    "nvidia-smi": "`nvidia-smi` is not installed. You need to install NVIDIA driver support binaries by `sudo apt install nvidia-utils-<NVIDIA-DRIVER-VERSION>`",
+    "powershell": "`PowerShell` is not installed. Please follow the instructions at `https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell`",
+    "xpu-smi": "`xpu-smi` is not installed. Please follow the instructions at  https://github.com/intel/xpumanager/blob/master/doc/smi_install_guide.md`",
+    "amd-smi": "`amd-smi` is not installed. Please follow the instructions at  `https://rocm.docs.amd.com/projects/amdsmi/en/latest/install/install.html`",
+}
 
 class BaseDevice:
     def __init__(self, cls, type: str):
@@ -78,7 +85,8 @@ def _run(args, line_start: Optional[str] = None, seperator: str=None): # -> str 
             text=True,
         )
     except FileNotFoundError:
-        raise RuntimeError(f"Command not found: `{args[0]}`, please check if it was installed.")
+        install_hint = INSTALLATION_HINTS.get(args[0], f"Command not found: `{args[0]}`, please check if it was installed.")
+        raise RuntimeError(install_hint)
 
     if result.returncode != 0 or result.stderr.strip() != "":
         raise RuntimeError(result.stderr)
