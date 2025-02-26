@@ -11,6 +11,7 @@ Self-contained Python lib with zero-dependencies that give you a unified `device
 </p>
 
 ## News
+* 02/26/2025 [0.4.0](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.4.0) Added AMD GPU support. Validated with `amd-smi` on `7900XTX`.
 * 12/20/2024 [0.3.3](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.3) Patch fix for Windows install compatibility.
 * 12/05/2024 [0.3.2](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.2) Added Windows `WSL` support.
 * 12/03/2024 [0.3.1](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.1) Added `CPUDevice` compat for Windows.
@@ -30,6 +31,7 @@ Supported Devices:
 - **CPU**: [Intel/AMD/Apple] Linux/MacOS system interface
 - **NVIDIA GPU**: NVIDIA System Management Interface `nvidia-smi`
 - **Intel XPU**: Intel/XPU System Management Interface `xpu-smi`
+- **AMD ROCm/GPU**: AMD System Management Interface `amd-smi`
 - **Apple GPU**: MacOS interfaces
 
 ## Usage
@@ -76,7 +78,6 @@ Output: (AMD EPYC 7443)
 
 ## Roadmap
 
-- Support AMD GPU
 - Support Intel/Gaudi
 - Support Google/TPU
 - Add NPU support (ARM/Intel/AMD)
