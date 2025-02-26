@@ -86,12 +86,12 @@ class Device:
                         line for line in result
                         if any(keyword.lower() in line.lower() for keyword in ['vga', '3d', 'display'])
                     ]).lower()
-                    if "intel" in result:
-                        self.device = IntelDevice(self, device_index)
+                    if "nvidia" in result:
+                        self.device = NvidiaDevice(self, device_index)
                     elif "amd" in result:
                         self.device = AMDDevice(self, device_index)
-                    else:
-                        self.device = NvidiaDevice(self, device_index)
+                    elif "intel" in result:
+                        self.device = IntelDevice(self, device_index)
             if not self.device:
                 raise ValueError(f"Unable to find requested device, please check your device: {device}")
 
