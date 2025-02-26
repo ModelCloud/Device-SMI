@@ -3,7 +3,7 @@ from device_smi import Device
 dev = Device("gpu")
 print(dev)
 
-assert dev.type == "gpu", f"wrong type: {dev.type}"
+assert dev.type == "gpu", f"type is wrong, expected: `cpu`, actual: `{dev.type}`"
 if dev.pcie:
     assert dev.pcie.gen is not None
     assert dev.pcie.speed is not None
