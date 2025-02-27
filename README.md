@@ -1,5 +1,5 @@
 <div align="center" >
-<img src='https://github.com/user-attachments/assets/5b652ff6-6318-4219-83e1-e0ee7abb854e](https://github.com/user-attachments/assets/cb35d98f-b2c9-4e68-a508-c28fa093a9c6' width=150 height=150>
+<img src='https://github.com/user-attachments/assets/cb35d98f-b2c9-4e68-a508-c28fa093a9c6' width=150 height=150>
 <h1>Device-SMI</h1>
 Self-contained Python lib with zero-dependencies that give you a unified `device` properties for `gpu`, `cpu`, and `npu`. No more calling separate tools such as `nvidia-smi` or `/proc/cpuinfo` and parsing it yourself.
 </div>
