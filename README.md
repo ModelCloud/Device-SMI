@@ -13,6 +13,7 @@ Self-contained Python lib with zero-dependencies that give you a unified `device
 </p>
 
 ## News
+* 03/01/2025 [0.4.1](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.4.1) Fix compat with AMD `ROCm` 6.3.2 and `MI300X`.
 * 02/26/2025 [0.4.0](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.4.0) Added AMD GPU support. Validated with `amd-smi` on `7900XTX`. Use `PowerShell` for auto-device selection on `Windows` platform. 
 * 12/20/2024 [0.3.3](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.3) Patch fix for Windows install compatibility.
 * 12/05/2024 [0.3.2](https://github.com/ModelCloud/Device-SMI/releases/tag/v0.3.2) Added Windows `WSL` support.
