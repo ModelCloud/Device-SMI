@@ -16,7 +16,11 @@ class AMDDevice(GPUDevice):
             args = ["amd-smi", "static", "--gpu", f"{self.gpu_id}"]
 
             result = self.to_dict(_run(args=args).lower())
-            market_name = re.findall(r'\[(.*?)]', result["market_name"])[0]
+            market_name = re.findall(r'\[(.*?)]', result["market_name"])
+            if market_name:
+                market_name = market_name[0]
+            else:
+                market_name = result["market_name"]
             model = market_name.split("/")[0].strip()
             total_memory= result["size"].removesuffix("mb").strip()
             pci_bus_id = result["bdf"]
