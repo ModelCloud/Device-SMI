@@ -39,9 +39,6 @@ class Device:
             device_index = device.index
         elif f"{device}".lower() == "os":
             self.device = OSDevice(self)
-            assert self.arch
-            assert self.version
-            assert self.name
             return
         else:
             d = f"{device}".lower()
@@ -87,12 +84,6 @@ class Device:
             self.device = CPUDevice(self)
         else:
             raise Exception(f"The device {device_type} is not supported")
-
-        assert self.memory_total
-        assert self.type
-        assert self.features is not None
-        assert self.vendor
-        assert self.model is not None
 
     def info(self):
         warnings.warn(
