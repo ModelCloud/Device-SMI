@@ -92,7 +92,7 @@ class Device:
         assert self.type
         assert self.features is not None
         assert self.vendor
-        assert self.model
+        assert self.model is not None
 
     def info(self):
         warnings.warn(
