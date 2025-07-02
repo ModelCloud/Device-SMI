@@ -69,6 +69,12 @@ class Device:
                 self.device = AppleDevice(self, device_index)
             else:
                 if platform.system().lower() == "windows":
+                    import os
+                    import shutil
+                    if not shutil.which("powershell.exe"):
+                        psdir = os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32", "WindowsPowerShell", "v1.0")
+                        os.environ["PATH"] = os.environ.get("PATH", "") + ";" + psdir
+
                     for d in ["NVIDIA", "AMD", "INTEL"]:
                         result = _run(["powershell", "-Command", "Get-CimInstance", "Win32_VideoController", "-Filter", f"\"Name like '%{d}%'\""]).lower().splitlines()
                         if result:
