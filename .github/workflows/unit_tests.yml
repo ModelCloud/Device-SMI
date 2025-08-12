@@ -25,7 +25,7 @@ jobs:
       matrix:
         os: [ ubuntu-latest, macos-latest, macos-13, windows-latest ] # macos-latest arm64, macos-13 intel
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v5
         with:
@@ -45,7 +45,7 @@ jobs:
   freebsd:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: clean dir
         run: rm -rf .git
@@ -66,7 +66,7 @@ jobs:
   solaris:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: clean dir
         run: rm -rf .git
@@ -85,7 +85,7 @@ jobs:
   wsl:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: Vampire/setup-wsl@v6
         with:
@@ -107,7 +107,7 @@ jobs:
     container:
       image: 10.0.14.248:5000/modelcloud/gptqmodel:compiler_cuda126-torch2.6.0-python313
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install pciutils
         run: apt update && apt install -y pciutils
@@ -137,7 +137,7 @@ jobs:
       image: 10.0.14.248:5000/modelcloud/gptqmodel:github-ci-v6-rocm
       options: --device /dev/dri --device /dev/kfd --ipc=host
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install
         run: pip install .
@@ -155,7 +155,7 @@ jobs:
   m4:
     runs-on:  [self-hosted, m4]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Run test
         run: |
