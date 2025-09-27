@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 __version__ = "0.4.1"
 
 setup(
-    name="device-smi",
+    name="Device-SMI",
     version=__version__,
     author="ModelCloud",
     author_email="qubitium@modelcloud.ai",
