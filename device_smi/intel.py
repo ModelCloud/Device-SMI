@@ -9,6 +9,8 @@ class IntelGPUMetrics(BaseMetrics):
 
 
 class IntelDevice(GPUDevice):
+    fast_metrics_same_as_slow = False
+
     def __init__(self, cls, index: int = 0):
         super().__init__(cls, index)
         self.gpu_id = index

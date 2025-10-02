@@ -10,6 +10,8 @@ class CPUMetrics(BaseMetrics):
 
 
 class CPUDevice(BaseDevice):
+    fast_metrics_same_as_slow = False
+
     def __init__(self, cls):
         super().__init__(cls, "cpu")
 

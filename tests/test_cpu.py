@@ -1,3 +1,8 @@
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 from device_smi import Device
 
 dev = Device("cpu")
@@ -20,6 +25,10 @@ utilization = dev.utilization()
 assert utilization >= 0.0, f"dev.utilization()={utilization}"
 
 print(f"mem used={dev.memory_used() / 1024 / 1024 / 1024:.2f} GB | utilization={dev.utilization()}%")
+
+fast_metrics = dev.metrics(fast=True)
+assert fast_metrics.memory_used >= 0, "fast metrics should report memory usage"
+assert fast_metrics.utilization >= 0.0, "fast metrics should report utilization"
 
 if __name__ == '__main__':
     print()
