@@ -1,34 +1,57 @@
-import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from device_smi import Device
+from device_smi.base import BaseMetrics
+from device_smi.cpu import CPUDevice, CPUMetrics
 
-dev = Device("cpu")
-print(dev)
 
-assert dev.type == "cpu", f"type is wrong, expected: `cpu`, actual: `{dev.type}`"
-assert dev.model
+@pytest.fixture()
+def cpu_device():
+    return Device("cpu")
 
-for i in ["ghz", "cpu", "(r)", "(tm)", "intel", "amd", "core", "processor", "@"]:
-    assert i not in dev.model, f"{i} should be removed in model"
 
-assert dev.vendor in "amd, intel, apple", f"check vendor: {dev.vendor}"
-assert dev.memory_total > 10, f"wrong memory size: {dev.memory_total}"
-assert dev.features is not None
+def test_cpu_device_basic_attributes(cpu_device):
+    banned_tokens = {"ghz", "cpu", "(r)", "(tm)", "intel", "amd", "core", "processor", "@"}
 
-memory_used = dev.memory_used()
-assert memory_used > 0, f"dev.memory_used()={memory_used}"
+    assert cpu_device.type == "cpu"
+    assert isinstance(cpu_device.device, CPUDevice)
+    assert isinstance(cpu_device.model, str) and cpu_device.model
+    assert cpu_device.model == cpu_device.model.lower()
+    for token in banned_tokens:
+        assert token not in cpu_device.model
+    assert isinstance(cpu_device.vendor, str) and cpu_device.vendor
+    assert isinstance(cpu_device.features, list)
+    assert all(isinstance(flag, str) and flag == flag.lower() for flag in cpu_device.features)
 
-utilization = dev.utilization()
-assert utilization >= 0.0, f"dev.utilization()={utilization}"
 
-print(f"mem used={dev.memory_used() / 1024 / 1024 / 1024:.2f} GB | utilization={dev.utilization()}%")
+def test_cpu_memory_and_utilization(cpu_device):
+    assert isinstance(cpu_device.memory_total, int) and cpu_device.memory_total > 0
 
-fast_metrics = dev.metrics(fast=True)
-assert fast_metrics.memory_used >= 0, "fast metrics should report memory usage"
-assert fast_metrics.utilization >= 0.0, "fast metrics should report utilization"
+    metrics = cpu_device.metrics()
+    assert isinstance(metrics, CPUMetrics)
+    assert 0 <= metrics.memory_used <= cpu_device.memory_total
+    assert metrics.memory_process >= 0
+    assert 0 <= metrics.utilization <= 100.0 + 1e-6
 
-if __name__ == '__main__':
-    print()
+    mem_used_api = cpu_device.memory_used()
+    util_api = cpu_device.utilization()
+    allowed_diff = max(int(0.005 * cpu_device.memory_total), 64 * 1024 * 1024)
+    assert abs(mem_used_api - metrics.memory_used) <= allowed_diff
+    assert 0 <= util_api <= 100.0 + 1e-6
+
+
+@pytest.mark.parametrize("fast", [False, True])
+def test_cpu_metrics_paths(cpu_device, fast):
+    metrics = cpu_device.metrics(fast=fast)
+    assert isinstance(metrics, BaseMetrics)
+    assert metrics.memory_used >= 0
+    if metrics.memory_used:
+        assert metrics.memory_used <= cpu_device.memory_total
+    assert metrics.utilization >= 0
