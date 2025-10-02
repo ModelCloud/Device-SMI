@@ -56,7 +56,7 @@ class Device:
             if ":" in d:
                 type, index = d.split(":")
                 device_type = type
-                device_index = (int(index))
+                device_index = int(index)
             else:
                 device_type = d
                 device_index = 0
@@ -67,14 +67,14 @@ class Device:
         if device_type == "cpu":
             self.device = CPUDevice(self)
         elif device_type == "xpu":
-            self.device =  IntelDevice(self, device_index)
+            self.device = IntelDevice(self, device_index)
         elif device_type == "rocm" or IS_ROCM:
             self.device = AMDDevice(self, device_index)
         elif device_type == "cuda" and not IS_ROCM:
             self.device = NvidiaDevice(self, device_index)
         elif device_type == "gpu":
             if platform.system().lower() == "darwin":
-                if platform.machine() == 'x86_64':
+                if platform.machine() == "x86_64":
                     raise Exception("Not supported for macOS on Intel chips.")
 
                 self.device = AppleDevice(self, device_index)
@@ -82,12 +82,31 @@ class Device:
                 if platform.system().lower() == "windows":
                     import os
                     import shutil
+
                     if not shutil.which("powershell.exe"):
-                        psdir = os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32", "WindowsPowerShell", "v1.0")
+                        psdir = os.path.join(
+                            os.environ.get("SystemRoot", r"C:\Windows"),
+                            "System32",
+                            "WindowsPowerShell",
+                            "v1.0",
+                        )
                         os.environ["PATH"] = os.environ.get("PATH", "") + ";" + psdir
 
                     for d in ["NVIDIA", "AMD", "INTEL"]:
-                        result = _run(["powershell", "-Command", "Get-CimInstance", "Win32_VideoController", "-Filter", f"\"Name like '%{d}%'\""]).lower().splitlines()
+                        result = (
+                            _run(
+                                [
+                                    "powershell",
+                                    "-Command",
+                                    "Get-CimInstance",
+                                    "Win32_VideoController",
+                                    "-Filter",
+                                    f"\"Name like '%{d}%'\"",
+                                ]
+                            )
+                            .lower()
+                            .splitlines()
+                        )
                         if result:
                             if d == "INTEL":
                                 self.device = IntelDevice(self, device_index)
@@ -98,10 +117,16 @@ class Device:
                             break
                 else:
                     result = _run(["lspci"]).lower().splitlines()
-                    result = "\n".join([
-                        line for line in result
-                        if any(keyword.lower() in line.lower() for keyword in ['vga', '3d', 'display'])
-                    ]).lower()
+                    result = "\n".join(
+                        [
+                            line
+                            for line in result
+                            if any(
+                                keyword.lower() in line.lower()
+                                for keyword in ["vga", "3d", "display"]
+                            )
+                        ]
+                    ).lower()
                     if "nvidia" in result:
                         self.device = NvidiaDevice(self, device_index)
                     elif "amd" in result:
@@ -119,7 +144,7 @@ class Device:
         warnings.warn(
             "info() method is deprecated and will be removed in next release.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return self
 
@@ -149,7 +174,9 @@ class Device:
         self._stop_fast_metrics_worker()
 
     def __str__(self):
-        return str({k: v for k, v in self.__dict__.items() if k != 'device' and v is not None})
+        return str(
+            {k: v for k, v in self.__dict__.items() if k != "device" and v is not None}
+        )
 
     def __del__(self):  # pragma: no cover - defensive cleanup only
         try:
@@ -170,7 +197,9 @@ class Device:
     def _configure_fast_metrics(self):
         if not self.device:
             return
-        self._fast_metrics_same_as_slow = bool(getattr(self.device, "fast_metrics_same_as_slow", False))
+        self._fast_metrics_same_as_slow = bool(
+            getattr(self.device, "fast_metrics_same_as_slow", False)
+        )
         if self._fast_metrics_same_as_slow:
             return
 
@@ -184,19 +213,20 @@ class Device:
         self._fast_metrics_thread.start()
 
     def _fast_metrics_worker(self):
-        assert self._fast_metrics_stop_event is not None
-        while not self._fast_metrics_stop_event.is_set():
+        stop_event = self._fast_metrics_stop_event
+        assert stop_event is not None
+        while not stop_event.is_set():
             try:
                 metrics = self._collect_metrics()
             except Exception as exc:
                 with self._fast_metrics_lock:
                     self._fast_metrics_error = RuntimeError(str(exc))
-                if self._fast_metrics_stop_event.wait(self._fast_metrics_interval):
+                if stop_event.wait(self._fast_metrics_interval):
                     break
                 continue
 
             self._update_fast_cache(metrics)
-            if self._fast_metrics_stop_event.wait(self._fast_metrics_interval):
+            if stop_event.wait(self._fast_metrics_interval):
                 break
 
     def _collect_metrics(self):
@@ -217,9 +247,13 @@ class Device:
     def _stop_fast_metrics_worker(self):
         if self._fast_metrics_stop_event is None:
             return
+        # signal stop
         self._fast_metrics_stop_event.set()
         thread = self._fast_metrics_thread
+
+        if thread and thread.is_alive():
+            thread.join(timeout=0.5)
+
+        # only clear references after the worker is finished
         self._fast_metrics_thread = None
         self._fast_metrics_stop_event = None
-        if thread and thread.is_alive():
-            thread.join(timeout=0.1)

@@ -8,7 +8,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from device_smi import Device
-from device_smi.base import BaseMetrics, GPUDevice, Pcie, GPU
+from device_smi.base import GPU, BaseMetrics, GPUDevice, Pcie
 
 
 @pytest.fixture()
