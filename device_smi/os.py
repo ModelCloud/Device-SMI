@@ -10,6 +10,8 @@ class OSMetrics(BaseMetrics):
 
 
 class OSDevice(BaseDevice):
+    fast_metrics_same_as_slow = True
+
     def __init__(self, cls):
         super().__init__(cls, "os")
 

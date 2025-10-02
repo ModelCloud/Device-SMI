@@ -6,6 +6,8 @@ class AppleGPUMetrics(BaseMetrics):
 
 
 class AppleDevice(GPUDevice):
+    fast_metrics_same_as_slow = False
+
     def __init__(self, cls, index):
         super().__init__(cls, index)
         self.gpu_id = 0

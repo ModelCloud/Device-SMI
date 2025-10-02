@@ -78,6 +78,21 @@ Output: (AMD EPYC 7443)
 
 > {'memory_total': 2151497490432, 'type': 'cpu', 'features': ['3dnowprefetch', 'abm', 'adx', 'aes', 'amd_ppin', 'aperfmperf', 'apic', 'arat', 'avx', 'avx2', 'bmi1', 'bmi2', 'bpext', 'brs', 'cat_l3', 'cdp_l3', 'clflush', 'clflushopt', 'clwb', 'clzero', 'cmov', 'cmp_legacy', 'constant_tsc', 'cpb', 'cpuid', 'cqm', 'cqm_llc', 'cqm_mbm_local', 'cqm_mbm_total', 'cqm_occup_llc', 'cr8_legacy', 'cx16', 'cx8', 'de', 'debug_swap', 'decodeassists', 'erms', 'extapic', 'extd_apicid', 'f16c', 'flushbyasid', 'fma', 'fpu', 'fsgsbase', 'fsrm', 'fxsr', 'fxsr_opt', 'ht', 'hw_pstate', 'ibpb', 'ibrs', 'ibs', 'invpcid', 'irperf', 'lahf_lm', 'lbrv', 'lm', 'mba', 'mca', 'mce', 'misalignsse', 'mmx', 'mmxext', 'monitor', 'movbe', 'msr', 'mtrr', 'mwaitx', 'nonstop_tsc', 'nopl', 'npt', 'nrip_save', 'nx', 'ospke', 'osvw', 'overflow_recov', 'pae', 'pat', 'pausefilter', 'pcid', 'pclmulqdq', 'pdpe1gb', 'perfctr_core', 'perfctr_llc', 'perfctr_nb', 'pfthreshold', 'pge', 'pku', 'pni', 'popcnt', 'pse', 'pse36', 'rapl', 'rdpid', 'rdpru', 'rdrand', 'rdseed', 'rdt_a', 'rdtscp', 'rep_good', 'sep', 'sev', 'sev_es', 'sha_ni', 'skinit', 'smap', 'smca', 'smep', 'ssbd', 'sse', 'sse2', 'sse4_1', 'sse4_2', 'sse4a', 'ssse3', 'stibp', 'succor', 'svm', 'svm_lock', 'syscall', 'tce', 'topoext', 'tsc', 'tsc_scale', 'umip', 'user_shstk', 'v_spec_ctrl', 'v_vmsave_vmload', 'vaes', 'vgif', 'vmcb_clean', 'vme', 'vmmcall', 'vpclmulqdq', 'wbnoinvd', 'wdt', 'xgetbv1', 'xsave', 'xsavec', 'xsaveerptr', 'xsaveopt', 'xsaves', 'xtopology'], 'vendor': 'amd', 'model': 'epyc 7443', 'count': 2, 'cores': 48, 'threads': 96}
 
+### Fast metrics cache
+
+GPU metrics that depend on vendor SMI utilities can be slow. You can opt into a fast, cached version of the runtime data by calling `Device.metrics(fast=True)`. Cached data is refreshed in the background every 200ms by default:
+
+```py
+from device_smi import Device
+
+dev = Device("cuda:0", fast_metrics_interval=0.200)
+
+metrics = dev.metrics(fast=True)
+print(metrics.memory_used, metrics.utilization)
+```
+
+CPU devices already return metrics quickly, so the fast path is identical to the standard call and does not spawn background threads.
+
 
 ## Roadmap
 

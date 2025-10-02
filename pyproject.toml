@@ -1,0 +1,38 @@
+[build-system]
+requires = [
+    "setuptools>=80.9.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Device-SMI"
+version = "0.5.0"
+description = "Retrieve gpu, cpu, and npu device info and properties from Linux/MacOS with zero package dependency."
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3"
+license = { file = "LICENSE" }
+authors = [
+    { name = "ModelCloud", email = "qubitium@modelcloud.ai" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+keywords = [
+    "hardware",
+    "monitoring",
+    "system-information",
+    "gpu",
+    "cpu",
+    "npu",
+    "metrics",
+    "device",
+]
+
+[project.urls]
+Homepage = "https://github.com/ModelCloud/Device-SMI/"
+
+[tool.setuptools.packages.find]
+include = ["device_smi"]
+exclude = ["tests", "tests.*"]

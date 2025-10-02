@@ -12,6 +12,9 @@ INSTALLATION_HINTS = {
 }
 
 class BaseDevice:
+    # Indicates whether the fast metrics path is identical to the regular metrics call.
+    fast_metrics_same_as_slow = False
+
     def __init__(self, cls, type: str):
         cls.type = type
 
