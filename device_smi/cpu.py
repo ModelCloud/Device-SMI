@@ -20,19 +20,38 @@ class CPUDevice(BaseDevice):
         flags = set()
 
         if platform.system().lower() == "windows":
-            command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
-            result = command_result.split("\n")[1].split(",")
+            try:
+                command_result = _run(["wmic", "cpu", "get", "manufacturer,name,numberofcores,numberoflogicalprocessors", "/format:csv"]).strip()
+                result = command_result.split("\n")[1].split(",")
 
-            cpu_count = command_result.count('\n')
-            model = result[2].strip()
-            cpu_cores = int(result[3])
-            cpu_threads = int(result[4])
-            vendor = result[1].strip()
+                cpu_count = command_result.count('\n')
+                model = result[2].strip()
+                cpu_cores = int(result[3])
+                cpu_threads = int(result[4])
+                vendor = result[1].strip()
 
-            command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
-            result = command_result.split("\n")[1].split(",")
+                command_result = _run(["wmic", "os", "get", "TotalVisibleMemorySize", "/Value", "/format:csv"]).strip()
+                result = command_result.split("\n")[1].split(",")
 
-            mem_total = int(result[1])
+                mem_total = int(result[1])
+            except BaseException:
+                command_result = _run(["pwsh", "-NoLogo", "-NoProfile", "-Command", "Get-CimInstance Win32_Processor | Select-Object Manufacturer, Name, NumberOfCores, NumberOfLogicalProcessors"]).strip()
+
+                lines = [line.strip() for line in command_result.splitlines() if line.strip()]
+                data_line = lines[2]
+
+                parts = data_line.split()
+
+                vendor = parts[0]
+
+                cpu_cores = int(parts[-2])
+                cpu_threads = int(parts[-1])
+                model = " ".join(parts[1:-2])
+
+                command_result = _run(["pwsh", "-NoLogo", "-NoProfile", "-Command", "(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize"]).strip()
+                mem_total = int(command_result)
+
+
         elif platform.system().lower() == 'darwin':
             model = (_run(["sysctl", "-n", "machdep.cpu.brand_string"]).replace("Apple", "").strip())
             try:
@@ -127,30 +146,54 @@ class CPUDevice(BaseDevice):
     def metrics(self):
         if platform.system().lower() == "windows":
             if platform.system().lower() == "windows":
-                command_result = _run(["wmic", "cpu", "get", "loadpercentage"]).strip()
                 try:
-                    result = command_result.split("\n")[1].split(",")
-                    utilization = int(result[0])
-                except BaseException as e:
-                    print("error occurred, command_result: ")
-                    print(f"{command_result}")
-                    print("------------")
-                    raise e
+                    command_result = _run(["wmic", "cpu", "get", "loadpercentage"]).strip()
+                    try:
+                        result = command_result.split("\n")[1].split(",")
+                        utilization = int(result[0])
+                    except BaseException as e:
+                        print("error occurred, command_result: ")
+                        print(f"{command_result}")
+                        print("------------")
+                        raise e
 
-                try:
-                    command_result = _run(["wmic", "os", "get", "FreePhysicalMemory"]).strip()
-                    result = command_result.split("\n")[1].split(",")
-                    memory_used = int(result[0])
+                    try:
+                        command_result = _run(["wmic", "os", "get", "FreePhysicalMemory"]).strip()
+                        result = command_result.split("\n")[1].split(",")
+                        memory_used = int(result[0])
+                    except BaseException as e:
+                        print("error occurred, command_result: ")
+                        print(f"{command_result}")
+                        print("------------")
+                        raise e
+                    return CPUMetrics(
+                        memory_used=memory_used,  # bytes
+                        memory_process=0,  # bytes
+                        utilization=utilization,
+                    )
                 except BaseException as e:
-                    print("error occurred, command_result: ")
-                    print(f"{command_result}")
-                    print("------------")
-                    raise e
-                return CPUMetrics(
-                    memory_used=memory_used,  # bytes
-                    memory_process=0,  # bytes
-                    utilization=utilization,
-                )
+                    command_result = _run(["pwsh", "-NoLogo", "-NoProfile", "-Command", "(Get-CimInstance Win32_Processor).LoadPercentage"]).strip()
+                    try:
+                        utilization = int(command_result)
+                    except BaseException as e:
+                        print("error occurred, command_result: ")
+                        print(f"{command_result}")
+                        print("------------")
+                        raise e
+
+                    try:
+                        command_result = _run(["pwsh", "-NoLogo", "-NoProfile", "-Command", "(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory"]).strip()
+                        memory_used = int(command_result)
+                    except BaseException as e:
+                        print("error occurred, command_result: ")
+                        print(f"{command_result}")
+                        print("------------")
+                        raise e
+                    return CPUMetrics(
+                        memory_used=memory_used,  # bytes
+                        memory_process=0,  # bytes
+                        utilization=utilization,
+                    )
 
         total_time_1, idle_time_1 = self._utilization()
         # read CPU status second time here, read too quickly will get inaccurate results

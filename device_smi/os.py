@@ -31,7 +31,6 @@ class OSDevice(BaseDevice):
             cls.version = release_info["productversion"]
             cls.kernel, cls.arch = _run(["uname", "-mr"]).lower().split()
         elif platform.system().lower() == "windows":
-            cls.version = _run(["wmic", "os", "get", "caption", "/format:csv"], seperator="\n")[1].split(",")[1].lower().removeprefix("microsoft windows").strip()
             cls.name = "windows"
             cls.arch = os.environ.get("PROCESSOR_ARCHITECTURE").lower()
 
@@ -39,6 +38,11 @@ class OSDevice(BaseDevice):
             match = re.search(r'(\d+\.\d+\.\d+\.\d+)', cls.kernel)
             if match:
                 cls.kernel = match.group(1)
+
+            try:
+                cls.version = _run(["wmic os get caption /format:csv"], seperator="\n")[1].split(",")[1].lower().removeprefix("microsoft windows").strip()
+            except BaseException as e:
+                cls.version = _run(["pwsh", "-NoLogo", "-NoProfile", "-Command", "Get-CimInstance Win32_OperatingSystem | Select-Object Caption"], seperator="\n")[1].split(",")[1].lower().removeprefix("microsoft windows").strip()
         else:
             cls.name = platform.system().lower()
             cls.version = platform.version().lower()
