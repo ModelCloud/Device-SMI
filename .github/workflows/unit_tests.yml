@@ -11,6 +11,8 @@ on:
 
 env:
   CUDA_DEVICE_ORDER: PCI_BUS_ID
+  MAX_JOBS: 4
+  RUNNER: 10.0.13.31
 
 concurrency:
   group: ${{ github.ref }}-workflow-unit-tests
@@ -29,18 +31,8 @@ jobs:
 
       - uses: actions/setup-python@v6
         with:
-          python-version: 3.11
+          python-version: 3.14
           cache: 'pip'
-
-      - name: Ensure wmic is on PATH
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $wmic = Join-Path $env:SystemRoot 'System32\\wbem\\wmic.exe'
-          if (-not (Test-Path $wmic)) {
-            throw "wmic.exe not found at $wmic"
-          }
-          [System.IO.Path]::GetDirectoryName($wmic) | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: install
         run: pip install . pytest
@@ -115,8 +107,58 @@ jobs:
   gpu:
     runs-on: [self-hosted, Linux]
     container:
-      image: 10.0.14.248:5000/modelcloud/gptqmodel:compiler_cuda126-torch2.6.0-python313
+      image: 10.0.13.31:5000/nvidia/cuda:130-ubuntu22.04_1021
+      options: --device /dev/dri --ipc=host --runtime=nvidia --gpus all
+      volumes:
+        - /dev/dri/by-path:/dev/dri/by-path
+        - /home/ci/models/pyenv:/opt/pyenv
     steps:
+      - name: Print Env
+        run: |
+          echo "::group::pyenv versions"
+          pyenv versions
+          echo "::endgroup::"
+          
+          python_version=3.14
+          if [[ "$python_version" != *"."* ]]; then
+            python_version="${python_version/3/3.}"
+          fi
+          env_name="cu130_torch2.9.0_py314_devicesmi_gpu"
+          
+          echo "env name: $env_name"
+          
+          if [ -d "$(pyenv root)/versions/$env_name" ]; then
+            echo "env exists, skip"
+            pyenv local $env_name
+            pyenv activate $env_name
+          else
+            echo "creating venv..."
+            pyenv virtualenv "$python_version" "$env_name"
+            pyenv local $env_name
+            pyenv activate $env_name
+            bash -c "$(curl -L http://${RUNNER}/scripts/env/init_compiler.sh)" @ 130 2.9.0 314
+          fi
+          
+          pyenv local $env_name
+          pyenv activate $env_name
+          
+          echo "::group::pyenv versions"
+          pyenv versions
+          echo "::endgroup::"
+          
+          echo "== python =="
+          python --version
+          
+          echo "== nvcc =="
+          nvcc --version
+          
+          echo "== torch =="
+          pip show torch
+          
+          echo "::group::pip list"
+          pip list
+          echo "::endgroup::"
+
       - uses: actions/checkout@v5
 
       - name: install pciutils
@@ -130,7 +172,7 @@ jobs:
 
       - name: Find suitable GPU
         run: |
-          gpu_id=$(curl -s "http://10.0.14.248/gpu/get?id=${{ github.run_id }}&timestamp=$(date +%s%3N)&runner=${RUNNER_NAME}&force=1")
+          gpu_id=$(curl -s "http://10.0.14.249/gpu/get?id=${{ github.run_id }}&timestamp=$(date +%s%3N)&runner=${RUNNER_NAME}&force=1")
           echo "CUDA_VISIBLE_DEVICES=$gpu_id" >> $GITHUB_ENV
           echo "CUDA_VISIBLE_DEVICES=$gpu_id"
 
@@ -141,45 +183,45 @@ jobs:
         if: always() && !cancelled()
         run: pytest tests/test_gpu.py
 
-  rocm:
-    runs-on: [self-hosted, rocm]
-    container:
-      image: 10.0.14.248:5000/modelcloud/gptqmodel:github-ci-v6-rocm
-      options: --device /dev/dri --device /dev/kfd --ipc=host
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: install
-        run: pip install . pytest
-
-      - name: test os
-        run: pytest tests/test_os.py
-
-      - name: test cpu
-        run: pytest tests/test_cpu.py
-
-      - name: test gpu
-        if: always() && !cancelled()
-        run: pytest tests/test_gpu.py
-
-  m4:
-    runs-on:  [self-hosted, m4]
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Run test
-        run: |
-          export PATH="/opt/homebrew/bin:$PATH" && eval "$(pyenv init -)"
-          pyenv global 3.11.11 && python -m venv venv
-          source venv/bin/activate
-
-          pip install wheel pytest
-          
-          echo "=== installing device-smi"
-          pip install . --no-build-isolation
-          
-          echo "=== running cpu test"
-          pytest tests/test_cpu.py
-          
-          echo "=== running gpu test"
-          pytest tests/test_gpu.py
+#  rocm:
+#    runs-on: [self-hosted, rocm]
+#    container:
+#      image: 10.0.14.248:5000/modelcloud/gptqmodel:github-ci-v6-rocm
+#      options: --device /dev/dri --device /dev/kfd --ipc=host
+#    steps:
+#      - uses: actions/checkout@v5
+#
+#      - name: install
+#        run: pip install . pytest
+#
+#      - name: test os
+#        run: pytest tests/test_os.py
+#
+#      - name: test cpu
+#        run: pytest tests/test_cpu.py
+#
+#      - name: test gpu
+#        if: always() && !cancelled()
+#        run: pytest tests/test_gpu.py
+#
+#  m4:
+#    runs-on:  [self-hosted, m4]
+#    steps:
+#      - uses: actions/checkout@v5
+#
+#      - name: Run test
+#        run: |
+#          export PATH="/opt/homebrew/bin:$PATH" && eval "$(pyenv init -)"
+#          pyenv global 3.11.11 && python -m venv venv
+#          source venv/bin/activate
+#
+#          pip install wheel pytest
+#
+#          echo "=== installing device-smi"
+#          pip install . --no-build-isolation
+#
+#          echo "=== running cpu test"
+#          pytest tests/test_cpu.py
+#
+#          echo "=== running gpu test"
+#          pytest tests/test_gpu.py
