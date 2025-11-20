@@ -42,7 +42,14 @@ class OSDevice(BaseDevice):
             try:
                 cls.version = _run(["wmic os get caption /format:csv"], seperator="\n")[1].split(",")[1].lower().removeprefix("microsoft windows").strip()
             except BaseException as e:
-                cls.version = _run(["pwsh", "-NoLogo", "-NoProfile", "-Command", "Get-CimInstance Win32_OperatingSystem | Select-Object Caption"], seperator="\n")[1].split(",")[1].lower().removeprefix("microsoft windows").strip()
+                result = _run(["powershell", "-NoLogo", "-NoProfile", "-Command", "Get-CimInstance Win32_OperatingSystem | Select-Object Caption"], seperator="\n")
+                version_line = ""
+                for line in result:
+                    if "microsoft" in line or "windows" in line.lower():
+                        version_line = line
+                        break
+
+                cls.version = version_line.lower().replace("microsoft", "").replace("windows", "").strip()
         else:
             cls.name = platform.system().lower()
             cls.version = platform.version().lower()
