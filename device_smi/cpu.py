@@ -35,7 +35,7 @@ class CPUDevice(BaseDevice):
 
                 mem_total = int(result[1])
             except BaseException:
-                command_result = _run(["pwsh", "-NoLogo", "-NoProfile", "-Command", "Get-CimInstance Win32_Processor | Select-Object Manufacturer, Name, NumberOfCores, NumberOfLogicalProcessors"]).strip()
+                command_result = _run(["powershell", "-NoLogo", "-NoProfile", "-Command", "Get-CimInstance Win32_Processor | Select-Object Manufacturer, Name, NumberOfCores, NumberOfLogicalProcessors"]).strip()
 
                 lines = [line.strip() for line in command_result.splitlines() if line.strip()]
                 data_line = lines[2]
@@ -48,7 +48,7 @@ class CPUDevice(BaseDevice):
                 cpu_threads = int(parts[-1])
                 model = " ".join(parts[1:-2])
 
-                command_result = _run(["pwsh", "-NoLogo", "-NoProfile", "-Command", "(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize"]).strip()
+                command_result = _run(["powershell", "-NoLogo", "-NoProfile", "-Command", "(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize"]).strip()
                 mem_total = int(command_result)
 
 
@@ -172,7 +172,7 @@ class CPUDevice(BaseDevice):
                         utilization=utilization,
                     )
                 except BaseException as e:
-                    command_result = _run(["pwsh", "-NoLogo", "-NoProfile", "-Command", "(Get-CimInstance Win32_Processor).LoadPercentage"]).strip()
+                    command_result = _run(["powershell", "-NoLogo", "-NoProfile", "-Command", "(Get-CimInstance Win32_Processor).LoadPercentage"]).strip()
                     try:
                         utilization = int(command_result)
                     except BaseException as e:
@@ -182,7 +182,7 @@ class CPUDevice(BaseDevice):
                         raise e
 
                     try:
-                        command_result = _run(["pwsh", "-NoLogo", "-NoProfile", "-Command", "(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory"]).strip()
+                        command_result = _run(["powershell", "-NoLogo", "-NoProfile", "-Command", "(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory"]).strip()
                         memory_used = int(command_result)
                     except BaseException as e:
                         print("error occurred, command_result: ")
