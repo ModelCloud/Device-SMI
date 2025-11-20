@@ -38,6 +38,7 @@ class CPUDevice(BaseDevice):
                 command_result = _run(["powershell", "-NoLogo", "-NoProfile", "-Command", "Get-CimInstance Win32_Processor | Select-Object Manufacturer, Name, NumberOfCores, NumberOfLogicalProcessors"]).strip()
 
                 lines = [line.strip() for line in command_result.splitlines() if line.strip()]
+                cpu_count = command_result.count('\n') - 2
                 data_line = lines[2]
 
                 parts = data_line.split()
