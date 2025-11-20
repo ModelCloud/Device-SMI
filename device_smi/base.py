@@ -79,7 +79,13 @@ class GPU:
         return self.__str__()
 
 
-def _run(args, line_start: Optional[str] = None, seperator: str=None): # -> str | list[str] disable type hint, because solaris test is using python 3.7 which doesn't support | usage
+def _run(args, orArgs, line_start: Optional[str] = None, seperator: str=None):
+    # --- Normalize args ---
+    if isinstance(args, str):
+        args = args.split()
+    elif not isinstance(args, (list, tuple)):
+        raise TypeError("args must be a list, tuple, or str")
+
     try:
         result = subprocess.run(
             args,
@@ -98,6 +104,9 @@ def _run(args, line_start: Optional[str] = None, seperator: str=None): # -> str 
     result = re.sub(r'\n+', '\n', result) # remove consecutive \n
     if line_start:
         return " ".join([line for line in result.splitlines() if line.strip().startswith(line_start)])
+
     if seperator:
         return [l.strip() for l in result.split(seperator)]
+
     return result
+
