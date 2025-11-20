@@ -79,7 +79,7 @@ class GPU:
         return self.__str__()
 
 
-def _run(args, orArgs, line_start: Optional[str] = None, seperator: str=None):
+def _run(args, line_start: Optional[str] = None, seperator: str=None):
     # --- Normalize args ---
     if isinstance(args, str):
         args = args.split()
