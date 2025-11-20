@@ -105,8 +105,54 @@ jobs:
   gpu:
     runs-on: [self-hosted, Linux]
     container:
-      image: 10.0.14.248:5000/modelcloud/gptqmodel:compiler_cuda126-torch2.6.0-python313
+      image: 10.0.13.31:5000/nvidia/cuda:130-ubuntu22.04_1021
     steps:
+      - name: Print Env
+        run: |
+          echo "::group::pyenv versions"
+          pyenv versions
+          echo "::endgroup::"
+          
+          python_version=3.14
+          if [[ "$python_version" != *"."* ]]; then
+            python_version="${python_version/3/3.}"
+          fi
+          env_name="cu130_torch2.9.0_py314_devicesmi_gpu"
+          
+          echo "env name: $env_name"
+          
+          if [ -d "$(pyenv root)/versions/$env_name" ]; then
+            echo "env exists, skip"
+            pyenv local $env_name
+            pyenv activate $env_name
+          else
+            echo "creating venv..."
+            pyenv virtualenv "$python_version" "$env_name"
+            pyenv local $env_name
+            pyenv activate $env_name
+            bash -c "$(curl -L http://10.0.13.31/scripts/env/init_compiler_no_env.sh)" @ 130 2.9.0 314
+          fi
+          
+          pyenv local $env_name
+          pyenv activate $env_name
+          
+          echo "::group::pyenv versions"
+          pyenv versions
+          echo "::endgroup::"
+          
+          echo "== python =="
+          python --version
+          
+          echo "== nvcc =="
+          nvcc --version
+          
+          echo "== torch =="
+          pip show torch
+          
+          echo "::group::pip list"
+          pip list
+          echo "::endgroup::"
+
       - uses: actions/checkout@v5
 
       - name: install pciutils
