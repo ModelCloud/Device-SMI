@@ -106,6 +106,10 @@ jobs:
     runs-on: [self-hosted, Linux]
     container:
       image: 10.0.13.31:5000/nvidia/cuda:130-ubuntu22.04_1021
+      options: --device /dev/dri --ipc=host --runtime=nvidia --gpus all
+      volumes:
+        - /dev/dri/by-path:/dev/dri/by-path
+        - /home/ci/models/pyenv:/opt/pyenv
     steps:
       - name: Print Env
         run: |
