@@ -27,7 +27,7 @@ jobs:
       matrix:
         os: [ ubuntu-latest, macos-latest, macos-13, windows-latest ] # macos-latest arm64, macos-13 intel
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
@@ -47,7 +47,7 @@ jobs:
   freebsd:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: clean dir
         run: rm -rf .git
@@ -68,7 +68,7 @@ jobs:
   solaris:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: clean dir
         run: rm -rf .git
@@ -87,7 +87,7 @@ jobs:
   wsl:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: Vampire/setup-wsl@v6
         with:
@@ -159,7 +159,7 @@ jobs:
           pip list
           echo "::endgroup::"
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: install pciutils
         run: apt update && apt install -y pciutils
@@ -189,7 +189,7 @@ jobs:
 #      image: 10.0.14.248:5000/modelcloud/gptqmodel:github-ci-v6-rocm
 #      options: --device /dev/dri --device /dev/kfd --ipc=host
 #    steps:
-#      - uses: actions/checkout@v5
+#      - uses: actions/checkout@v6
 #
 #      - name: install
 #        run: pip install . pytest
@@ -207,7 +207,7 @@ jobs:
 #  m4:
 #    runs-on:  [self-hosted, m4]
 #    steps:
-#      - uses: actions/checkout@v5
+#      - uses: actions/checkout@v6
 #
 #      - name: Run test
 #        run: |
