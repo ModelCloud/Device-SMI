@@ -11,7 +11,6 @@ description = "Retrieve gpu, cpu, and npu device info and properties from Linux/
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3"
 license = "Apache-2.0"
-license-files = ["LICENSE"]
 authors = [
     { name = "ModelCloud", email = "qubitium@modelcloud.ai" },
 ]
