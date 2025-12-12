@@ -17,7 +17,7 @@ authors = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved",
     "Operating System :: OS Independent",
 ]
 keywords = [
