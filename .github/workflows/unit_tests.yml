@@ -112,8 +112,15 @@ jobs:
       image: 10.0.13.31:5000/nvidia/cuda:130-ubuntu24.04_0325
       options: --device /dev/dri --ipc=host --runtime=nvidia --gpus all
       volumes:
+        - /monster/ci/env/entrypoint.sh:/entrypoint.sh
+        - /monster/ci/env/entrypoint.sh:/etc/profile.d/01-entrypoint.sh
         - /dev/dri/by-path:/dev/dri/by-path
-        - /monster/ci/pyenv:/opt/pyenv
+        - /monster/ci/models:/monster/data/model
+        - /monster/ci/dataset:/monster/data/model/dataset
+        - /monster/ci/huggingface:/github/home/.cache/huggingface
+        - /monster/ci/uv:/opt/uv
+        - /monster/ci/env:/opt/env
+        - /monster/ci/dist:/opt/dist
     steps:
       - uses: actions/checkout@v6
 
