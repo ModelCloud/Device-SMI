@@ -11,8 +11,10 @@ on:
 
 env:
   CUDA_DEVICE_ORDER: PCI_BUS_ID
-  MAX_JOBS: 4
   RUNNER: 10.0.13.31
+  UV_TORCH_BACKEND: cu130
+  PYTHON_VERSION: 3.14t
+  UV_PYTHON: 3.14t
 
 concurrency:
   group: ${{ github.ref }}-workflow-unit-tests
@@ -107,65 +109,24 @@ jobs:
   gpu:
     runs-on: [self-hosted, Linux]
     container:
-      image: 10.0.13.31:5000/nvidia/cuda:130-ubuntu22.04_1021
+      image: 10.0.13.31:5000/nvidia/cuda:130-ubuntu24.04_0325
       options: --device /dev/dri --ipc=host --runtime=nvidia --gpus all
       volumes:
         - /dev/dri/by-path:/dev/dri/by-path
         - /monster/ci/pyenv:/opt/pyenv
     steps:
-      - name: Print Env
-        run: |
-          echo "::group::pyenv versions"
-          pyenv versions
-          echo "::endgroup::"
-          
-          python_version=3.14
-          if [[ "$python_version" != *"."* ]]; then
-            python_version="${python_version/3/3.}"
-          fi
-          env_name="cu130_torch2.9.0_py314_devicesmi_gpu"
-          
-          echo "env name: $env_name"
-          
-          if [ -d "$(pyenv root)/versions/$env_name" ]; then
-            echo "env exists, skip"
-            pyenv local $env_name
-            pyenv activate $env_name
-          else
-            echo "creating venv..."
-            pyenv virtualenv "$python_version" "$env_name"
-            pyenv local $env_name
-            pyenv activate $env_name
-            bash -c "$(curl -L http://${RUNNER}/scripts/env/init_compiler.sh)" @ 130 2.9.0 314
-          fi
-          
-          pyenv local $env_name
-          pyenv activate $env_name
-          
-          echo "::group::pyenv versions"
-          pyenv versions
-          echo "::endgroup::"
-          
-          echo "== python =="
-          python --version
-          
-          echo "== nvcc =="
-          nvcc --version
-          
-          echo "== torch =="
-          pip show torch
-          
-          echo "::group::pip list"
-          pip list
-          echo "::endgroup::"
-
       - uses: actions/checkout@v6
 
-      - name: install pciutils
+      - name: Activate uv env
+        run: |
+          env_name="${{ env.UV_TORCH_BACKEND }}_torch_latest_py${{ env.PYTHON_VERSION }}_build"
+          /opt/uv/setup_uv_venv.sh $env_name
+
+      - name: Install pciutils
         run: apt update && apt install -y pciutils
 
       - name: install
-        run: pip install . pytest
+        run: uv pip install . pytest
 
       - name: test os
         run: pytest tests/test_os.py
