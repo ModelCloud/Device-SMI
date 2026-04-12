@@ -21,14 +21,12 @@ jobs:
 
       - uses: actions/setup-python@v6
         with:
-          python-version: 3.11
+          python-version: 3.14t
           cache: 'pip'
-
-      - name: Install requirements
-        run: pip install build setuptools twine -U
 
       - name: Build package
         run: |
+          pip install build setuptools twine -U
           python -m build --sdist
           twine check dist/*
 
