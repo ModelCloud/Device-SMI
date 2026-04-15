@@ -1,12 +1,12 @@
 [build-system]
 requires = [
-    "setuptools>=80.9.0",
+    "setuptools>=77.0.1,<83",
 ]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "Device-SMI"
-version = "0.5.3"
+version = "0.5.4"
 description = "Retrieve gpu, cpu, and npu device info and properties from Linux/MacOS with zero package dependency."
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3"
