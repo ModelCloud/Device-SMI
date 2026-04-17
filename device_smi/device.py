@@ -1,6 +1,7 @@
 import platform
 import threading
 import warnings
+from functools import lru_cache
 from typing import Optional
 
 from .amd import AMDDevice
@@ -11,15 +12,16 @@ from .intel import IntelDevice
 from .nvidia import NvidiaDevice
 from .os import OSDevice
 
-IS_ROCM = False
-try:
-    import torch
 
-    HAS_TORCH = True
-    if torch.version.hip is not None:
-        IS_ROCM = True
-except BaseException:
-    HAS_TORCH = False
+@lru_cache(maxsize=1)
+def _get_torch_runtime():
+    try:
+        import torch
+    except BaseException:
+        return False, False, None
+
+    is_rocm = torch.version.hip is not None
+    return True, is_rocm, torch
 
 
 class Device:
@@ -44,7 +46,8 @@ class Device:
         self._fast_metrics_stop_event: Optional[threading.Event] = None
         self._fast_metrics_interval = self._validate_fast_metrics_interval(fast_metrics_interval)
         self._fast_metrics_same_as_slow = False
-        if HAS_TORCH and isinstance(device, torch.device):
+        has_torch, is_rocm, torch_module = _get_torch_runtime()
+        if has_torch and isinstance(device, torch_module.device):
             device_type = device.type.lower()
             device_index = device.index
         elif f"{device}".lower() == "os":
@@ -68,9 +71,9 @@ class Device:
             self.device = CPUDevice(self)
         elif device_type == "xpu":
             self.device = IntelDevice(self, device_index)
-        elif device_type == "rocm" or IS_ROCM:
+        elif device_type == "rocm" or is_rocm:
             self.device = AMDDevice(self, device_index)
-        elif device_type == "cuda" and not IS_ROCM:
+        elif device_type == "cuda" and not is_rocm:
             self.device = NvidiaDevice(self, device_index)
         elif device_type == "gpu":
             if platform.system().lower() == "darwin":
