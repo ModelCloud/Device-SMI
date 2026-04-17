@@ -74,26 +74,56 @@ class CPUDevice(BaseDevice):
 
             flags = set(features)
         elif os.name == 'posix':
+            cpu_entries = []
             try:
                 with open("/proc/cpuinfo", "r") as f:
-                    lines = f.readlines()
-                    for line in lines:
-                        if line.startswith("flags"):
-                            flags.update(line.strip().split(":")[1].split())
-                        if line.startswith("model name"):
-                            model = line.split(":")[1].strip()
-                        elif line.startswith("vendor_id"):
-                            vendor = line.split(":")[1].strip()
+                    entry = {}
+                    for raw_line in f:
+                        line = raw_line.strip()
+                        if not line:
+                            if entry:
+                                cpu_entries.append(entry)
+                                entry = {}
+                            continue
+
+                        key, _, value = raw_line.partition(":")
+                        if _:
+                            entry[key.strip()] = value.strip()
+
+                    if entry:
+                        cpu_entries.append(entry)
             except FileNotFoundError:
                 model = platform.processor()
                 vendor = platform.uname().system
 
-            cpu_info = self.to_dict(_run(['lscpu']))
+            for entry in cpu_entries:
+                entry_flags = entry.get("flags") or entry.get("Features")
+                if entry_flags:
+                    flags.update(entry_flags.split())
+                if model == "Unknown Model" and entry.get("model name"):
+                    model = entry["model name"]
+                if vendor == "Unknown vendor" and entry.get("vendor_id"):
+                    vendor = entry["vendor_id"]
 
-            cpu_count = int(cpu_info["Socket(s)"])
-            cpu_cores_per_socket = int(cpu_info["Core(s) per socket"])
-            cpu_cores = cpu_count * cpu_cores_per_socket
-            cpu_threads = int(cpu_info["CPU(s)"])
+            if cpu_entries:
+                socket_ids = {
+                    entry.get("physical id", "0")
+                    for entry in cpu_entries
+                }
+                core_ids = {
+                    (
+                        entry.get("physical id", "0"),
+                        entry.get("core id", entry.get("processor", "0")),
+                    )
+                    for entry in cpu_entries
+                }
+                cpu_count = len(socket_ids) or 1
+                cpu_cores = len(core_ids) or len(cpu_entries)
+                cpu_threads = len(cpu_entries)
+            else:
+                cpu_count = 1
+                cpu_threads = os.cpu_count() or 1
+                cpu_cores = cpu_threads
 
             with open("/proc/meminfo", "r") as f:
                 lines = f.readlines()
