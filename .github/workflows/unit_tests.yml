@@ -29,7 +29,7 @@ jobs:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ] # macos-latest arm64, macos-13 intel
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
@@ -49,7 +49,7 @@ jobs:
   freebsd:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: clean dir
         run: rm -rf .git
@@ -70,7 +70,7 @@ jobs:
   solaris:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: clean dir
         run: rm -rf .git
@@ -89,7 +89,7 @@ jobs:
   wsl:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: Vampire/setup-wsl@v7
         with:
@@ -122,7 +122,7 @@ jobs:
         - /monster/ci/env:/opt/env
         - /monster/ci/dist:/opt/dist
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Activate uv env
         run: |
@@ -157,7 +157,7 @@ jobs:
 #      image: 10.0.14.248:5000/modelcloud/gptqmodel:github-ci-v6-rocm
 #      options: --device /dev/dri --device /dev/kfd --ipc=host
 #    steps:
-#      - uses: actions/checkout@v6
+#      - uses: actions/checkout@v7
 #
 #      - name: install
 #        run: pip install . pytest
@@ -175,7 +175,7 @@ jobs:
 #  m4:
 #    runs-on:  [self-hosted, m4]
 #    steps:
-#      - uses: actions/checkout@v6
+#      - uses: actions/checkout@v7
 #
 #      - name: Run test
 #        run: |
@@ -199,7 +199,7 @@ jobs:
     outputs:
       versions: ${{ steps.parser.outputs.versions || '[]' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
@@ -221,7 +221,7 @@ jobs:
         version: ${{ fromJSON(needs.prepare-setuptools.outputs.versions) }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
