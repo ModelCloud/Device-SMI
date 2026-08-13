@@ -104,6 +104,19 @@ stats = dev.metric(fast=True)
 print(stats.memory_used, stats.utilization)
 ```
 
+### NVIDIA NVML and `nvidia-smi` caching
+
+For NVIDIA devices, Device-SMI first tries to call NVML directly via `libnvidia-ml` so it does not spawn `nvidia-smi` repeatedly. When NVML is not available, it falls back to `nvidia-smi` but caches results for up to 1 second by default, returning stale data for repeated calls within that window.
+
+You can adjust the cache through `Device.settings`:
+
+```py
+from device_smi import Device
+
+Device.settings.nvidia_smi_cache_ttl = 2.0  # seconds
+Device.settings.nvidia_smi_cache_maxsize = 32
+```
+
 ## Roadmap
 
 - Support Intel/Gaudi

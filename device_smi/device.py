@@ -11,6 +11,7 @@ from .cpu import CPUDevice
 from .intel import IntelDevice
 from .nvidia import NvidiaDevice
 from .os import OSDevice
+from .settings import settings
 
 
 @lru_cache(maxsize=1)
@@ -25,6 +26,8 @@ def _get_torch_runtime():
 
 
 class Device:
+    settings = settings
+
     def __init__(self, device, *, fast_metrics_interval: float = 0.200):
         # init attribute first to avoid IDE not attr warning
         # CPU/GPU Device
