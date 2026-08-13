@@ -10,7 +10,7 @@ import warnings
 from collections import OrderedDict
 
 from .base import GPU, BaseMetrics, GPUDevice, Pcie, _run
-from .settings import settings
+from .config import config
 
 logger = logging.getLogger(__name__)
 
@@ -350,7 +350,12 @@ _nvml = _NVML()
 
 
 class _NvidiaSmiCache:
-    """Thread-safe LRU cache for ``nvidia-smi`` output with a per-entry TTL."""
+    """Thread-safe LRU cache for ``nvidia-smi`` output with a per-entry TTL.
+
+    All reads and writes to the shared ``OrderedDict`` are serialized by a
+    ``threading.Lock``, so the cache is safe to use in free-threaded (GIL=0)
+    Python builds.
+    """
 
     def __init__(self):
         self._cache = OrderedDict()
@@ -358,8 +363,12 @@ class _NvidiaSmiCache:
 
     def __call__(self, key, fetch):
         with self._lock:
+            ttl = config.nvidia_smi_cache_ttl
+        if ttl == 0:
+            return fetch()
+
+        with self._lock:
             now = time.monotonic()
-            ttl = settings.nvidia_smi_cache_ttl
             if key in self._cache:
                 ts, value = self._cache[key]
                 if now - ts < ttl:
@@ -369,7 +378,7 @@ class _NvidiaSmiCache:
             value = fetch()
             self._cache[key] = (now, value)
             self._cache.move_to_end(key)
-            maxsize = settings.nvidia_smi_cache_maxsize
+            maxsize = config.nvidia_smi_cache_maxsize
             while len(self._cache) > maxsize:
                 self._cache.popitem(last=False)
             return value
