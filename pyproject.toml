@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=77.0.1,<83",
+    "setuptools>=77.0.1,<85",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -9,7 +9,7 @@ name = "Device-SMI"
 version = "0.5.6"
 description = "Retrieve gpu, cpu, and npu device info and properties from Linux/MacOS with zero package dependency."
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3"
+requires-python = ">=3.10"
 license = "Apache-2.0"
 authors = [
     { name = "ModelCloud", email = "qubitium@modelcloud.ai" },
