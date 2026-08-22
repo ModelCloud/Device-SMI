@@ -7,6 +7,7 @@ from typing import Optional
 from .amd import AMDDevice
 from .apple import AppleDevice
 from .base import _run
+from .config import config
 from .cpu import CPUDevice
 from .intel import IntelDevice
 from .nvidia import NvidiaDevice
@@ -25,6 +26,8 @@ def _get_torch_runtime():
 
 
 class Device:
+    config = config
+
     def __init__(self, device, *, fast_metrics_interval: float = 0.200):
         # init attribute first to avoid IDE not attr warning
         # CPU/GPU Device
