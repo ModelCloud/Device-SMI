@@ -490,6 +490,8 @@ class NvidiaDevice(GPUDevice):
 
         cudas = os.environ.get("CUDA_VISIBLE_DEVICES", "")
         cuda_list = [cuda.strip() for cuda in cudas.split(",")] if cudas.strip() else []
+        if any(not cuda for cuda in cuda_list):
+            raise ValueError("CUDA_VISIBLE_DEVICES contains an empty device entry")
         if gpu_count > 0 and os.environ.get("CUDA_DEVICE_ORDER", "") != "PCI_BUS_ID":
             warnings.warn(
                 "Detected different devices in the system. Please make sure to set `CUDA_DEVICE_ORDER=PCI_BUS_ID` to avoid unexpected behavior.",

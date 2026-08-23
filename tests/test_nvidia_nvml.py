@@ -43,6 +43,10 @@ def nvml_stub(**functions):
         "nvmlDeviceGetPciInfo_v3",
         "nvmlDeviceGetPciInfo_v2",
         "nvmlDeviceGetPciInfo",
+        "nvmlDeviceGetVbiosVersion",
+        "nvmlDeviceGetCudaComputeCapability",
+        "nvmlDeviceGetMaxPcieLinkGeneration",
+        "nvmlDeviceGetCurrPcieLinkGeneration",
         "nvmlErrorString",
         "nvmlShutdown",
     ):
@@ -207,6 +211,59 @@ def test_pci_info_falls_back_from_v2_to_legacy(compatibility_error):
     assert calls == ["v2", "legacy"]
 
 
+@pytest.mark.parametrize("nvml_error", [1, 6])
+def test_pci_info_does_not_fallback_for_noncompatibility_error(nvml_error):
+    calls = []
+
+    def v3(handle, info_pointer):
+        calls.append("v3")
+        return nvml_error
+
+    def unexpected(*args):
+        calls.append("older")
+        return 0
+
+    nvml = nvml_stub(
+        nvmlDeviceGetPciInfo_v3=v3,
+        nvmlDeviceGetPciInfo_v2=unexpected,
+        nvmlDeviceGetPciInfo=unexpected,
+    )
+
+    with pytest.raises(RuntimeError, match=rf"NVML error {nvml_error}:"):
+        nvml.pci_info(None)
+    assert calls == ["v3"]
+
+
+@pytest.mark.parametrize(
+    ("method_name", "args", "missing_symbol"),
+    [
+        ("vbios_version", (ctypes.c_void_p(1),), "nvmlDeviceGetVbiosVersion"),
+        (
+            "compute_capability",
+            (ctypes.c_void_p(1),),
+            "nvmlDeviceGetCudaComputeCapability",
+        ),
+        (
+            "max_pcie_generation",
+            (ctypes.c_void_p(1),),
+            "nvmlDeviceGetMaxPcieLinkGeneration",
+        ),
+        (
+            "current_pcie_generation",
+            (ctypes.c_void_p(1),),
+            "nvmlDeviceGetCurrPcieLinkGeneration",
+        ),
+    ],
+)
+def test_missing_optional_bound_symbol_raises_controlled_error(
+    method_name, args, missing_symbol
+):
+    nvml = nvml_stub()
+
+    with pytest.raises(RuntimeError, match=missing_symbol):
+        getattr(nvml, method_name)(*args)
+
+
 def test_cuda_visible_devices_is_trimmed(monkeypatch):
     device = object.__new__(nvidia.NvidiaDevice)
     device.index = 1
@@ -226,6 +283,17 @@ def test_empty_cuda_visible_devices_uses_device_index(monkeypatch, visible_devic
     monkeypatch.setattr(nvidia, "_run_nvidia_smi", lambda *args, **kwargs: "")
 
     assert device._get_gpu_id() == "2"
+
+
+def test_cuda_visible_devices_rejects_interior_empty_entry(monkeypatch):
+    device = object.__new__(nvidia.NvidiaDevice)
+    device.index = 1
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "0, ,2")
+    monkeypatch.setattr(nvidia._nvml, "_available", False)
+    monkeypatch.setattr(nvidia, "_run_nvidia_smi", lambda *args, **kwargs: "")
+
+    with pytest.raises(ValueError, match="empty device entry"):
+        device._get_gpu_id()
 
 
 def test_optional_metadata_failure_keeps_nvml_device(monkeypatch):
