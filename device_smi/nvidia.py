@@ -34,7 +34,7 @@ class _nvmlUtilization_t(ctypes.Structure):
     ]
 
 
-class _nvmlPciInfo_t(ctypes.Structure):
+class _nvmlPciInfo_v3_t(ctypes.Structure):
     _fields_ = [
         ("busIdLegacy", ctypes.c_char * 16),
         ("domain", ctypes.c_uint),
@@ -43,6 +43,23 @@ class _nvmlPciInfo_t(ctypes.Structure):
         ("pciDeviceId", ctypes.c_uint),
         ("pciSubSystemId", ctypes.c_uint),
         ("busId", ctypes.c_char * 32),
+    ]
+
+
+class _nvmlPciInfo_v2_t(ctypes.Structure):
+    """Legacy PCI info ABI used by both the v2 and unversioned symbols."""
+
+    _fields_ = [
+        ("busId", ctypes.c_char * 16),
+        ("domain", ctypes.c_uint),
+        ("bus", ctypes.c_uint),
+        ("device", ctypes.c_uint),
+        ("pciDeviceId", ctypes.c_uint),
+        ("pciSubSystemId", ctypes.c_uint),
+        ("reserved0", ctypes.c_uint),
+        ("reserved1", ctypes.c_uint),
+        ("reserved2", ctypes.c_uint),
+        ("reserved3", ctypes.c_uint),
     ]
 
 
@@ -101,6 +118,7 @@ class _NVML:
                 cls._instance._initialized = False
                 cls._instance._available = False
                 cls._instance._lib = None
+                cls._instance._shutdown_registered = False
         return cls._instance
 
     def __init__(self):
@@ -123,7 +141,9 @@ class _NVML:
             if self._available:
                 import atexit
 
-                atexit.register(self._shutdown)
+                if not self._shutdown_registered:
+                    atexit.register(self._shutdown)
+                    self._shutdown_registered = True
 
     @property
     def available(self) -> bool:
@@ -163,7 +183,15 @@ class _NVML:
                 ctypes.c_int,
             ),
             "nvmlDeviceGetPciInfo_v3": (
-                [ctypes.c_void_p, ctypes.POINTER(_nvmlPciInfo_t)],
+                [ctypes.c_void_p, ctypes.POINTER(_nvmlPciInfo_v3_t)],
+                ctypes.c_int,
+            ),
+            "nvmlDeviceGetPciInfo_v2": (
+                [ctypes.c_void_p, ctypes.POINTER(_nvmlPciInfo_v2_t)],
+                ctypes.c_int,
+            ),
+            "nvmlDeviceGetPciInfo": (
+                [ctypes.c_void_p, ctypes.POINTER(_nvmlPciInfo_v2_t)],
                 ctypes.c_int,
             ),
             "nvmlDeviceGetMaxPcieLinkGeneration": (
@@ -209,13 +237,14 @@ class _NVML:
         return self._call(["nvmlInit_v2", "nvmlInit"])
 
     def _shutdown(self):
-        if not self._available or self._lib is None:
-            return
-        try:
-            if self._nvmlShutdown is not None:
-                self._nvmlShutdown()
-        except (RuntimeError, AttributeError) as exc:
-            logger.debug("NVML shutdown failed: %s", exc)
+        with self._lock:
+            if not self._available or self._lib is None:
+                return
+            self._available = False
+            try:
+                self._check(self._call(["nvmlShutdown"]))
+            except (OSError, RuntimeError, AttributeError) as exc:
+                logger.debug("NVML shutdown failed: %s", exc)
 
     def _check(self, code):
         if code == 0:
@@ -248,6 +277,7 @@ class _NVML:
         if not self._available:
             raise RuntimeError("NVML is not available")
         handle = ctypes.c_void_p()
+        gpu_id = gpu_id.strip()
         if gpu_id.isdigit():
             self._check(
                 self._call(
@@ -256,7 +286,7 @@ class _NVML:
                     ctypes.byref(handle),
                 )
             )
-        elif gpu_id.startswith("GPU-"):
+        elif gpu_id.startswith(("GPU-", "MIG-")):
             self._check(
                 self._call(
                     ["nvmlDeviceGetHandleByUUID"],
@@ -287,14 +317,19 @@ class _NVML:
 
     def device_name(self, handle):
         buf = ctypes.create_string_buffer(96)
-        self._check(self._nvmlDeviceGetName(handle, buf, 96))
+        self._check(self._call(["nvmlDeviceGetName"], handle, buf, 96))
         return buf.value.decode("utf-8").strip()
 
     def pci_info(self, handle):
-        info = _nvmlPciInfo_t()
-        self._check(self._nvmlDeviceGetPciInfo_v3(handle, ctypes.byref(info)))
+        if self._nvmlDeviceGetPciInfo_v3 is not None:
+            info = _nvmlPciInfo_v3_t()
+            names = ["nvmlDeviceGetPciInfo_v3"]
+        else:
+            info = _nvmlPciInfo_v2_t()
+            names = ["nvmlDeviceGetPciInfo_v2", "nvmlDeviceGetPciInfo"]
+        self._check(self._call(names, handle, ctypes.byref(info)))
         bus_id = info.busId.decode("utf-8").strip()
-        if not bus_id:
+        if not bus_id and isinstance(info, _nvmlPciInfo_v3_t):
             bus_id = info.busIdLegacy.decode("utf-8").strip()
         if not re.match(r"^[0-9a-fA-F]{4,8}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9]$", bus_id):
             raise RuntimeError(f"Invalid NVML PCI bus id: {bus_id!r}")
@@ -302,45 +337,58 @@ class _NVML:
 
     def max_pcie_generation(self, handle):
         gen = ctypes.c_uint()
-        self._check(self._nvmlDeviceGetMaxPcieLinkGeneration(handle, ctypes.byref(gen)))
+        self._check(
+            self._call(
+                ["nvmlDeviceGetMaxPcieLinkGeneration"], handle, ctypes.byref(gen)
+            )
+        )
         return gen.value
 
     def current_pcie_generation(self, handle):
         gen = ctypes.c_uint()
-        self._check(self._nvmlDeviceGetCurrPcieLinkGeneration(handle, ctypes.byref(gen)))
+        self._check(
+            self._call(
+                ["nvmlDeviceGetCurrPcieLinkGeneration"], handle, ctypes.byref(gen)
+            )
+        )
         return gen.value
 
     def memory_total(self, handle):
         mem = _nvmlMemory_t()
-        self._check(self._nvmlDeviceGetMemoryInfo(handle, ctypes.byref(mem)))
+        self._check(self._call(["nvmlDeviceGetMemoryInfo"], handle, ctypes.byref(mem)))
         return mem.total
 
     def memory_used(self, handle):
         mem = _nvmlMemory_t()
-        self._check(self._nvmlDeviceGetMemoryInfo(handle, ctypes.byref(mem)))
+        self._check(self._call(["nvmlDeviceGetMemoryInfo"], handle, ctypes.byref(mem)))
         return mem.used
 
     def utilization_gpu(self, handle):
         util = _nvmlUtilization_t()
-        self._check(self._nvmlDeviceGetUtilizationRates(handle, ctypes.byref(util)))
+        self._check(
+            self._call(["nvmlDeviceGetUtilizationRates"], handle, ctypes.byref(util))
+        )
         return float(util.gpu)
 
     def driver_version(self):
         buf = ctypes.create_string_buffer(80)
-        self._check(self._nvmlSystemGetDriverVersion(buf, 80))
+        self._check(self._call(["nvmlSystemGetDriverVersion"], buf, 80))
         return buf.value.decode("utf-8").strip()
 
     def vbios_version(self, handle):
         buf = ctypes.create_string_buffer(32)
-        self._check(self._nvmlDeviceGetVbiosVersion(handle, buf, 32))
+        self._check(self._call(["nvmlDeviceGetVbiosVersion"], handle, buf, 32))
         return buf.value.decode("utf-8").strip()
 
     def compute_capability(self, handle):
         major = ctypes.c_int()
         minor = ctypes.c_int()
         self._check(
-            self._nvmlDeviceGetCudaComputeCapability(
-                handle, ctypes.byref(major), ctypes.byref(minor)
+            self._call(
+                ["nvmlDeviceGetCudaComputeCapability"],
+                handle,
+                ctypes.byref(major),
+                ctypes.byref(minor),
             )
         )
         return f"{major.value}.{minor.value}"
@@ -425,7 +473,7 @@ class NvidiaDevice(GPUDevice):
                 gpu_count = 0
 
         cudas = os.environ.get("CUDA_VISIBLE_DEVICES", "")
-        cuda_list = cudas.split(",") if cudas else []
+        cuda_list = [cuda.strip() for cuda in cudas.split(",")] if cudas else []
         if gpu_count > 0 and os.environ.get("CUDA_DEVICE_ORDER", "") != "PCI_BUS_ID":
             warnings.warn(
                 "Detected different devices in the system. Please make sure to set `CUDA_DEVICE_ORDER=PCI_BUS_ID` to avoid unexpected behavior.",
@@ -442,12 +490,14 @@ class NvidiaDevice(GPUDevice):
 
         model = _nvml.device_name(handle)
         total_memory = _nvml.memory_total(handle)
-        pci_bus_id = _nvml.pci_info(handle)
-        pcie_gen_max = _nvml.max_pcie_generation(handle)
-        pcie_gen_current = _nvml.current_pcie_generation(handle)
-        driver = _nvml.driver_version()
-        firmware = _nvml.vbios_version(handle)
-        compute_cap = _nvml.compute_capability(handle)
+        driver = self._optional_nvml(_nvml.driver_version, "")
+        firmware = self._optional_nvml(_nvml.vbios_version, "", handle)
+        compute_cap = self._optional_nvml(_nvml.compute_capability, None, handle)
+        pci_bus_id = self._optional_nvml(_nvml.pci_info, None, handle)
+        pcie_gen_max = self._optional_nvml(_nvml.max_pcie_generation, None, handle)
+        pcie_gen_current = self._optional_nvml(
+            _nvml.current_pcie_generation, None, handle
+        )
 
         if model.lower().startswith("nvidia"):
             model = model[len("nvidia"):]
@@ -455,9 +505,20 @@ class NvidiaDevice(GPUDevice):
         cls.model = model.strip().lower()
         cls.memory_total = int(total_memory)
         cls.vendor = "nvidia"
-        cls.features = [compute_cap]
-        cls.pcie = Pcie(gen=int(pcie_gen_max), speed=int(pcie_gen_current), id=pci_bus_id)
+        cls.features = [compute_cap] if compute_cap else []
+        if None not in (pci_bus_id, pcie_gen_max, pcie_gen_current):
+            cls.pcie = Pcie(
+                gen=int(pcie_gen_max), speed=int(pcie_gen_current), id=pci_bus_id
+            )
         cls.gpu = GPU(driver=driver, firmware=firmware)
+
+    @staticmethod
+    def _optional_nvml(fetch, default, *args):
+        try:
+            return fetch(*args)
+        except (OSError, RuntimeError, ValueError, AttributeError) as exc:
+            logger.debug("Optional NVML metadata unavailable: %s", exc)
+            return default
 
     def _init_from_nvidia_smi(self, cls):
         args = [
