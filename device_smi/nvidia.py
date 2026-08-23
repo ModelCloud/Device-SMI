@@ -14,6 +14,13 @@ from .config import config
 
 logger = logging.getLogger(__name__)
 
+_NVML_ERROR_NOT_SUPPORTED = 3
+_NVML_ERROR_FUNCTION_NOT_FOUND = 13
+_NVML_COMPATIBILITY_ERRORS = {
+    _NVML_ERROR_NOT_SUPPORTED,
+    _NVML_ERROR_FUNCTION_NOT_FOUND,
+}
+
 
 class NvidiaGPUMetrics(BaseMetrics):
     pass
@@ -56,10 +63,6 @@ class _nvmlPciInfo_v2_t(ctypes.Structure):
         ("device", ctypes.c_uint),
         ("pciDeviceId", ctypes.c_uint),
         ("pciSubSystemId", ctypes.c_uint),
-        ("reserved0", ctypes.c_uint),
-        ("reserved1", ctypes.c_uint),
-        ("reserved2", ctypes.c_uint),
-        ("reserved3", ctypes.c_uint),
     ]
 
 
@@ -321,19 +324,32 @@ class _NVML:
         return buf.value.decode("utf-8").strip()
 
     def pci_info(self, handle):
-        if self._nvmlDeviceGetPciInfo_v3 is not None:
-            info = _nvmlPciInfo_v3_t()
-            names = ["nvmlDeviceGetPciInfo_v3"]
-        else:
-            info = _nvmlPciInfo_v2_t()
-            names = ["nvmlDeviceGetPciInfo_v2", "nvmlDeviceGetPciInfo"]
-        self._check(self._call(names, handle, ctypes.byref(info)))
-        bus_id = info.busId.decode("utf-8").strip()
-        if not bus_id and isinstance(info, _nvmlPciInfo_v3_t):
-            bus_id = info.busIdLegacy.decode("utf-8").strip()
-        if not re.match(r"^[0-9a-fA-F]{4,8}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9]$", bus_id):
-            raise RuntimeError(f"Invalid NVML PCI bus id: {bus_id!r}")
-        return bus_id
+        attempts = (
+            ("nvmlDeviceGetPciInfo_v3", _nvmlPciInfo_v3_t),
+            ("nvmlDeviceGetPciInfo_v2", _nvmlPciInfo_v2_t),
+            ("nvmlDeviceGetPciInfo", _nvmlPciInfo_v2_t),
+        )
+        attempted = []
+        for name, info_type in attempts:
+            fn = getattr(self, f"_{name}", None)
+            if fn is None:
+                continue
+            attempted.append(name)
+            info = info_type()
+            code = self._call([name], handle, ctypes.byref(info))
+            if code in _NVML_COMPATIBILITY_ERRORS:
+                continue
+            self._check(code)
+            bus_id = info.busId.decode("utf-8").strip()
+            if not bus_id and isinstance(info, _nvmlPciInfo_v3_t):
+                bus_id = info.busIdLegacy.decode("utf-8").strip()
+            if not re.match(
+                r"^[0-9a-fA-F]{4,8}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9]$",
+                bus_id,
+            ):
+                raise RuntimeError(f"Invalid NVML PCI bus id: {bus_id!r}")
+            return bus_id
+        raise RuntimeError(f"NVML PCI info functions unavailable: {attempted}")
 
     def max_pcie_generation(self, handle):
         gen = ctypes.c_uint()
@@ -473,7 +489,7 @@ class NvidiaDevice(GPUDevice):
                 gpu_count = 0
 
         cudas = os.environ.get("CUDA_VISIBLE_DEVICES", "")
-        cuda_list = [cuda.strip() for cuda in cudas.split(",")] if cudas else []
+        cuda_list = [cuda.strip() for cuda in cudas.split(",")] if cudas.strip() else []
         if gpu_count > 0 and os.environ.get("CUDA_DEVICE_ORDER", "") != "PCI_BUS_ID":
             warnings.warn(
                 "Detected different devices in the system. Please make sure to set `CUDA_DEVICE_ORDER=PCI_BUS_ID` to avoid unexpected behavior.",
@@ -506,6 +522,7 @@ class NvidiaDevice(GPUDevice):
         cls.memory_total = int(total_memory)
         cls.vendor = "nvidia"
         cls.features = [compute_cap] if compute_cap else []
+        cls.pcie = None
         if None not in (pci_bus_id, pcie_gen_max, pcie_gen_current):
             cls.pcie = Pcie(
                 gen=int(pcie_gen_max), speed=int(pcie_gen_current), id=pci_bus_id
