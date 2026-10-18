@@ -7,6 +7,31 @@ from .base import GPU, BaseMetrics, GPUDevice, Pcie, _run
 class AMDGPUMetrics(BaseMetrics):
     pass
 
+
+def _torch_rocm_memory_metrics(index):
+    """Return Torch memory metrics for ROCm virtual functions.
+
+    ``amd-smi`` does not expose memory metrics for ROCm VFs, but Torch can
+    still report device memory through ``cuda.mem_get_info``.
+    """
+    try:
+        import torch
+
+        if torch.version.hip is None:
+            return None
+        if not torch.cuda.get_device_name(index).upper().endswith(" VF"):
+            return None
+
+        free, total = torch.cuda.mem_get_info(index)
+        return AMDGPUMetrics(
+            memory_used=total - free,
+            memory_process=0,
+            utilization=0.0,
+        )
+    except Exception:
+        return None
+
+
 class AMDDevice(GPUDevice):
     fast_metrics_same_as_slow = False
 
@@ -67,6 +92,10 @@ class AMDDevice(GPUDevice):
             return str(self.index)
 
     def metrics(self):
+        torch_metrics = _torch_rocm_memory_metrics(self.index)
+        if torch_metrics is not None:
+            return torch_metrics
+
         try:
             args = ["amd-smi", f"--id={self.gpu_id}", "--query-gpu=memory.used,utilization.gpu",
                     "--format=csv,noheader,nounits"]
