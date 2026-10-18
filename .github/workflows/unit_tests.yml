@@ -46,6 +46,10 @@ jobs:
         if: always()
         run: pytest tests/test_cpu.py
 
+      - name: test amd
+        if: always()
+        run: pytest tests/test_amd.py
+
   freebsd:
     runs-on: ubuntu-latest
     steps:
